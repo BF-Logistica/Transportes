@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Gestión de Solicitudes</title>
+
+    <!-- SDKs -->
+    <script src="/_sdk/data_sdk.js"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            /* Azul organizacional igual al login */
+            --bmm-blue: #0d1c84;
+            --bmm-blue-light: #1b2c9f;
+            --text-main: #000000;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #f3f4f6;
+        }
+
+        /* Ancho del sidebar en ambos estados */
+        .sidebar-collapsed {
+            width: 80px;
+        }
+
+        .sidebar-expanded {
+            width: 250px;
+        }
+
+        /* Margen del contenido principal según estado del sidebar */
+        .main-content-collapsed {
+            margin-left: 80px;
+        }
+
+        .main-content-expanded {
+            margin-left: 250px;
+        }
+
+        .menu-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            transition: opacity 0.3s, width 0.3s;
+            white-space: nowrap;
+        }
+
+        .sidebar-expanded .menu-text {
+            opacity: 1;
+            width: auto;
+        }
+
+        /* En modo colapsado ocultamos el texto y centramos los iconos */
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-collapsed nav a {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .table-container {
+            height: calc(100% - 140px);
+            overflow-y: auto;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 999px;
+            border-top: 3px solid #ffffff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Helpers azul organizacional */
+        .bg-bmm {
+            background-color: var(--bmm-blue);
+        }
+
+        .bg-bmm-light {
+            background-color: var(--bmm-blue-light);
+        }
+
+        .text-bmm {
+            color: var(--bmm-blue);
+        }
+
+        /* Iconos del sidebar: base */
+        .nav-icon {
+            width: 32px;
+            /* tamaño en modo expandido */
+            height: 32px;
+            flex-shrink: 0;
+            object-fit: contain;
+            /* no deforma el PNG 512x512 */
+            display: block;
+        }
+
+        /* Ancho del sidebar cuando está colapsado */
+        .sidebar-collapsed {
+            width: 80px;
+            /* un poco más ancho para que quepa el icono */
+        }
+
+        /* Margen del contenido principal cuando el sidebar está colapsado */
+        .main-content-collapsed {
+            margin-left: 80px;
+        }
+
+        /* En modo colapsado ocultamos el texto y centramos los iconos */
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-collapsed nav a {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        /* Iconos un poco más grandes cuando el menú está oculto */
+        .sidebar-collapsed .nav-icon {
+            width: 40px;
+            /* más grande pero sin exagerar */
+            height: 40px;
+            margin: 0 auto;
+        }
+
+
+
+
+
+        @view-transition {
+            navigation: auto;
+        }
+
+        /* Ajustes básicos para pantallas pequeñas */
+        @media (max-width: 768px) {
+            .sidebar-expanded {
+                width: 210px;
+            }
+
+            .main-content-expanded {
+                margin-left: 210px;
+            }
+
+            .table-container {
+                height: calc(100% - 180px);
+            }
+
+            header h1 {
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="h-full flex">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar"
+            class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+
+            <!-- Top: solo hamburguesa -->
+            <div class="p-4 flex items-center justify-between border-b border-gray-200">
+                <!-- wrapper oculto para no romper el SDK -->
+                <div class="hidden" id="sidebar-title-wrapper">
+                    <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
+                    <span class="menu-text" id="app-title-sidebar"></span>
+                </div>
+
+                <!-- Botón hamburguesa: fondo blanco, líneas azul organizacional -->
+                <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
+                    class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Navegación -->
+            <nav class="flex-1 p-4 overflow-y-auto">
+                <ul class="space-y-2">
+
+                    <!-- Solicitudes -->
+                    <li>
+                        <a href="#"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-solicitudes-text">Solicitudes</span>
+                        </a>
+                    </li>
+
+
+                    <!-- Usuarios -->
+                    <li>
+                        <a href="#"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-usuarios-text">Usuarios</span>
+                        </a>
+                    </li>
+
+                    <!-- Agendar cita -->
+                    <li>
+                        <a href="#"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-agendar-text">Agendar Cita</span>
+                        </a>
+                    </li>
+
+                    <!-- Control de transportes -->
+                    <li>
+                        <a href="#"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/control_transportes.png" alt="Control de Transportes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-control-text">Control Transportes</span>
+                        </a>
+                    </li>
+
+                    <!-- Estatus transportes -->
+                    <li>
+                        <a href="#"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/estatus_transportes.png" alt="Estatus Transportes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-estatus-text">Seguimiento en Vivo</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main id="main-content"
+            class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
+
+            <!-- Header superior blanco -->
+            <header
+                class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+                <div class="flex items-center gap-3 min-w-0">
+                    <!-- Logo empresa -->
+                    <img src="img/bf_logo.png" alt="Logo Empresa" class="h-8 w-auto flex-shrink-0" />
+                    <h1 id="page-title" class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">
+                        Solicitudes de Registro
+                    </h1>
+                </div>
+
+                <!-- Botón Cerrar sesión en rojo -->
+                <button id="logout-btn"
+                    class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span id="logout-text">Cerrar sesión</span>
+                </button>
+            </header>
+
+            <!-- Filtros -->
+            <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
+                <div class="flex gap-4 flex-wrap items-center">
+                    <!-- Buscador -->
+                    <div class="flex-1 min-w-[220px]">
+                        <input id="search-input" type="text" placeholder="Buscar por nombre, apellido o proveedor..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                    </div>
+
+                    <!-- Filtro por columna -->
+                    <label for="filter-column" class="sr-only">Filtrar por columna</label>
+                    <select id="filter-column" name="filter-column" aria-label="Filtrar por columna"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)] text-sm">
+                        <option value="">Filtrar en todas las columnas</option>
+                        <option value="nombre">Nombre</option>
+                        <option value="apellido">Apellido</option>
+                        <option value="proveedor">Proveedor</option>
+                        <option value="estatus">Estatus</option>
+                    </select>
+
+                    <!-- Botón limpiar filtros -->
+                    <button id="clear-filters"
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="flex-1 p-4 sm:p-6 table-container">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[480px]">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Nombre
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Apellido
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Proveedor
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Estatus
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="solicitudes-tbody" class="bg-white divide-y divide-gray-100">
+                                <!-- filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Estado vacío -->
+                    <div id="empty-state" class="p-12 text-center text-gray-500 hidden">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="text-lg font-medium">No hay solicitudes pendientes</p>
+                        <p class="text-sm mt-2">Las nuevas solicitudes aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL INFORMACIÓN DE USUARIO -->
+    <div id="user-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+            <!-- Header modal -->
+            <div class="flex items-center gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-bmm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5.121 17.804A4 4 0 019 15h6a4 4 0 013.879 2.804M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">
+                        Información de Usuario
+                    </h2>
+                    <p id="user-modal-subtitle" class="text-xs text-gray-500">
+                        Revisa los datos antes de aprobar.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Contenido modal -->
+            <div class="px-6 py-4 space-y-4 text-sm">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Nombre</p>
+                        <p id="um-nombre" class="text-gray-900 font-medium"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Apellido</p>
+                        <p id="um-apellido" class="text-gray-900 font-medium"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Proveedor</p>
+                        <p id="um-proveedor" class="text-gray-900 font-medium"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Email</p>
+                        <p id="um-email" class="text-gray-900"></p>
+                    </div>
+                </div>
+
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Estatus</p>
+                    <span id="um-estatus"
+                        class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mt-1"></span>
+                </div>
+            </div>
+
+            <!-- Footer modal -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                <button id="user-modal-cancel"
+                    class="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition-colors">
+                    Cancelar
+                </button>
+                <button id="user-modal-approve"
+                    class="px-4 py-2 rounded-lg bg-bmm hover:bg-bmm-light text-white text-sm font-semibold transition-colors flex items-center gap-2">
+                    <span>Aprobar</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultConfig = {
+            background_color: "#f9fafb",
+            surface_color: "#ffffff",
+            text_color: "#1f2937",
+            primary_action_color: "#dc2626", // rojo para cerrar sesión
+            secondary_action_color: "#6b7280",
+            app_title: "Sistema de Gestión",
+            logout_text: "Cerrar sesión",
+            menu_solicitudes: "Solicitudes",
+            menu_usuarios: "Usuarios",
+            menu_reportes: "Agendar Cita",
+            menu_configuracion: "Configuración",
+            font_family: "Inter",
+            font_size: 16
+        };
+
+        let allSolicitudes = [];
+        let filteredSolicitudes = [];
+        let currentSolicitud = null;
+
+        const dataHandler = {
+            onDataChanged(data) {
+                allSolicitudes = data;
+                applyFilters();
+            }
+        };
+
+        async function initSDKs() {
+            if (window.dataSdk) {
+                const initResult = await window.dataSdk.init(dataHandler);
+                if (!initResult.isOk) {
+                    console.error("Error al inicializar Data SDK");
+                }
+            }
+
+            if (window.elementSdk) {
+                await window.elementSdk.init({
+                    defaultConfig,
+                    onConfigChange: async (config) => {
+                        const customFont = config.font_family || defaultConfig.font_family;
+                        const baseFontStack = 'system-ui, -apple-system, sans-serif';
+                        const baseSize = config.font_size || defaultConfig.font_size;
+
+                        document.body.style.backgroundColor =
+                            config.background_color || defaultConfig.background_color;
+                        document.getElementById('main-content').style.backgroundColor =
+                            config.background_color || defaultConfig.background_color;
+
+                        const surfaces = document.querySelectorAll('header, .bg-white');
+                        surfaces.forEach(el => {
+                            el.style.backgroundColor =
+                                config.surface_color || defaultConfig.surface_color;
+                        });
+
+                        const pageTitle = document.getElementById('page-title');
+                        pageTitle.style.color = config.text_color || defaultConfig.text_color;
+                        pageTitle.style.fontFamily = `${customFont}, ${baseFontStack}`;
+                        pageTitle.style.fontSize = `${baseSize * 1.4}px`;
+
+                        const logoutBtn = document.getElementById('logout-btn');
+                        document.getElementById('logout-text').textContent =
+                            config.logout_text || defaultConfig.logout_text;
+                        logoutBtn.style.backgroundColor =
+                            config.primary_action_color || defaultConfig.primary_action_color;
+                        logoutBtn.style.fontFamily = `${customFont}, ${baseFontStack}`;
+                        logoutBtn.style.fontSize = `${baseSize * 0.875}px`;
+
+                        document.getElementById('menu-solicitudes-text').textContent =
+                            config.menu_solicitudes || defaultConfig.menu_solicitudes;
+                        document.getElementById('menu-usuarios-text').textContent =
+                            config.menu_usuarios || defaultConfig.menu_usuarios;
+
+                        const allText = document.querySelectorAll('p, span, label, input, select, button, td, th');
+                        allText.forEach(el => {
+                            el.style.fontFamily = `${customFont}, ${baseFontStack}`;
+                            el.style.fontSize = `${baseSize * 0.875}px`;
+                        });
+                    },
+                    mapToCapabilities: (config) => ({
+
+                        recolorables: [
+                            {
+                                get: () => config.background_color || defaultConfig.background_color,
+                                set: (value) => {
+                                    config.background_color = value;
+                                    window.elementSdk.setConfig({ background_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.surface_color || defaultConfig.surface_color,
+                                set: (value) => {
+                                    config.surface_color = value;
+                                    window.elementSdk.setConfig({ surface_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.text_color || defaultConfig.text_color,
+                                set: (value) => {
+                                    config.text_color = value;
+                                    window.elementSdk.setConfig({ text_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.primary_action_color || defaultConfig.primary_action_color,
+                                set: (value) => {
+                                    config.primary_action_color = value;
+                                    window.elementSdk.setConfig({ primary_action_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+                                set: (value) => {
+                                    config.secondary_action_color = value;
+                                    window.elementSdk.setConfig({ secondary_action_color: value });
+                                }
+                            }
+                        ],
+                        borderables: [],
+                        fontEditable: {
+                            get: () => config.font_family || defaultConfig.font_family,
+                            set: (value) => {
+                                config.font_family = value;
+                                window.elementSdk.setConfig({ font_family: value });
+                            }
+                        },
+                        fontSizeable: {
+                            get: () => config.font_size || defaultConfig.font_size,
+                            set: (value) => {
+                                config.font_size = value;
+                                window.elementSdk.setConfig({ font_size: value });
+                            }
+                        }
+                    }),
+                    mapToEditPanelValues: (config) => new Map([
+                        ["app_title", config.app_title || defaultConfig.app_title],
+                        ["logout_text", config.logout_text || defaultConfig.logout_text],
+                        ["menu_solicitudes", config.menu_solicitudes || defaultConfig.menu_solicitudes],
+                        ["menu_usuarios", config.menu_usuarios || defaultConfig.menu_usuarios],
+                        ["menu_reportes", config.menu_reportes || defaultConfig.menu_reportes],
+                        ["menu_configuracion", config.menu_configuracion || defaultConfig.menu_configuracion]
+                    ])
+                });
+            }
+        }
+
+        /** RENDER TABLA **/
+        function renderSolicitudes() {
+            const tbody = document.getElementById('solicitudes-tbody');
+            const emptyState = document.getElementById('empty-state');
+
+            if (!filteredSolicitudes.length) {
+                tbody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            tbody.innerHTML = filteredSolicitudes.map(solicitud => {
+                const badgeClasses =
+                    solicitud.estatus === 'PENDIENTE'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-green-100 text-green-800';
+
+                return `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${solicitud.nombre || ''}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${solicitud.apellido || ''}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${solicitud.proveedor || ''}
+            </td>
+            <td class="px-6 py-4 text-sm">
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full ${badgeClasses}">
+                  ${solicitud.estatus || ''}
+                </span>
+                <button
+                  type="button"
+                  class="p-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-800 transition-colors"
+                  onclick="openUserModal('${solicitud.__backendId}')"
+                  title="Ver información de usuario">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536M9 11l6.232-6.232a2.121 2.121 0 113 3L12 14l-4 1 1-4z" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+            }).join('');
+        }
+
+        /** FILTROS **/
+        function applyFilters() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const filterColumn = document.getElementById('filter-column').value;
+
+            filteredSolicitudes = allSolicitudes.filter(solicitud => {
+                if (!searchTerm) return true;
+
+                if (filterColumn) {
+                    const val = (solicitud[filterColumn] || '').toString().toLowerCase();
+                    return val.includes(searchTerm);
+                }
+
+                return (
+                    (solicitud.nombre || '').toLowerCase().includes(searchTerm) ||
+                    (solicitud.apellido || '').toLowerCase().includes(searchTerm) ||
+                    (solicitud.proveedor || '').toLowerCase().includes(searchTerm)
+                );
+            });
+
+            renderSolicitudes();
+        }
+
+        /** MODAL USUARIO **/
+        function openUserModal(solicitudId) {
+            currentSolicitud = allSolicitudes.find(s => s.__backendId === solicitudId);
+            if (!currentSolicitud) return;
+
+            const modal = document.getElementById('user-modal');
+
+            document.getElementById('um-nombre').textContent = currentSolicitud.nombre || '';
+            document.getElementById('um-apellido').textContent = currentSolicitud.apellido || '';
+            document.getElementById('um-proveedor').textContent = currentSolicitud.proveedor || '';
+            document.getElementById('um-email').textContent = currentSolicitud.email || '';
+
+            const estatusEl = document.getElementById('um-estatus');
+            estatusEl.textContent = currentSolicitud.estatus || '';
+
+            estatusEl.className =
+                'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold mt-1 ' +
+                (currentSolicitud.estatus === 'PENDIENTE'
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-green-100 text-green-800');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeUserModal() {
+            const modal = document.getElementById('user-modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            currentSolicitud = null;
+        }
+
+        async function approveUser() {
+            if (!currentSolicitud || !window.dataSdk) {
+                closeUserModal();
+                return;
+            }
+
+            const approveBtn = document.getElementById('user-modal-approve');
+            const original = approveBtn.innerHTML;
+            approveBtn.innerHTML = '<div class="loading-spinner"></div>';
+            approveBtn.disabled = true;
+
+            const updatedSolicitud = {
+                ...currentSolicitud,
+                estatus: 'APROBADO'
+            };
+
+            const result = await window.dataSdk.update(updatedSolicitud);
+
+            if (result.isOk) {
+                closeUserModal();
+            } else {
+                approveBtn.innerHTML = original;
+                approveBtn.disabled = false;
+                alert('Error al aprobar el usuario. Por favor intenta nuevamente.');
+            }
+        }
+
+        /** EVENTOS UI **/
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('main-content');
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+
+            if (hamburgerBtn && sidebar && mainContent) {
+                hamburgerBtn.addEventListener('click', () => {
+                    const isExpanded = sidebar.classList.contains('sidebar-expanded');
+
+                    sidebar.classList.toggle('sidebar-expanded', !isExpanded);
+                    sidebar.classList.toggle('sidebar-collapsed', isExpanded);
+
+                    mainContent.classList.toggle('main-content-expanded', !isExpanded);
+                    mainContent.classList.toggle('main-content-collapsed', isExpanded);
+                });
+            }
+
+            document.getElementById('search-input').addEventListener('input', applyFilters);
+            document.getElementById('filter-column').addEventListener('change', applyFilters);
+
+            document.getElementById('clear-filters').addEventListener('click', () => {
+                document.getElementById('search-input').value = '';
+                document.getElementById('filter-column').value = '';
+                applyFilters();
+            });
+
+            document.getElementById('user-modal-cancel').addEventListener('click', closeUserModal);
+            document.getElementById('user-modal-approve').addEventListener('click', approveUser);
+
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                const toast = document.createElement('div');
+                toast.className =
+                    'fixed top-4 right-4 bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 text-sm';
+                toast.textContent = 'Sesión cerrada exitosamente';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            });
+
+            // Exponer para onclick inline en la tabla
+            window.openUserModal = openUserModal;
+
+            // Inicializar SDKs (cargará datos si los hay)
+            initSDKs();
+
+            // 🔹 Render inicial: si no hay datos, se muestra "No hay solicitudes pendientes"
+            renderSolicitudes();
+        });
+
+    </script>
+</body>
+
+</html>
