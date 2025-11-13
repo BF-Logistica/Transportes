@@ -1,0 +1,9 @@
+Este sitio web, desarrollado para uso interno de Beiersdorf, recopila los datos proporcionados por los empleados para el control de pedidos masivos.
+
+La información recolectada incluye nombre, correo electrónico, número celular y datos de nómina (para empleados internos). Esta información será almacenada de manera segura y utilizada únicamente para fines de registro, validación y seguimiento de pedidos en el sistema de Tiendita BMM.
+
+No se compartirá esta información con terceros y estará protegida conforme a los lineamientos establecidos por la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.
+
+Al continuar con el envío del formulario, usted acepta los términos aquí expuestos.
+
+Para más información, contacte al área de Sistemas o Recursos Humanos.
