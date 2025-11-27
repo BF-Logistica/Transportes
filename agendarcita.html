@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agendar Cita</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="img/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
+
+    <!-- SDKs internos (si los usas para theming) -->
+    <script src="/_sdk/data_sdk.js"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --bmm-blue: #0d1c84;
+            --bmm-blue-light: #1b2c9f;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            overflow-y: auto;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        /* Inputs en mayúsculas visualmente */
+        input[type="text"],
+        textarea {
+            text-transform: uppercase;
+        }
+
+        .table-container {
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 999px;
+            border-top: 3px solid #ffffff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="h-full flex flex-col">
+
+        <!-- HEADER -->
+        <header class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+            <div class="flex items-center gap-3 min-w-0">
+                <img src="img/bf_logo.png" alt="Logo Empresa" class="h-8 w-auto flex-shrink-0" />
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">
+                        Agendar cita de acceso
+                    </h1>
+                    <p id="provider-info" class="text-xs text-gray-500 mt-0.5 truncate">
+                        Cargando datos del proveedor...
+                    </p>
+                </div>
+            </div>
+
+            <button id="logout-btn"
+                class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>Cerrar sesión</span>
+            </button>
+        </header>
+
+        <!-- CONTENIDO -->
+        <main class="flex-1 p-4 sm:p-6 space-y-4 flex flex-col">
+
+            <!-- FORMULARIO AGENDAR CITA -->
+            <section class="bg-white rounded-lg shadow-sm border border-gray-100 p-4 sm:p-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    <img src="img/pre_registro.png" alt="Icono cita" class="h-10 w-10" />
+                    <span>NUEVA CITA</span>
+                </h2>
+                <p class="text-xs text-gray-500 mb-4">
+                    Completa la información de la visita. Todas las citas quedan como <strong>pre-registro</strong> y
+                    deberán ser aprobadas por logística.
+                </p>
+
+                <form id="cita-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    <!-- Fecha -->
+                    <div>
+                        <label for="cf-fecha"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha</label>
+                        <input id="cf-fecha" type="date"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                            required />
+                        <p id="cf-fecha-help" class="text-[11px] mt-1 text-red-600 font-semibold">
+                            Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.
+                        </p>
+                    </div>
+
+                    <!-- Hora -->
+                    <div>
+                        <label for="cf-hora"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora</label>
+                        <select id="cf-hora"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                            required>
+                            <option value="">Selecciona un horario</option>
+                        </select>
+                        <p class="text-[11px] text-gray-500 mt-1">
+                            Citas disponibles las 24 horas. Horas 5:00, 13:00 y 21:00 permiten hasta 2 transportes.
+                        </p>
+                    </div>
+
+                    <!-- Tipo de visita -->
+                    <div>
+                        <label for="cf-tipo-visita"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de visita</label>
+                        <select id="cf-tipo-visita"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                            required>
+                            <option value="">Selecciona tipo de visita</option>
+                            <option value="Carga">Carga</option>
+                            <option value="Descarga">Descarga</option>
+                            <option value="CargaDescarga">Carga y Descarga</option>
+                        </select>
+                    </div>
+
+                    <!-- Tipo de transporte -->
+                    <div>
+                        <label for="cf-tipo-transporte"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de transporte</label>
+                        <select id="cf-tipo-transporte"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                            required>
+                            <option value="">Selecciona tipo de transporte</option>
+                            <option value="Sencillo">Sencillo</option>
+                            <option value="Full">Full</option>
+                        </select>
+                        <p class="text-[11px] text-gray-500 mt-1">
+                            Si la visita es <strong>Carga y Descarga</strong> o el transporte es
+                            <strong>Full</strong>, se bloqueará también la
+                            <strong>segunda hora posterior</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Recolecta caja -->
+                    <div>
+                        <label for="cf-recolecta-caja"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Va a recolectar
+                            caja?</label>
+                        <select id="cf-recolecta-caja"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                            required>
+                            <option value="">Selecciona una opción</option>
+                            <option value="No">No</option>
+                            <option value="Si">Sí</option>
+                        </select>
+                    </div>
+
+                    <!-- Datos específicos CARGA / DESCARGA -->
+                    <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="cf-destino"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Destino</label>
+                            <input id="cf-destino" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                                placeholder="Ej. Bodega, Línea, etc." />
+                        </div>
+
+                        <div>
+                            <label for="cf-chofer"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nombre del
+                                chofer</label>
+                            <input id="cf-chofer" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                        </div>
+
+                        <div>
+                            <label for="cf-linea-transporte"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Transporte /
+                                línea</label>
+                            <input id="cf-linea-transporte" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed focus:outline-none focus:ring-0"
+                                placeholder="Se llenará con tu línea por defecto" readonly />
+                        </div>
+
+                        <div>
+                            <label for="cf-placas" class="block text-xs font-semibold text-gray-500 uppercase mb-1">No.
+                                placas</label>
+                            <input id="cf-placas" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                        </div>
+
+                        <div id="grupo-factura">
+                            <label for="cf-factura"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Factura (solo
+                                carga)</label>
+                            <input id="cf-factura" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                        </div>
+
+                        <div>
+                            <label for="cf-caja" class="block text-xs font-semibold text-gray-500 uppercase mb-1">No.
+                                caja</label>
+                            <input id="cf-caja" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                        </div>
+
+                        <div id="grupo-sello">
+                            <label for="cf-sello" class="block text-xs font-semibold text-gray-500 uppercase mb-1">No.
+                                sello (solo
+                                descarga)</label>
+                            <input id="cf-sello" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                        </div>
+
+                        <!-- Campos cuando recolecta caja -->
+                        <div id="grupo-recolecta" class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
+                            <div>
+                                <label for="cf-caja-deja"
+                                    class="block text-xs font-semibold text-gray-500 uppercase mb-1">Caja que
+                                    deja</label>
+                                <input id="cf-caja-deja" type="text"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                            </div>
+                            <div>
+                                <label for="cf-caja-recolecta"
+                                    class="block text-xs font-semibold text-gray-500 uppercase mb-1">Caja que
+                                    recolecta</label>
+                                <input id="cf-caja-recolecta" type="text"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comentarios -->
+                    <div class="md:col-span-3">
+                        <label for="cf-notas"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Comentarios
+                            (opcional)</label>
+                        <textarea id="cf-notas" rows="2"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                            placeholder="Ej. referencias, tipo de producto, comentarios adicionales."></textarea>
+                    </div>
+
+                    <!-- Sección especial domingo -->
+                    <div id="domingo-extra"
+                        class="md:col-span-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-3 hidden">
+                        <p class="text-xs text-amber-900 font-semibold mb-1">
+                            Domingo seleccionado
+                        </p>
+                        <p class="text-xs text-amber-900 mb-2">
+                            Las citas en domingo requieren aprobación especial. Indica claramente el motivo de la
+                            visita y la hora estimada de llegada en el campo de comentarios. Se enviará tu solicitud a
+                            logística y quedará como <strong>Cita Pendiente</strong>.
+                        </p>
+                    </div>
+
+                    <!-- Botón -->
+                    <div class="md:col-span-3 flex justify-end">
+                        <button id="btn-agendar" type="submit"
+                            class="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold flex items-center gap-2 transition-colors">
+                            <span>Guardar cita</span>
+                        </button>
+                    </div>
+
+                    <p id="cf-error" class="text-xs text-red-600 hidden md:col-span-3"></p>
+                </form>
+            </section>
+
+            <!-- LISTADO DE CITAS -->
+            <section class="bg-white rounded-lg shadow-sm border border-gray-100 flex-1 flex flex-col">
+                <div class="px-4 sm:px-6 py-3 border-b border-gray-100 flex items-center justify-between">
+                    <h2 class="text-sm font-semibold text-gray-800">CITAS REGISTRADAS</h2>
+                    <span id="citas-count" class="text-xs text-gray-500">0 citas</span>
+                </div>
+
+                <div class="table-container">
+                    <table class="w-full min-w-[480px]">
+                        <thead class="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                    Fecha
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                    Hora
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                    Estatus
+                                </th>
+                                <th
+                                    class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                    Tipo visita
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="citas-tbody" class="bg-white divide-y divide-gray-100"></tbody>
+
+                        <tbody id="citas-empty-row" class="bg-white">
+                            <tr id="citas-empty" class="hidden">
+                                <td colspan="4" class="px-6 py-6 text-center text-gray-500 text-sm">
+                                    Aún no tienes citas registradas.
+                                </td>
+
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- LÓGICA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            query,
+            where,
+            addDoc,
+            orderBy,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // ==========================
+        //  CONFIG FIREBASE
+        // ==========================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
+            authDomain: "logisticatransportesbmm.firebaseapp.com",
+            projectId: "logisticatransportesbmm",
+            storageBucket: "logisticatransportesbmm.firebasestorage.app",
+            messagingSenderId: "1096949784709",
+            appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const SEND_APPOINTMENT_EMAIL_URL =
+            "https://us-central1-logisticatransportesbmm.cloudfunctions.net/sendAppointmentNotification";
+
+        let currentUser = null;
+        let currentProveedorDoc = null;
+
+        const ALL_HOURS = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, "0")}:00`);
+        const BLOCKED_HOURS = ["06:00", "14:00", "22:00"];
+        const DOUBLE_CAPACITY_HOURS = ["05:00", "13:00", "21:00"];
+        const MIN_DAYS_AHEAD = 3; // mínimo 3 días de anticipación
+
+        // ==========================
+        //  HELPERS
+        // ==========================
+        function todayISO() {
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const dd = String(d.getDate()).padStart(2, "0");
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function addDaysISO(dateISO, days) {
+            const d = new Date(dateISO + "T00:00:00");
+            d.setDate(d.getDate() + days);
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, "0");
+            const dd = String(d.getDate()).padStart(2, "0");
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function setLoadingButton(btn, isLoading) {
+            if (!btn) return;
+            if (isLoading) {
+                btn.disabled = true;
+                btn.dataset.originalHtml = btn.innerHTML;
+                btn.innerHTML = '<div class="loading-spinner"></div>';
+            } else {
+                btn.disabled = false;
+                if (btn.dataset.originalHtml) {
+                    btn.innerHTML = btn.dataset.originalHtml;
+                    delete btn.dataset.originalHtml;
+                }
+            }
+        }
+
+        function hourToNumber(hhmm) {
+            const [h, m] = hhmm.split(":").map(Number);
+            return h + (m || 0) / 60;
+        }
+
+        function addHours(hhmm, hoursToAdd) {
+            const [h, m] = hhmm.split(":").map(Number);
+            let total = h + hoursToAdd;
+            if (total < 0 || total > 23) return null;
+            return `${String(total).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+        }
+
+        function isSunday(dateISO) {
+            const d = new Date(dateISO + "T00:00:00");
+            return d.getDay() === 0;
+        }
+
+        function daysDiff(fromISO, toISO) {
+            const d1 = new Date(fromISO + "T00:00:00");
+            const d2 = new Date(toISO + "T00:00:00");
+            return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+        }
+
+        function sanitize(text) {
+            return (text || "").replace(/</g, "&lt;");
+        }
+
+        function setError(message) {
+            const errorEl = document.getElementById("cf-error");
+            errorEl.textContent = message;
+            errorEl.classList.remove("hidden");
+        }
+
+        function clearError() {
+            const errorEl = document.getElementById("cf-error");
+            errorEl.textContent = "";
+            errorEl.classList.add("hidden");
+        }
+
+        // ==========================
+        //  ACCESS GUARD: SOLO PROVEEDOR
+        // ==========================
+        function getStoredUser() {
+            let raw = localStorage.getItem("currentUser");
+            if (!raw) {
+                raw = sessionStorage.getItem("currentUser");
+            }
+            if (!raw) return null;
+
+            try {
+                return JSON.parse(raw);
+            } catch (e) {
+                console.error("Error parseando currentUser:", e);
+                return null;
+            }
+        }
+
+        function checkAccessGuard() {
+            // 1) Entorno local (file://) → pantalla habilitada sin validar sesión/rol
+            if (window.location.protocol === "file:") {
+                console.warn("Modo local: se omite validación de sesión y rol en agendarcita.html.");
+                return true;
+            }
+
+            // 2) Obtener usuario guardado
+            currentUser = getStoredUser();
+            console.log("currentUser en agendarcita.html:", currentUser);
+
+            // 3) Sin sesión → alerta + login
+            if (!currentUser) {
+                alert("Debes iniciar sesión para acceder a esta pantalla.");
+                window.location.replace("login.html");
+                return false;
+            }
+
+            // 4) Validar solo rol Proveedor
+            const rolNorm = ((currentUser.rol || currentUser.role || "").trim()).toLowerCase();
+
+            if (rolNorm !== "proveedor") {
+                alert("Para acceder a esta pantalla debes iniciar sesión como proveedor.");
+                window.location.replace("login.html");
+                return false;
+            }
+
+            // 5) OK: Proveedor autenticado
+            return true;
+        }
+
+        // ==========================
+        //  UI: HORARIOS + DOMINGO
+        // ==========================
+        function buildHourOptions() {
+            const select = document.getElementById("cf-hora");
+            select.innerHTML = '<option value="">Selecciona un horario</option>';
+
+            ALL_HOURS.forEach(h => {
+                if (BLOCKED_HOURS.includes(h)) return;
+                const opt = document.createElement("option");
+                opt.value = opt.textContent = h;
+                select.appendChild(opt);
+            });
+        }
+
+        async function updateHourOptionsForDate(fecha) {
+            const select = document.getElementById("cf-hora");
+            select.innerHTML = '<option value="">Selecciona un horario</option>';
+
+            if (!fecha) return;
+
+            try {
+                const qRef = query(
+                    collection(db, "CitasProveedor"),
+                    where("fecha", "==", fecha)
+                );
+                const snap = await getDocs(qRef);
+
+                const citas = [];
+                snap.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    const est = d.estatus || "CitaPendiente";
+                    if (est === "CitaCancelada" || est === "CitaRechazada") return;
+                    citas.push(d);
+                });
+
+                const lineaProv = currentProveedorDoc?.linea || "";
+
+                ALL_HOURS.forEach(h => {
+                    if (BLOCKED_HOURS.includes(h)) return;
+
+                    const capBase = DOUBLE_CAPACITY_HOURS.includes(h) ? 2 : 1;
+                    const ocupanHora = citas.filter(c => c.hora === h || c.horaExtra === h).length;
+
+                    const citasLinea = lineaProv
+                        ? citas.filter(c => (c.linea || "") === lineaProv)
+                        : [];
+
+                    let invalidForProvider = false;
+                    if (lineaProv) {
+                        for (const c of citasLinea) {
+                            const diff = Math.abs(hourToNumber(c.hora) - hourToNumber(h));
+                            if (diff === 0 || diff === 1) {
+                                invalidForProvider = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    const disabled = ocupanHora >= capBase || invalidForProvider;
+
+                    const opt = document.createElement("option");
+                    opt.value = h;
+                    opt.textContent = h + (ocupanHora >= capBase ? " (COMPLETO)" : "");
+                    if (disabled) {
+                        opt.disabled = true;
+                        opt.classList.add("text-gray-400");
+                    }
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error("Error actualizando opciones de hora:", err);
+                buildHourOptions();
+            }
+        }
+
+        function handleFechaChange() {
+            const fecha = document.getElementById("cf-fecha").value;
+            const domingoBox = document.getElementById("domingo-extra");
+            const helpEl = document.getElementById("cf-fecha-help");
+            const hoy = todayISO();
+
+            if (!fecha) {
+                domingoBox.classList.add("hidden");
+                helpEl.textContent = "Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.";
+                helpEl.classList.remove("text-gray-500");
+                helpEl.classList.add("text-red-600", "font-semibold");
+                buildHourOptions();
+                return;
+            }
+
+            const diff = daysDiff(hoy, fecha);
+            if (diff < MIN_DAYS_AHEAD) {
+                helpEl.textContent = "Debes seleccionar una fecha de visita con al menos 3 días de anticipación.";
+                helpEl.classList.remove("text-gray-500");
+                helpEl.classList.add("text-red-600", "font-semibold");
+            } else {
+                helpEl.textContent = "Fecha válida: tu visita tiene al menos 3 días de anticipación.";
+                helpEl.classList.remove("text-red-600");
+                helpEl.classList.add("text-gray-500");
+            }
+
+            if (isSunday(fecha)) {
+                domingoBox.classList.remove("hidden");
+            } else {
+                domingoBox.classList.add("hidden");
+            }
+
+            updateHourOptionsForDate(fecha);
+        }
+
+        function handleRecolectaChange() {
+            const val = document.getElementById("cf-recolecta-caja").value;
+            const grupo = document.getElementById("grupo-recolecta");
+            if (val === "Si") {
+                grupo.classList.remove("hidden");
+            } else {
+                grupo.classList.add("hidden");
+            }
+        }
+
+        function handleTipoVisitaChange() {
+            const tipo = document.getElementById("cf-tipo-visita").value;
+            const grpFactura = document.getElementById("grupo-factura");
+            const grpSello = document.getElementById("grupo-sello");
+
+            if (tipo === "Carga" || tipo === "CargaDescarga") {
+                grpFactura.classList.remove("opacity-50");
+            } else {
+                grpFactura.classList.add("opacity-50");
+            }
+
+            if (tipo === "Descarga" || tipo === "CargaDescarga") {
+                grpSello.classList.remove("opacity-50");
+            } else {
+                grpSello.classList.add("opacity-50");
+            }
+        }
+
+        // ==========================
+        //  DATOS PROVEEDOR
+        // ==========================
+        async function loadProveedorData() {
+            const infoEl = document.getElementById("provider-info");
+            if (!currentUser || !currentUser.usuario) {
+                infoEl.textContent = "Proveedor no identificado.";
+                return;
+            }
+
+            infoEl.textContent = "Buscando información del proveedor...";
+
+            try {
+                const qRef = query(
+                    collection(db, "UsuarioProveedor"),
+                    where("usuario", "==", currentUser.usuario)
+                );
+                const snap = await getDocs(qRef);
+
+                if (snap.empty) {
+                    infoEl.textContent = `Proveedor: ${currentUser.usuario}`;
+                    await loadCitasProveedor();
+                    return;
+                }
+
+                const docSnap = snap.docs[0];
+                const data = docSnap.data() || {};
+                currentProveedorDoc = { id: docSnap.id, ...data };
+
+                const linea = data.linea || "-";
+                const razon = data.razon || "-";
+                const frontera = data.frontera || "-";
+
+                infoEl.textContent = `${linea} | ${razon} | Frontera: ${frontera}`;
+
+                const lineaInput = document.getElementById("cf-linea-transporte");
+                if (linea && lineaInput) {
+                    lineaInput.value = linea;
+                    lineaInput.readOnly = true;
+                    lineaInput.classList.add("bg-gray-100", "text-gray-700", "cursor-not-allowed");
+                }
+
+                await loadCitasProveedor();
+            } catch (err) {
+                console.error("Error cargando datos de proveedor:", err);
+                infoEl.textContent = `Proveedor: ${currentUser.usuario}`;
+                await loadCitasProveedor();
+            }
+        }
+
+        // ==========================
+        //  VALIDACIONES DE HORARIO
+        // ==========================
+        async function validarSlotCita({ fecha, hora, tipoVisita, tipoTransporte, linea }) {
+            const qRef = query(
+                collection(db, "CitasProveedor"),
+                where("fecha", "==", fecha)
+            );
+            const snap = await getDocs(qRef);
+
+            const citas = [];
+            snap.forEach(docSnap => {
+                const d = docSnap.data() || {};
+                const est = d.estatus || "CitaPendiente";
+                if (est === "CitaCancelada" || est === "CitaRechazada") return;
+                citas.push({
+                    hora: d.hora,
+                    horaExtra: d.horaExtra || null,
+                    linea: d.linea || "",
+                    tipoVisita: d.tipoVisita || "",
+                    tipoTransporte: d.tipoTransporte || "",
+                    estatus: est
+                });
+            });
+
+            const capBase = DOUBLE_CAPACITY_HOURS.includes(hora) ? 2 : 1;
+
+            const ocupanHora = citas.filter(c => c.hora === hora || c.horaExtra === hora).length;
+            if (ocupanHora >= capBase) {
+                return {
+                    ok: false,
+                    message: `La hora ${hora} ya no tiene espacio disponible para este día.`
+                };
+            }
+
+            const citasLinea = citas.filter(c => c.linea === linea);
+            for (const c of citasLinea) {
+                const diff = Math.abs(hourToNumber(c.hora) - hourToNumber(hora));
+                if (diff === 0) {
+                    return {
+                        ok: false,
+                        message: `Ya tienes una cita a las ${hora} este día. No puedes registrar dos transportes en el mismo horario.`
+                    };
+                }
+                if (diff === 1) {
+                    return {
+                        ok: false,
+                        message: `No puedes agendar dos horarios seguidos el mismo día.`
+                    };
+                }
+            }
+
+            const requiereHoraExtra = (tipoVisita === "CargaDescarga" || tipoTransporte === "Full");
+            let horaExtra = null;
+
+            if (requiereHoraExtra) {
+                horaExtra = addHours(hora, 2);
+                if (!horaExtra || BLOCKED_HOURS.includes(horaExtra)) {
+                    return {
+                        ok: false,
+                        message: `No se puede usar la hora ${hora} porque no hay una segunda hora posterior disponible para bloqueo.`
+                    };
+                }
+
+                const capExtra = DOUBLE_CAPACITY_HOURS.includes(horaExtra) ? 2 : 1;
+                const ocupanHoraExtra = citas.filter(
+                    c => c.hora === horaExtra || c.horaExtra === horaExtra
+                ).length;
+
+                if (ocupanHoraExtra >= capExtra) {
+                    const msgBase = `No se puede agendar a las ${hora} porque la segunda hora posterior (${horaExtra}) ya está ocupada.`;
+                    return {
+                        ok: false,
+                        message: msgBase
+                    };
+                }
+            }
+
+            return { ok: true, horaExtra };
+        }
+
+        // ==========================
+        //  GUARDAR NUEVA CITA
+        // ==========================
+        async function handleNuevaCita(event) {
+            event.preventDefault();
+            clearError();
+            const btn = document.getElementById("btn-agendar");
+
+            const fechaEl = document.getElementById("cf-fecha");
+            const horaEl = document.getElementById("cf-hora");
+            const notasEl = document.getElementById("cf-notas");
+            const tipoVisitaEl = document.getElementById("cf-tipo-visita");
+            const tipoTransporteEl = document.getElementById("cf-tipo-transporte");
+            const recolectaEl = document.getElementById("cf-recolecta-caja");
+            const destinoEl = document.getElementById("cf-destino");
+            const choferEl = document.getElementById("cf-chofer");
+            const lineaTransEl = document.getElementById("cf-linea-transporte");
+            const placasEl = document.getElementById("cf-placas");
+            const facturaEl = document.getElementById("cf-factura");
+            const cajaEl = document.getElementById("cf-caja");
+            const selloEl = document.getElementById("cf-sello");
+            const cajaDejaEl = document.getElementById("cf-caja-deja");
+            const cajaRecolectaEl = document.getElementById("cf-caja-recolecta");
+
+            const fecha = (fechaEl.value || "").trim();
+            const hora = (horaEl.value || "").trim();
+            const notas = (notasEl.value || "").trim().toUpperCase();
+            const tipoVisita = (tipoVisitaEl.value || "").trim();
+            const tipoTransporte = (tipoTransporteEl.value || "").trim();
+            const recolectaCaja = (recolectaEl.value || "").trim();
+            const destino = (destinoEl.value || "").trim().toUpperCase();
+            const chofer = (choferEl.value || "").trim().toUpperCase();
+            const lineaTransporte = (lineaTransEl.value || "").trim().toUpperCase();
+            const placas = (placasEl.value || "").trim().toUpperCase();
+            const factura = (facturaEl.value || "").trim().toUpperCase();
+            const caja = (cajaEl.value || "").trim().toUpperCase();
+            const sello = (selloEl.value || "").trim().toUpperCase();
+            const cajaDeja = (cajaDejaEl.value || "").trim().toUpperCase();
+            const cajaRecolecta = (cajaRecolectaEl.value || "").trim().toUpperCase();
+
+            if (!fecha || !hora) {
+                return setError("Selecciona fecha y hora para la cita.");
+            }
+            if (!tipoVisita) {
+                return setError("Selecciona el tipo de visita.");
+            }
+            if (!tipoTransporte) {
+                return setError("Selecciona el tipo de transporte.");
+            }
+
+            const hoy = todayISO();
+            if (fecha < hoy) {
+                return setError("No puedes agendar citas en fechas pasadas.");
+            }
+
+            const diff = daysDiff(hoy, fecha);
+            if (diff < MIN_DAYS_AHEAD) {
+                return setError("Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.");
+            }
+
+            const esDomingo = isSunday(fecha);
+            if (esDomingo && !notas) {
+                return setError("Para citas en domingo es obligatorio explicar el motivo en comentarios.");
+            }
+
+            if (recolectaCaja === "Si" && (!cajaDeja || !cajaRecolecta)) {
+                return setError("Indica qué caja deja y qué caja recolecta.");
+            }
+
+            if (!destino || !chofer || !lineaTransporte || !placas || !caja) {
+                return setError("Destino, chofer, transporte/línea, placas y número de caja son obligatorios.");
+            }
+            if (tipoVisita === "Carga" || tipoVisita === "CargaDescarga") {
+                if (!factura) {
+                    return setError("Para visitas de Carga es obligatorio indicar la factura.");
+                }
+            }
+            if (tipoVisita === "Descarga" || tipoVisita === "CargaDescarga") {
+                if (!sello) {
+                    return setError("Para visitas de Descarga es obligatorio indicar el número de sello.");
+                }
+            }
+
+            setLoadingButton(btn, true);
+            try {
+                const lineaProveedor = (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase();
+                const validacion = await validarSlotCita({
+                    fecha,
+                    hora,
+                    tipoVisita,
+                    tipoTransporte,
+                    linea: lineaProveedor
+                });
+
+                if (!validacion.ok) {
+                    setLoadingButton(btn, false);
+                    return setError(validacion.message);
+                }
+
+                const horaExtra = validacion.horaExtra || null;
+
+                const docRef = await addDoc(collection(db, "CitasProveedor"), {
+                    usuarioProveedor: currentUser.usuario,
+                    linea: lineaProveedor,
+                    razon: currentProveedorDoc?.razon || null,
+                    frontera: currentProveedorDoc?.frontera || null,
+                    fecha,
+                    hora,
+                    horaExtra,
+                    tipoVisita,
+                    tipoTransporte,
+                    destino,
+                    chofer,
+                    lineaTransporte,
+                    placas,
+                    factura,
+                    caja,
+                    sello,
+                    recolectaCaja,
+                    cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
+                    cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
+                    notas,
+                    esDomingo,
+                    estatus: "CitaPendiente",
+                    createdAt: serverTimestamp()
+                });
+
+                const payloadEmail = {
+                    providerEmail: currentUser.usuario,
+                    providerLinea: lineaProveedor,
+                    providerRazon: currentProveedorDoc?.razon || "",
+                    providerFrontera: currentProveedorDoc?.frontera || "",
+                    citaId: docRef.id,
+                    cita: {
+                        fecha,
+                        hora,
+                        horaExtra,
+                        tipoVisita,
+                        tipoTransporte,
+                        destino,
+                        chofer,
+                        lineaTransporte,
+                        placas,
+                        factura,
+                        caja,
+                        sello,
+                        recolectaCaja,
+                        cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
+                        cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
+                        notas,
+                        esDomingo
+                    }
+                };
+
+                let correoOk = true;
+                try {
+                    const res = await fetch(SEND_APPOINTMENT_EMAIL_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payloadEmail)
+                    });
+                    const body = await res.json().catch(() => null);
+                    if (!res.ok || (body && body.success === false)) {
+                        correoOk = false;
+                        console.error("Error en función sendAppointmentNotification:", body);
+                    }
+                } catch (mailErr) {
+                    correoOk = false;
+                    console.error("Error al llamar a sendAppointmentNotification:", mailErr);
+                }
+
+                if (correoOk) {
+                    alert(
+                        "Cita registrada como pre-registro.\n\n" +
+                        "Estatus: CitaPendiente.\n" +
+                        "Se te notificará por correo cuando la cita sea aprobada."
+                    );
+                } else {
+                    alert(
+                        "La cita se guardó correctamente, pero hubo un problema al enviar el correo de notificación.\n" +
+                        "Por favor informa a logística si no recibes el correo."
+                    );
+                }
+
+                horaEl.value = "";
+                notasEl.value = "";
+                destinoEl.value = "";
+                choferEl.value = "";
+                placasEl.value = "";
+                facturaEl.value = "";
+                cajaEl.value = "";
+                selloEl.value = "";
+                recolectaEl.value = "";
+                cajaDejaEl.value = "";
+                cajaRecolectaEl.value = "";
+                document.getElementById("grupo-recolecta").classList.add("hidden");
+
+                await loadCitasProveedor();
+                await updateHourOptionsForDate(fecha); // refresca horarios tras guardar
+            } catch (err) {
+                console.error("Error guardando cita:", err);
+                setError("Ocurrió un error al guardar la cita. Intenta de nuevo.");
+            } finally {
+                setLoadingButton(btn, false);
+            }
+        }
+
+        // ==========================
+        //  CARGAR CITAS DEL PROVEEDOR
+        // ==========================
+        async function loadCitasProveedor() {
+            const tbody = document.getElementById("citas-tbody");
+            const emptyRow = document.getElementById("citas-empty");
+            const countEl = document.getElementById("citas-count");
+
+            tbody.innerHTML = "";
+            emptyRow.classList.add("hidden");
+            countEl.textContent = "Cargando...";
+
+            if (!currentUser) {
+                countEl.textContent = "0 citas";
+                emptyRow.classList.remove("hidden");
+                return;
+            }
+
+            try {
+                console.log("loadCitasProveedor → currentUser:", currentUser);
+
+                // 1) Traer SOLO por usuarioProveedor, sin orderBy para evitar índices
+                const qRef = query(
+                    collection(db, "CitasProveedor"),
+                    where("usuarioProveedor", "==", currentUser.usuario)
+                );
+
+                const snap = await getDocs(qRef);
+                const citas = [];
+                snap.forEach(docSnap => {
+                    citas.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // 2) Ordenar en cliente (fecha + hora)
+                citas.sort((a, b) => {
+                    const fa = (a.fecha || "") + " " + (a.hora || "");
+                    const fb = (b.fecha || "") + " " + (b.hora || "");
+                    return fa.localeCompare(fb);
+                });
+
+                if (!citas.length) {
+                    emptyRow.classList.remove("hidden");
+                    emptyRow.textContent = "Aún no tienes citas registradas.";
+                    countEl.textContent = "0 citas";
+                    return;
+                }
+
+                tbody.innerHTML = citas.map(c => {
+                    const estatus = c.estatus || "CitaPendiente";
+                    let badgeClasses = "bg-gray-100 text-gray-800";
+                    if (estatus === "CitaPendiente") {
+                        badgeClasses = "bg-yellow-100 text-yellow-800";
+                    } else if (estatus === "CitaConfirmada") {
+                        badgeClasses = "bg-green-100 text-green-800";
+                    } else if (estatus === "CitaCancelada" || estatus === "CitaRechazada") {
+                        badgeClasses = "bg-red-100 text-red-800";
+                    }
+
+                    const horaMostrar = c.horaExtra
+                        ? `${c.hora} - ${c.horaExtra}`
+                        : c.hora;
+
+                    return `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-3 text-sm text-gray-900">${sanitize(c.fecha) || "-"}</td>
+                    <td class="px-6 py-3 text-sm text-gray-900">${sanitize(horaMostrar) || "-"}</td>
+                    <td class="px-6 py-3 text-sm">
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${badgeClasses}">
+                            ${sanitize(estatus)}
+                        </span>
+                    </td>
+                    <td class="px-6 py-3 text-sm text-gray-900">
+                        ${sanitize(c.tipoVisita || "")}
+                    </td>                    
+                </tr>
+            `;
+                }).join("");
+
+                countEl.textContent = `${citas.length} ${citas.length === 1 ? "cita" : "citas"}`;
+            } catch (err) {
+                console.error("Error cargando citas:", err);
+                emptyRow.classList.remove("hidden");
+                emptyRow.textContent = "Ocurrió un error al cargar las citas.";
+                countEl.textContent = "0 citas";
+            }
+        }
+
+        // ==========================
+        //  INIT
+        // ==========================
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!checkAccessGuard()) return;
+
+            const fechaInput = document.getElementById("cf-fecha");
+            const hoy = todayISO();
+            fechaInput.min = addDaysISO(hoy, MIN_DAYS_AHEAD);
+            fechaInput.max = addDaysISO(hoy, 13);
+
+            buildHourOptions();
+            handleTipoVisitaChange();
+
+            document.getElementById("cf-fecha").addEventListener("change", handleFechaChange);
+            document.getElementById("cf-recolecta-caja").addEventListener("change", handleRecolectaChange);
+            document.getElementById("cf-tipo-visita").addEventListener("change", handleTipoVisitaChange);
+
+            document.getElementById("logout-btn").addEventListener("click", () => {
+                sessionStorage.clear();
+                localStorage.removeItem("currentUser");
+                window.location.replace("login.html");
+            });
+
+            document.getElementById("cita-form").addEventListener("submit", handleNuevaCita);
+
+            loadProveedorData();
+        });
+    </script>
+</body>
+
+</html>

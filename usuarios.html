@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Usuarios</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="img/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
+
+    <!-- SDKs (para el builder / theming) -->
+    <script src="/_sdk/data_sdk.js"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --bmm-blue: #0d1c84;
+            --bmm-blue-light: #1b2c9f;
+            --text-main: #000000;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #f3f4f6;
+        }
+
+        /* Sidebar / layout */
+        .sidebar-collapsed {
+            width: 80px;
+        }
+
+        .sidebar-expanded {
+            width: 250px;
+        }
+
+        .main-content-collapsed {
+            margin-left: 80px;
+        }
+
+        .main-content-expanded {
+            margin-left: 250px;
+        }
+
+        .menu-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            transition: opacity 0.3s, width 0.3s;
+            white-space: nowrap;
+        }
+
+        .sidebar-expanded .menu-text {
+            opacity: 1;
+            width: auto;
+        }
+
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-collapsed nav a {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .table-container {
+            height: calc(100% - 140px);
+            overflow-y: auto;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Iconos del sidebar */
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            object-fit: contain;
+            display: block;
+        }
+
+        .sidebar-collapsed .nav-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+        }
+
+        /* Helpers azul organizacional */
+        .bg-bmm {
+            background-color: var(--bmm-blue);
+        }
+
+        .bg-bmm-light {
+            background-color: var(--bmm-blue-light);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-expanded {
+                width: 210px;
+            }
+
+            .main-content-expanded {
+                margin-left: 210px;
+            }
+
+            .table-container {
+                height: calc(100% - 180px);
+            }
+
+            header h1 {
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="h-full flex">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar"
+            class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+            <div class="p-4 flex items-center justify-between border-b border-gray-200">
+                <div class="hidden" id="sidebar-title-wrapper">
+                    <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
+                    <span class="menu-text" id="app-title-sidebar"></span>
+                </div>
+
+                <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
+                    class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-4 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="menu.html" data-page="menu.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Solicitudes</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <!-- Aquí Usuarios activo -->
+                        <a data-page="usuarios.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors cursor-default">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Usuarios</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="citas.html" data-page="citas.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Control de Citas</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="control.html" data-page="control.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/control_transportes.png" alt="Control de Transportes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Control Transportes</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="estatus.html" data-page="estatus.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/estatus_transportes.png" alt="Estatus Transportes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Seguimiento en Vivo</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main id="main-content"
+            class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
+            <header
+                class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="img/bf_logo.png" alt="Logo Empresa" class="h-8 w-auto flex-shrink-0" />
+                    <h1 id="page-title" class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">
+                        Usuarios del Sistema
+                    </h1>
+                </div>
+
+                <button id="logout-btn"
+                    class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Cerrar sesión</span>
+                </button>
+            </header>
+
+            <!-- Filtros -->
+            <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
+                <div class="flex gap-4 flex-wrap items-center">
+                    <div class="flex-1 min-w-[220px]">
+                        <input id="search-input" type="text"
+                            placeholder="Buscar por nombre, apellido, proveedor, correo o nómina..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                    </div>
+
+                    <label for="role-filter" class="sr-only">Filtrar por rol</label>
+                    <select id="role-filter" name="role-filter" aria-label="Filtrar por rol"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)] text-sm">
+                        <option value="">Todos los roles</option>
+                        <option value="Coordinador Logístico">Coordinador Logístico</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Proveedor">Proveedor</option>
+                    </select>
+
+                    <button id="clear-filters"
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="flex-1 p-4 sm:p-6 table-container">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[480px]">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Rol
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Nombre
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Apellido / Razón
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Estatus
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuarios-tbody" class="bg-white divide-y divide-gray-100"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="empty-state" class="p-12 text-center text-gray-500 hidden">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 011.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="text-lg font-medium">No hay usuarios confirmados</p>
+                        <p class="text-sm mt-2">Cuando se confirme un usuario aparecerá aquí.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL VER USUARIO -->
+    <div id="view-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                        <img src="img/usuario.png" alt="Usuario"
+                            class="w-8 h-8 object-contain pointer-events-none select-none" />
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Detalle de usuario
+                        </h2>
+                        <p id="vm-subtitle" class="text-xs text-gray-500">
+                            Información registrada en el sistema.
+                        </p>
+                    </div>
+                </div>
+                <span id="vm-estatus"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                </span>
+            </div>
+
+            <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[65vh]">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Rol</p>
+                        <p id="vm-rol" class="text-gray-900"></p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Tipo de usuario</p>
+                        <p id="vm-tipo" class="text-gray-900"></p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Nombre</p>
+                        <p id="vm-nombre" class="text-gray-900"></p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Apellido / Razón social</p>
+                        <p id="vm-apellido" class="text-gray-900"></p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Nómina</p>
+                        <p id="vm-nomina" class="text-gray-900"></p>
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Usuario de acceso</p>
+                        <p id="vm-usuario" class="text-gray-900 break-all"></p>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Correo principal</p>
+                                <p id="vm-correo" class="text-gray-900 break-all"></p>
+                            </div>
+                            <div>
+                                <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Contraseña</p>
+                                <p id="vm-contrasena" class="text-gray-900 break-all"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campos extra para Proveedor -->
+                <div id="vm-prov-block" class="mt-4 border-t border-gray-200 pt-4 hidden">
+                    <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Detalle de proveedor</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Línea transportista</p>
+                            <p id="vm-linea" class="text-gray-900"></p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Frontera</p>
+                            <p id="vm-frontera" class="text-gray-900"></p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Dirección fiscal</p>
+                            <p id="vm-fiscal" class="text-gray-900"></p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Patios de maniobra</p>
+                            <p id="vm-patios" class="text-gray-900"></p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Correo de contacto</p>
+                            <p id="vm-email-contacto" class="text-gray-900 break-all"></p>
+                        </div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase mb-1">Teléfono de contacto</p>
+                            <p id="vm-telefono" class="text-gray-900"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between gap-3">
+                <!-- Botón rojo a la izquierda -->
+                <button id="view-modal-delete" type="button"
+                    class="px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 text-sm font-medium transition-colors">
+                    Eliminar usuario
+                </button>
+
+                <!-- Botón verde Cerrar a la derecha -->
+                <button id="view-modal-close" type="button"
+                    class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- LÓGICA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            query,
+            where,
+            doc,
+            deleteDoc
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+
+        /* ==========================
+           GUARD DE ACCESO (ADMIN)
+        =========================== */
+        let currentUser = null;
+
+        function loadCurrentUser() {
+            try {
+                const storedSession = sessionStorage.getItem("currentUser");
+                const storedLocal = localStorage.getItem("currentUser");
+                const raw = storedSession || storedLocal;
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch {
+                return null;
+            }
+        }
+
+        function normalizeRole(str) {
+            return (str || "")
+                .toLowerCase()
+                .normalize("NFD")                   // quita acentos
+                .replace(/[\u0300-\u036f]/g, "")    // LOGÍSTICO → LOGISTICO
+                .replace(/\s+/g, "");               // quita espacios
+        }
+
+        function isAdminUser(user) {
+            if (!user) return false;
+            const normRol = normalizeRole(user.rol || user.role);
+            return (
+                normRol === "administrador" ||
+                user.roleKey === "UsuarioAdmin" ||
+                user.collection === "UsuarioAdmin"
+            );
+        }
+
+        function isCoordLogUser(user) {
+            if (!user) return false;
+            const normRol = normalizeRole(user.rol || user.role);
+            return (
+                normRol === "coordinadorlogistico" ||
+                user.roleKey === "UsuarioLogistico" ||
+                user.collection === "UsuarioLogistico"
+            );
+        }
+
+        // file:// → todo
+        // Admin → todo
+        // Coord Logístico → solo control.html y estatus.html
+        function setupSidebarNav() {
+            const isFile = window.location.protocol === "file:";
+            const user = loadCurrentUser();
+            const admin = isAdminUser(user);
+            const coord = isCoordLogUser(user);
+
+            document
+                .querySelectorAll('nav a[data-page]')
+                .forEach(link => {
+                    // No tocar el link activo con cursor-default (Usuarios en esta página)
+                    if (link.classList.contains("cursor-default")) return;
+
+                    const page = link.dataset.page;
+                    let enable = false;
+
+                    if (isFile) {
+                        enable = true;
+                    } else if (admin) {
+                        enable = true;
+                    } else if (coord) {
+                        if (page === "control.html" || page === "estatus.html") {
+                            enable = true;
+                        }
+                    } else {
+                        enable = false;
+                    }
+
+                    if (enable) {
+                        link.href = page;
+                        link.classList.remove("cursor-default", "opacity-80");
+                        link.classList.add("hover:bg-bmm-light");
+                    } else {
+                        link.removeAttribute("href");
+                        link.classList.add("cursor-default", "opacity-80");
+                        link.classList.remove("hover:bg-bmm-light");
+                    }
+                });
+        }
+
+        function enforceAdminAccess() {
+            const isFileProtocol = window.location.protocol === "file:";
+            if (isFileProtocol) {
+                console.warn("Saltando validación de login (entorno local file://).");
+                return true;
+            }
+
+            currentUser = loadCurrentUser();
+
+            if (!isAdminUser(currentUser)) {
+                alert("Debes iniciar sesión como Administrador para acceder a esta página.");
+                window.location.replace("login.html");
+                return false;
+            }
+            return true;
+        }
+
+        /* ==========================
+           CONFIGURACIÓN FIREBASE
+        =========================== */
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
+            authDomain: "logisticatransportesbmm.firebaseapp.com",
+            projectId: "logisticatransportesbmm",
+            storageBucket: "logisticatransportesbmm.firebasestorage.app",
+            messagingSenderId: "1096949784709",
+            appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        /* ==========================
+           THEMING (opcional con SDK)
+        =========================== */
+        const defaultConfig = {
+            background_color: "#f9fafb",
+            surface_color: "#ffffff",
+            text_color: "#1f2937",
+            primary_action_color: "#dc2626",
+            secondary_action_color: "#6b7280",
+            app_title: "Sistema de Gestión",
+            logout_text: "Cerrar sesión",
+            menu_solicitudes: "Solicitudes",
+            menu_usuarios: "Usuarios",
+            menu_reportes: "Agendar Cita",
+            menu_configuracion: "Configuración",
+            font_family: "Inter",
+            font_size: 16
+        };
+
+        async function initSDKs() {
+            if (window.dataSdk) {
+                try {
+                    await window.dataSdk.init({});
+                } catch (e) {
+                    console.warn("Data SDK no inicializado:", e);
+                }
+            }
+
+            if (window.elementSdk) {
+                await window.elementSdk.init({
+                    defaultConfig,
+                    onConfigChange: async (config) => {
+                        const customFont = config.font_family || defaultConfig.font_family;
+                        const baseFontStack = "system-ui, -apple-system, sans-serif";
+                        const baseSize = config.font_size || defaultConfig.font_size;
+
+                        document.body.style.backgroundColor =
+                            config.background_color || defaultConfig.background_color;
+                        document.getElementById("main-content").style.backgroundColor =
+                            config.background_color || defaultConfig.background_color;
+
+                        const surfaces = document.querySelectorAll("header, .bg-white");
+                        surfaces.forEach(el => {
+                            el.style.backgroundColor =
+                                config.surface_color || defaultConfig.surface_color;
+                        });
+
+                        const pageTitle = document.getElementById("page-title");
+                        pageTitle.style.color = config.text_color || defaultConfig.text_color;
+                        pageTitle.style.fontFamily = `${customFont}, ${baseFontStack}`;
+                        pageTitle.style.fontSize = `${baseSize * 1.4}px`;
+
+                        const logoutBtn = document.getElementById("logout-btn");
+                        logoutBtn.style.backgroundColor =
+                            config.primary_action_color || defaultConfig.primary_action_color;
+
+                        const allText = document.querySelectorAll("p, span, label, input, select, button, td, th");
+                        allText.forEach(el => {
+                            el.style.fontFamily = `${customFont}, ${baseFontStack}`;
+                            el.style.fontSize = `${baseSize * 0.875}px`;
+                        });
+                    }
+                });
+            }
+        }
+
+        /* ==========================
+           CARGA DE USUARIOS CONFIRMADOS
+        =========================== */
+
+        const COLLECTIONS_DEF = [
+            { name: "UsuarioAdmin", tipo: "corp", rolPorDefecto: "Administrador" },
+            { name: "UsuarioLogistico", tipo: "corp", rolPorDefecto: "Coordinador Logístico" },
+            { name: "UsuarioProveedor", tipo: "prov", rolPorDefecto: "Proveedor" }
+        ];
+
+        let allUsers = [];
+        let filteredUsers = [];
+
+        async function loadUsuariosConfirmados() {
+            const result = [];
+
+            for (const c of COLLECTIONS_DEF) {
+                try {
+                    const qRef = query(
+                        collection(db, c.name),
+                        where("estatus", "==", "Confirmado")
+                    );
+                    const snap = await getDocs(qRef);
+
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data() || {};
+                        if (c.tipo === "corp") {
+                            result.push({
+                                id: docSnap.id,
+                                collection: c.name,
+                                tipo: "corp",
+                                rol: d.rol || c.rolPorDefecto,
+                                nombre: d.nombre || "",
+                                apellido: d.apellidos || "",
+                                nomina: d.nomina || "",
+                                correo: d.correo || d.usuario || "",
+                                usuario: d.usuario || d.correo || "",
+                                estatus: d.estatus || "Confirmado",
+                                raw: d
+                            });
+                        } else {
+                            result.push({
+                                id: docSnap.id,
+                                collection: c.name,
+                                tipo: "prov",
+                                rol: "Proveedor",
+                                nombre: d.linea || "",
+                                apellido: d.razon || "",
+                                nomina: "",
+                                correo: d.emailContacto || d.usuario || "",
+                                usuario: d.usuario || d.emailContacto || "",
+                                estatus: d.estatus || "Confirmado",
+                                raw: d
+                            });
+                        }
+                    });
+                } catch (e) {
+                    console.error("Error leyendo colección", c.name, e);
+                }
+            }
+
+            allUsers = result;
+            applyFilters();
+        }
+
+        /* ==========================
+           RENDER TABLA
+        =========================== */
+        function renderUsuarios() {
+            const tbody = document.getElementById("usuarios-tbody");
+            const emptyState = document.getElementById("empty-state");
+
+            if (!filteredUsers.length) {
+                tbody.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+
+            tbody.innerHTML = filteredUsers.map(u => `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        ${u.rol || ""}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        ${u.nombre || ""}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-900">
+                        ${u.apellido || ""}
+                    </td>
+                    <td class="px-6 py-4 text-sm">
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                ${u.estatus || ""}
+                            </span>
+                            <button
+                                type="button"
+                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors js-view-user"
+                                data-collection="${u.collection}"
+                                data-id="${u.id}"
+                                title="Ver usuario">
+                                <!-- Icono ojito -->
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7S3.732 16.057 2.458 12z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <span>Ver</span>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        /* ==========================
+           FILTROS
+        =========================== */
+        function applyFilters() {
+            const searchInput = document.getElementById("search-input");
+            const roleFilter = document.getElementById("role-filter");
+
+            const searchTerm = (searchInput.value || "").toLowerCase().trim();
+            const roleValue = roleFilter.value || "";
+
+            filteredUsers = allUsers.filter(user => {
+                if (roleValue && user.rol !== roleValue) return false;
+                if (!searchTerm) return true;
+
+                const haystack = [
+                    user.nombre,
+                    user.apellido,
+                    user.nomina,
+                    user.correo,
+                    user.usuario
+                ]
+                    .map(v => (v || "").toString().toLowerCase())
+                    .join(" ");
+
+                return haystack.includes(searchTerm);
+            });
+
+            renderUsuarios();
+        }
+
+        /* ==========================
+           MODAL (VER USUARIO)
+        =========================== */
+        let currentViewUser = null;
+
+        function openViewModal(user) {
+            currentViewUser = user;
+
+            const estatusEl = document.getElementById("vm-estatus");
+            const provBlock = document.getElementById("vm-prov-block");
+
+            document.getElementById("vm-rol").textContent = user.rol || "";
+            document.getElementById("vm-tipo").textContent = user.tipo === "prov" ? "Proveedor" : "Corporativo";
+            document.getElementById("vm-nombre").textContent = user.nombre || "";
+            document.getElementById("vm-apellido").textContent = user.apellido || "";
+            document.getElementById("vm-nomina").textContent = user.nomina || "-";
+            document.getElementById("vm-usuario").textContent = user.usuario || "";
+            document.getElementById("vm-correo").textContent = user.correo || "";
+
+            const passText = (user.raw && user.raw.contrasena) ? user.raw.contrasena : "";
+            const passEl = document.getElementById("vm-contrasena");
+            if (passEl) {
+                passEl.textContent = passText;
+            }
+
+            const statusText = user.estatus || "Confirmado";
+            estatusEl.textContent = statusText;
+            estatusEl.className =
+                "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800";
+
+            if (user.tipo === "prov") {
+                provBlock.classList.remove("hidden");
+                const d = user.raw || {};
+                document.getElementById("vm-linea").textContent = d.linea || user.nombre || "";
+                document.getElementById("vm-frontera").textContent = d.frontera || "";
+                document.getElementById("vm-fiscal").textContent = d.direccionFiscal || "";
+                document.getElementById("vm-patios").textContent = d.direccionPatios || "";
+                document.getElementById("vm-email-contacto").textContent = d.emailContacto || user.correo || "";
+                document.getElementById("vm-telefono").textContent = d.telefonoContacto || "";
+            } else {
+                provBlock.classList.add("hidden");
+            }
+
+            const modal = document.getElementById("view-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeViewModal() {
+            const modal = document.getElementById("view-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            currentViewUser = null;
+        }
+
+        async function deleteCurrentUser() {
+            if (!currentViewUser) return;
+
+            const confirmar = confirm(
+                "¿Seguro que deseas eliminar este usuario? Esta acción no se puede deshacer."
+            );
+            if (!confirmar) return;
+
+            const deleteBtn = document.getElementById("view-modal-delete");
+            const originalText = deleteBtn.textContent;
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = "Eliminando...";
+
+            try {
+                const { collection: colName, id } = currentViewUser;
+
+                const ref = doc(db, colName, id);
+                await deleteDoc(ref);
+
+                // Lo quitamos de la lista en memoria
+                allUsers = allUsers.filter(
+                    u => !(u.collection === colName && u.id === id)
+                );
+                applyFilters();
+
+                alert("Usuario eliminado correctamente.");
+                closeViewModal();
+            } catch (err) {
+                console.error("Error al eliminar usuario:", err);
+                alert("Ocurrió un error al eliminar el usuario. Intenta de nuevo.");
+            } finally {
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = originalText;
+            }
+        }
+
+
+        /* ==========================
+           EVENTOS UI
+        =========================== */
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!enforceAdminAccess()) return;
+
+            // Menú según rol: file:// todo, Admin todo, Coord solo control + estatus
+            setupSidebarNav();
+
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+            const hamburgerBtn = document.getElementById("hamburger-btn");
+
+            if (hamburgerBtn && sidebar && mainContent) {
+                hamburgerBtn.addEventListener("click", () => {
+                    const isExpanded = sidebar.classList.contains("sidebar-expanded");
+
+                    sidebar.classList.toggle("sidebar-expanded", !isExpanded);
+                    sidebar.classList.toggle("sidebar-collapsed", isExpanded);
+
+                    mainContent.classList.toggle("main-content-expanded", !isExpanded);
+                    mainContent.classList.toggle("main-content-collapsed", isExpanded);
+                });
+            }
+
+            document.getElementById("search-input").addEventListener("input", applyFilters);
+            document.getElementById("role-filter").addEventListener("change", applyFilters);
+
+            document.getElementById("clear-filters").addEventListener("click", () => {
+                document.getElementById("search-input").value = "";
+                document.getElementById("role-filter").value = "";
+                applyFilters();
+            });
+
+            document.getElementById("logout-btn").addEventListener("click", () => {
+                sessionStorage.clear();
+                localStorage.removeItem("currentUser");
+                window.location.replace("login.html");
+            });
+
+            document.getElementById("usuarios-tbody").addEventListener("click", (e) => {
+                const btn = e.target.closest(".js-view-user");
+                if (!btn) return;
+                const collection = btn.getAttribute("data-collection");
+                const id = btn.getAttribute("data-id");
+                const user = allUsers.find(
+                    u => u.collection === collection && u.id === id
+                );
+                if (user) openViewModal(user);
+            });
+
+            document.getElementById("view-modal-close").addEventListener("click", closeViewModal);
+            document.getElementById("view-modal-delete").addEventListener("click", deleteCurrentUser);
+
+
+            initSDKs();
+            loadUsuariosConfirmados();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1231 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Citas</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="img/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
+
+    <!-- SDKs (para el builder / theming si lo usas) -->
+    <script src="/_sdk/data_sdk.js"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --bmm-blue: #0d1c84;
+            --bmm-blue-light: #1b2c9f;
+            --text-main: #000000;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #f3f4f6;
+        }
+
+        /* Sidebar / layout */
+        .sidebar-collapsed {
+            width: 80px;
+        }
+
+        .sidebar-expanded {
+            width: 250px;
+        }
+
+        .main-content-collapsed {
+            margin-left: 80px;
+        }
+
+        .main-content-expanded {
+            margin-left: 250px;
+        }
+
+        .menu-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            transition: opacity 0.3s, width 0.3s;
+            white-space: nowrap;
+        }
+
+        .sidebar-expanded .menu-text {
+            opacity: 1;
+            width: auto;
+        }
+
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-collapsed nav a {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .table-container {
+            height: calc(100% - 140px);
+            overflow-y: auto;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 999px;
+            border-top: 3px solid #ffffff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Helpers azul organizacional */
+        .bg-bmm {
+            background-color: var(--bmm-blue);
+        }
+
+        .bg-bmm-light {
+            background-color: var(--bmm-blue-light);
+        }
+
+        .text-bmm {
+            color: var(--bmm-blue);
+        }
+
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            object-fit: contain;
+            display: block;
+        }
+
+        .sidebar-collapsed .nav-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+        }
+
+        @view-transition {
+            navigation: auto;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-expanded {
+                width: 210px;
+            }
+
+            .main-content-expanded {
+                margin-left: 210px;
+            }
+
+            .table-container {
+                height: calc(100% - 180px);
+            }
+
+            header h1 {
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="h-full flex">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar"
+            class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+            <div class="p-4 flex items-center justify-between border-b border-gray-200">
+                <div class="hidden" id="sidebar-title-wrapper">
+                    <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
+                    <span class="menu-text" id="app-title-sidebar"></span>
+                </div>
+
+                <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
+                    class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-4 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="menu.html" data-page="menu.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Solicitudes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="usuarios.html" data-page="usuarios.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Usuarios</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="citas.html" data-page="citas.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Control de Citas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="control.html" data-page="control.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/control_transportes.png" alt="Citas pendientes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Control Transportes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="estatus.html" data-page="estatus.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/estatus_transportes.png" alt="Seguimiento en vivo" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Seguimiento en Vivo</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main id="main-content"
+            class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
+            <header
+                class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="img/bf_logo.png" alt="Logo Empresa" class="h-8 w-auto flex-shrink-0" />
+                    <h1 id="page-title" class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">
+                        Citas de transporte pendientes
+                    </h1>
+                </div>
+
+                <button id="logout-btn"
+                    class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Cerrar sesión</span>
+                </button>
+            </header>
+
+            <!-- Filtros -->
+            <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
+                <div class="flex gap-4 flex-wrap items-center">
+                    <div class="flex-1 min-w-[220px]">
+                        <input id="search-input" type="text" placeholder="Buscar por línea, placas, chofer o factura..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                            aria-label="Buscar cita por línea, placas, chofer o factura" />
+                    </div>
+
+                    <button id="clear-filters"
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="flex-1 p-4 sm:p-6 table-container">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[640px]">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Línea
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Placas
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Tipo transporte
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Tipo visita
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Hora
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Acciones
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="citas-tbody" class="bg-white divide-y divide-gray-100">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="empty-state" class="p-12 text-center text-gray-500 hidden">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="text-lg font-medium">No hay citas pendientes</p>
+                        <p class="text-sm mt-2">Las nuevas citas con estatus CitaPendiente aparecerán aquí.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL DETALLE DE CITA -->
+    <div id="cita-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
+            <!-- Header modal -->
+            <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
+                        <img src="img/camion.png" alt="Cita"
+                            class="w-7 h-7 object-contain pointer-events-none select-none" />
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Detalle de cita
+                        </h2>
+                        <p class="text-xs text-gray-500">
+                            Revisa la información del transporte y ajusta fecha / hora si es necesario antes de
+                            confirmar.
+                        </p>
+                    </div>
+                </div>
+                <span id="cm-estatus"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+                    CitaPendiente
+                </span>
+            </div>
+
+            <!-- Cuerpo modal -->
+            <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[60vh]">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Fecha -->
+                    <div>
+                        <label for="cm-fecha" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha de
+                            visita</label>
+                        <input id="cm-fecha" type="date"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                        <p id="cm-fecha-error" class="text-[11px] text-red-600 mt-1 hidden">
+                            Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.
+                        </p>
+                    </div>
+
+                    <!-- Hora -->
+                    <div>
+                        <label for="cm-hora"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora</label>
+                        <select id="cm-hora"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+                        </select>
+                        <p class="text-[11px] text-gray-500 mt-1">
+                            Citas disponibles las 24 horas. Horas 05:00, 13:00 y 21:00 permiten hasta 2 transportes.
+                        </p>
+                        <p id="cm-hora-error" class="text-[11px] text-red-600 mt-1 hidden">
+                            La hora seleccionada ya no tiene capacidad disponible. Elige otro horario.
+                        </p>
+                    </div>
+
+                    <!-- Info transporte -->
+                    <div>
+                        <label for="cm-linea" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea
+                            transportista</label>
+                        <input id="cm-linea" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-placas"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Placas</label>
+                        <input id="cm-placas" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-tipo-transporte"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de
+                            transporte</label>
+                        <input id="cm-tipo-transporte" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-tipo-visita"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de visita</label>
+                        <input id="cm-tipo-visita" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-chofer"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Chofer</label>
+                        <input id="cm-chofer" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-destino"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Destino</label>
+                        <input id="cm-destino" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-factura"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Factura</label>
+                        <input id="cm-factura" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-hora-extra" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora
+                            extra (si
+                            aplica)</label>
+                        <input id="cm-hora-extra" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-frontera"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Frontera</label>
+                        <input id="cm-frontera" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div>
+                        <label for="cm-recolecta-caja"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Recolecta caja?</label>
+                        <input id="cm-recolecta-caja" type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly />
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="cm-notas"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Comentarios /
+                            notas</label>
+                        <textarea id="cm-notas" rows="2"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                            readonly></textarea>
+                    </div>
+                </div>
+
+                <p id="cm-general-error" class="text-xs text-red-600 hidden">
+                    Ocurrió un error al procesar la cita. Intenta nuevamente.
+                </p>
+            </div>
+
+            <!-- Footer modal -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+                <button id="cm-delete-btn" type="button"
+                    class="px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 text-sm font-medium transition-colors">
+                    Eliminar cita
+                </button>
+
+                <div class="flex gap-3">
+                    <button id="cm-cancel-btn" type="button"
+                        class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium transition-colors">
+                        Cerrar
+                    </button>
+                    <button id="cm-accept-btn" type="button"
+                        class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
+                        <span>Aceptar cita</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÓGICA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            query,
+            where,
+            doc,
+            updateDoc,
+            deleteDoc,
+            setDoc
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        /* ================
+           FIREBASE CONFIG
+        =================== */
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
+            authDomain: "logisticatransportesbmm.firebaseapp.com",
+            projectId: "logisticatransportesbmm",
+            storageBucket: "logisticatransportesbmm.firebasestorage.app",
+            messagingSenderId: "1096949784709",
+            appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const SEND_CITA_CONFIRM_EMAIL_URL =
+            "https://us-central1-logisticatransportesbmm.cloudfunctions.net/sendCitaConfirmacion";
+
+        /* ================
+           STATE
+        =================== */
+
+        let allCitas = [];
+        let filteredCitas = [];
+        let currentCita = null; // objeto con data + id
+        let currentUser = null;
+
+        /* ================
+           HELPERS
+        =================== */
+
+        function sanitize(value) {
+            if (value === null || value === undefined) return "";
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function getTodayISO() {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth() + 1).padStart(2, "0");
+            const d = String(now.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+
+        function addDays(dateStr, days) {
+            const [y, m, d] = dateStr.split("-").map(Number);
+            const dt = new Date(y, m - 1, d);
+            dt.setDate(dt.getDate() + days);
+            const yy = dt.getFullYear();
+            const mm = String(dt.getMonth() + 1).padStart(2, "0");
+            const dd = String(dt.getDate()).padStart(2, "0");
+            return `${yy}-${mm}-${dd}`;
+        }
+
+        function dateToComparable(dateStr) {
+            return dateStr;
+        }
+
+        function generateTimeSlots24h() {
+            const slots = [];
+            for (let h = 0; h < 24; h++) {
+                slots.push(`${String(h).padStart(2, "0")}:00`);
+            }
+            return slots;
+        }
+
+        // 🔹 Helper para sumar horas al string "HH:MM"
+        function addHoursToTimeStr(timeStr, hoursToAdd) {
+            if (!timeStr) return null;
+            const [hStr, mStr] = timeStr.split(":");
+            let h = parseInt(hStr, 10);
+            let m = parseInt(mStr || "0", 10);
+
+            if (Number.isNaN(h) || Number.isNaN(m)) return null;
+
+            h = (h + hoursToAdd) % 24;
+            const hh = String(h).padStart(2, "0");
+            const mm = String(m).padStart(2, "0");
+            return `${hh}:${mm}`;
+        }
+
+        // Lógica de capacidad: 1 transporte por hora, excepto 05:00, 13:00, 21:00 que permiten 2
+        const specialDoubleSlots = new Set(["05:00", "13:00", "21:00"]);
+
+        function getMaxCapacityForSlot(hora) {
+            return specialDoubleSlots.has(hora) ? 2 : 1;
+        }
+
+        function sameDate(a, b) {
+            return a === b;
+        }
+
+        /* ================
+           LOGIN / ROLES
+        =================== */
+
+        function loadCurrentUser() {
+            try {
+                const storedSession = sessionStorage.getItem("currentUser");
+                const storedLocal = localStorage.getItem("currentUser");
+                const raw = storedSession || storedLocal;
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch {
+                return null;
+            }
+        }
+
+        function normalizeRole(str) {
+            return (str || "")
+                .toLowerCase()
+                .normalize("NFD")                   // quita acentos
+                .replace(/[\u0300-\u036f]/g, "")    // LOGÍSTICO → LOGISTICO
+                .replace(/\s+/g, "");               // quita espacios
+        }
+
+        function isAdminUser(user) {
+            if (!user) return false;
+            const normRol = normalizeRole(user.rol || user.role);
+            return (
+                normRol === "administrador" ||
+                user.roleKey === "UsuarioAdmin" ||
+                user.collection === "UsuarioAdmin"
+            );
+        }
+
+        function isCoordLogUser(user) {
+            if (!user) return false;
+            const normRol = normalizeRole(user.rol || user.role);
+            return (
+                normRol === "coordinadorlogistico" ||
+                user.roleKey === "UsuarioLogistico" ||
+                user.collection === "UsuarioLogistico"
+            );
+        }
+
+        // 👉 Guard de acceso: esta página sigue siendo SOLO Admin (excepto file://)
+        function enforceAdminAccess() {
+            const isFileProtocol = window.location.protocol === "file:";
+            if (isFileProtocol) {
+                console.warn("Saltando validación de login (entorno local file://).");
+                return true;
+            }
+
+            currentUser = loadCurrentUser();
+
+            if (!isAdminUser(currentUser)) {
+                alert("Debes iniciar sesión como Administrador para acceder a esta página.");
+                window.location.replace("login.html");
+                return false;
+            }
+            return true;
+        }
+
+        // 👉 Sidebar nav: 
+        // file:// → todo habilitado
+        // Admin → todo habilitado
+        // Coordinador logístico → solo control.html y estatus.html
+        function setupSidebarNav() {
+            const isFile = window.location.protocol === "file:";
+            const user = loadCurrentUser();
+            const admin = isAdminUser(user);
+            const coord = isCoordLogUser(user);
+
+            document
+                .querySelectorAll('nav a[data-page]')
+                .forEach(link => {
+                    const page = link.dataset.page;
+                    let enable = false;
+
+                    if (isFile) {
+                        // entorno local: todo habilitado
+                        enable = true;
+                    } else if (admin) {
+                        // Admin ve todo
+                        enable = true;
+                    } else if (coord) {
+                        // Coordinador Logístico solo Control + Estatus
+                        if (page === "control.html" || page === "estatus.html") {
+                            enable = true;
+                        }
+                    } else {
+                        enable = false;
+                    }
+
+                    if (enable) {
+                        link.href = page;
+                        link.classList.remove("cursor-default", "opacity-80");
+                        link.classList.add("hover:bg-bmm-light");
+                    } else {
+                        link.removeAttribute("href");
+                        link.classList.add("cursor-default", "opacity-80");
+                        link.classList.remove("hover:bg-bmm-light");
+                    }
+                });
+        }
+
+        /* ================
+           CARGA DE CITAS
+        =================== */
+
+        async function loadCitasPendientes() {
+            const result = [];
+            try {
+                const qRef = query(
+                    collection(db, "CitasProveedor"),
+                    where("estatus", "==", "CitaPendiente")
+                );
+                const snap = await getDocs(qRef);
+
+                snap.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    result.push({
+                        id: docSnap.id,
+                        raw: d,
+                        linea: d.lineaTransporte || d.linea || "",
+                        placas: d.placas || "",
+                        tipoTransporte: d.tipoTransporte || "",
+                        tipoVisita: d.tipoVisita || "",
+                        fecha: d.fecha || "",
+                        hora: d.hora || "",
+                        horaExtra: d.horaExtra || null,
+                        chofer: d.chofer || "",
+                        destino: d.destino || "",
+                        factura: d.factura || "",
+                        notas: d.notas || "",
+                        esDomingo: !!d.esDomingo,
+                        frontera: d.frontera ?? "",
+                        recolectaCaja: d.recolectaCaja || "",
+                        usuarioProveedor: d.usuarioProveedor || "",
+                        estatus: d.estatus || "CitaPendiente"
+                    });
+                });
+            } catch (err) {
+                console.error("Error cargando CitasProveedor:", err);
+                alert("Ocurrió un error al cargar las citas pendientes.");
+            }
+
+            allCitas = result;
+            applyFilters();
+        }
+
+        /* ================
+           RENDER TABLA
+        =================== */
+
+        function renderCitas() {
+            const tbody = document.getElementById("citas-tbody");
+            const emptyState = document.getElementById("empty-state");
+
+            if (!filteredCitas.length) {
+                tbody.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+
+            tbody.innerHTML = filteredCitas
+                .map(c => {
+                    const horaMostrar = c.horaExtra
+                        ? `${c.hora} - ${c.horaExtra}`
+                        : c.hora || "-";
+
+                    return `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${sanitize(c.linea)}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${sanitize(c.placas)}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${sanitize(c.tipoTransporte)}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${sanitize(c.tipoVisita)}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${sanitize(horaMostrar)}
+            </td>
+            <td class="px-6 py-4 text-sm">
+              <button
+                type="button"
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors js-open-cita"
+                data-id="${sanitize(c.id)}"
+                title="Ver detalle de cita">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                <span>Ver</span>
+              </button>
+            </td>
+          </tr>
+        `;
+                })
+                .join("");
+        }
+
+        /* ================
+           FILTROS
+        =================== */
+
+        function applyFilters() {
+            const searchInput = document.getElementById("search-input");
+            const searchTerm = (searchInput.value || "").toLowerCase().trim();
+
+            filteredCitas = allCitas.filter(c => {
+                if (!searchTerm) return true;
+
+                const haystack = [
+                    c.linea,
+                    c.placas,
+                    c.tipoTransporte,
+                    c.tipoVisita,
+                    c.chofer,
+                    c.factura,
+                ]
+                    .map(v => (v || "").toString().toLowerCase())
+                    .join(" ");
+
+                return haystack.includes(searchTerm);
+            });
+
+            renderCitas();
+        }
+
+        /* ================
+           MODAL
+        =================== */
+
+        const allSlots = generateTimeSlots24h();
+
+        function openCitaModal(citaId) {
+            currentCita = allCitas.find(c => c.id === citaId);
+            if (!currentCita) return;
+
+            const modal = document.getElementById("cita-modal");
+            document.getElementById("cm-general-error").classList.add("hidden");
+            document.getElementById("cm-fecha-error").classList.add("hidden");
+            document.getElementById("cm-hora-error").classList.add("hidden");
+
+            // Llenar campos
+            document.getElementById("cm-linea").value = currentCita.linea || "";
+            document.getElementById("cm-placas").value = currentCita.placas || "";
+            document.getElementById("cm-tipo-transporte").value = currentCita.tipoTransporte || "";
+            document.getElementById("cm-tipo-visita").value = currentCita.tipoVisita || "";
+            document.getElementById("cm-chofer").value = currentCita.chofer || "";
+            document.getElementById("cm-destino").value = currentCita.destino || "";
+            document.getElementById("cm-factura").value = currentCita.factura || "";
+            document.getElementById("cm-hora-extra").value = currentCita.horaExtra || "";
+            document.getElementById("cm-frontera").value = currentCita.frontera || "";
+            document.getElementById("cm-recolecta-caja").value = currentCita.recolectaCaja || "";
+            document.getElementById("cm-notas").value = currentCita.notas || "";
+
+            document.getElementById("cm-fecha").value = currentCita.fecha || "";
+
+            const estatusEl = document.getElementById("cm-estatus");
+            estatusEl.textContent = currentCita.estatus || "CitaPendiente";
+            estatusEl.className =
+                "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold " +
+                ((currentCita.estatus || "").toLowerCase() === "citapendiente"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-green-100 text-green-800");
+
+            fillHoraOptionsForCurrent();
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeCitaModal() {
+            const modal = document.getElementById("cita-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            currentCita = null;
+        }
+
+        function fillHoraOptionsForCurrent() {
+            const select = document.getElementById("cm-hora");
+            select.innerHTML = "";
+
+            if (!currentCita) return;
+
+            const fechaSel = document.getElementById("cm-fecha").value || currentCita.fecha;
+            const currentHora = currentCita.hora || "";
+
+            const ocupacion = countSlotsForDate(fechaSel, currentCita.id);
+
+            allSlots.forEach(h => {
+                const maxCap = getMaxCapacityForSlot(h);
+                const used = ocupacion[h] || 0;
+
+                const isCurrent = h === currentHora;
+
+                if (used < maxCap || isCurrent) {
+                    const opt = document.createElement("option");
+                    opt.value = h;
+                    opt.textContent = h;
+                    if (h === currentHora) {
+                        opt.selected = true;
+                    }
+                    select.appendChild(opt);
+                }
+            });
+
+            if (currentHora && !Array.from(select.options).some(o => o.value === currentHora)) {
+                const opt = document.createElement("option");
+                opt.value = currentHora;
+                opt.textContent = currentHora + " (lleno, conservar)";
+                opt.selected = true;
+                select.appendChild(opt);
+            }
+        }
+
+        function countSlotsForDate(fechaISO, excludeId) {
+            const ocupacion = {};
+            allCitas.forEach(c => {
+                if (c.id === excludeId) return;
+                if (!sameDate(c.fecha, fechaISO)) return;
+
+                const horasConsiderar = [];
+                if (c.hora) horasConsiderar.push(c.hora);
+                if (c.horaExtra) horasConsiderar.push(c.horaExtra);
+
+                horasConsiderar.forEach(h => {
+                    if (!h) return;
+                    ocupacion[h] = (ocupacion[h] || 0) + 1;
+                });
+            });
+            return ocupacion;
+        }
+
+        function validateFecha(fechaISO) {
+            if (!fechaISO) return false;
+            const hoy = getTodayISO();
+            const minFecha = addDays(hoy, 3);
+            return dateToComparable(fechaISO) >= dateToComparable(minFecha);
+        }
+
+        function validateHora(fechaISO, horaSeleccionada) {
+            if (!fechaISO || !horaSeleccionada || !currentCita) return false;
+
+            const ocupacion = countSlotsForDate(fechaISO, currentCita.id);
+            const maxCap = getMaxCapacityForSlot(horaSeleccionada);
+            const used = ocupacion[horaSeleccionada] || 0;
+
+            if (horaSeleccionada === currentCita.hora) {
+                return true;
+            }
+            return used < maxCap;
+        }
+
+        /* ================
+           GUARDAR / ELIMINAR
+        =================== */
+
+        async function acceptCita() {
+            if (!currentCita) return;
+
+            const fechaInput = document.getElementById("cm-fecha");
+            const horaSelect = document.getElementById("cm-hora");
+            const fechaError = document.getElementById("cm-fecha-error");
+            const horaError = document.getElementById("cm-hora-error");
+            const generalError = document.getElementById("cm-general-error");
+
+            generalError.classList.add("hidden");
+            fechaError.classList.add("hidden");
+            horaError.classList.add("hidden");
+
+            const fecha = fechaInput.value;
+            const hora = horaSelect.value;
+
+            let ok = true;
+
+            if (!validateFecha(fecha)) {
+                fechaError.classList.remove("hidden");
+                ok = false;
+            }
+
+            if (!validateHora(fecha, hora)) {
+                horaError.classList.remove("hidden");
+                ok = false;
+            }
+
+            if (!ok) return;
+
+            const dt = new Date(fecha + "T00:00:00");
+            const esDomingo = dt.getDay() === 0;
+
+            // 🔹 Nueva lógica: si la cita tiene horaExtra (full), recalcular como hora + 2h
+            const nuevaHoraExtra = currentCita.horaExtra
+                ? addHoursToTimeStr(hora, 2)
+                : null;
+
+            const acceptBtn = document.getElementById("cm-accept-btn");
+            const originalHTML = acceptBtn.innerHTML;
+            acceptBtn.disabled = true;
+            acceptBtn.innerHTML = '<div class="loading-spinner"></div>';
+
+            try {
+                // 1) Actualizar CitasProveedor
+                const docRef = doc(db, "CitasProveedor", currentCita.id);
+                const updatePayload = {
+                    fecha,
+                    hora,
+                    horaExtra: nuevaHoraExtra,
+                    esDomingo,
+                    estatus: "CitaConfirmada"
+                };
+                await updateDoc(docRef, updatePayload);
+
+                // 2) Crear registro en CitasConfirmadas con folio BMM-ddmmyyNN
+                const [yyyy, mm, dd] = (fecha || "").split("-");
+                const ddmmyy = `${dd}${mm}${String(yyyy).slice(2)}`;
+
+                // contamos cuántas citas confirmadas ya existen para esa fecha
+                const qCount = query(collection(db, "CitasConfirmadas"), where("fecha", "==", fecha));
+                const snapCount = await getDocs(qCount);
+                const consecutivo = String(snapCount.size + 1).padStart(2, "0");
+
+                // folio final
+                const folio = `BMM-${ddmmyy}${consecutivo}`;
+
+                const confirmRef = doc(collection(db, "CitasConfirmadas"));
+
+                const dataConfirmada = {
+                    ...currentCita.raw,
+                    ...updatePayload, // incluye nueva horaExtra
+                    folio,
+                    citaProveedorId: currentCita.id,
+                    updatedAt: new Date().toISOString()
+                };
+
+                await setDoc(confirmRef, dataConfirmada);
+
+                // 3) Enviar correo de confirmación
+                const correoDestino = currentCita.usuarioProveedor || "";
+                if (correoDestino) {
+                    const payloadEmail = {
+                        to: correoDestino,
+                        folio,
+                        citaId: currentCita.id,
+                        datosCita: {
+                            linea: currentCita.linea,
+                            placas: currentCita.placas,
+                            tipoTransporte: currentCita.tipoTransporte,
+                            tipoVisita: currentCita.tipoVisita,
+                            fecha,
+                            hora,
+                            horaExtra: nuevaHoraExtra,
+                            chofer: currentCita.chofer,
+                            destino: currentCita.destino,
+                            factura: currentCita.factura,
+                            notas: currentCita.notas,
+                            frontera: currentCita.frontera,
+                            recolectaCaja: currentCita.recolectaCaja
+                        },
+                        attachmentPath: "docs/Indicaciones de ingreso a transportistas.pdf"
+                    };
+
+                    try {
+                        const res = await fetch(SEND_CITA_CONFIRM_EMAIL_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payloadEmail)
+                        });
+
+                        let body = null;
+                        try {
+                            body = await res.json();
+                        } catch (_) { }
+
+                        if (!res.ok || (body && body.success === false)) {
+                            console.warn("Problema al enviar correo de confirmación:", res.status, body);
+                            alert("La cita se confirmó, pero hubo un problema al enviar el correo. Revisa la función en Firebase.");
+                        } else {
+                            alert(
+                                "Cita confirmada correctamente.\n\nSe ha enviado un correo al proveedor con su folio y las indicaciones de ingreso."
+                            );
+                        }
+                    } catch (mailErr) {
+                        console.error("Error al llamar a la función de correo:", mailErr);
+                        alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
+                    }
+                } else {
+                    alert("Cita confirmada. No se encontró correo de proveedor para enviar confirmación.");
+                }
+
+                // 4) Actualizar lista en pantalla
+                allCitas = allCitas.filter(c => c.id !== currentCita.id);
+                applyFilters();
+                closeCitaModal();
+
+            } catch (err) {
+                console.error("Error al confirmar cita:", err);
+                generalError.textContent = "Ocurrió un error al confirmar la cita. Intenta nuevamente.";
+                generalError.classList.remove("hidden");
+            } finally {
+                acceptBtn.disabled = false;
+                acceptBtn.innerHTML = originalHTML;
+            }
+        }
+
+        async function deleteCita() {
+            if (!currentCita) return;
+
+            const confirmar = confirm(
+                "¿Seguro que deseas eliminar esta cita? Esta acción no se puede deshacer."
+            );
+            if (!confirmar) return;
+
+            const deleteBtn = document.getElementById("cm-delete-btn");
+            const originalText = deleteBtn.textContent;
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = "Eliminando...";
+
+            try {
+                const docRef = doc(db, "CitasProveedor", currentCita.id);
+                await deleteDoc(docRef);
+
+                allCitas = allCitas.filter(c => c.id !== currentCita.id);
+                applyFilters();
+                alert("Cita eliminada correctamente.");
+                closeCitaModal();
+            } catch (err) {
+                console.error("Error al eliminar cita:", err);
+                alert("Ocurrió un error al eliminar la cita. Intenta nuevamente.");
+            } finally {
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = originalText;
+            }
+        }
+
+        /* ================
+           EVENTOS UI
+        =================== */
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!enforceAdminAccess()) return;
+
+            // 🔓 Aplica permisos de menú según rol (file:// todo, Admin todo, Coord solo control + estatus)
+            setupSidebarNav();
+
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+            const hamburgerBtn = document.getElementById("hamburger-btn");
+
+            if (hamburgerBtn && sidebar && mainContent) {
+                hamburgerBtn.addEventListener("click", () => {
+                    const isExpanded = sidebar.classList.contains("sidebar-expanded");
+
+                    sidebar.classList.toggle("sidebar-expanded", !isExpanded);
+                    sidebar.classList.toggle("sidebar-collapsed", isExpanded);
+
+                    mainContent.classList.toggle("main-content-expanded", !isExpanded);
+                    mainContent.classList.toggle("main-content-collapsed", isExpanded);
+                });
+            }
+
+            document.getElementById("search-input").addEventListener("input", applyFilters);
+
+            document.getElementById("clear-filters").addEventListener("click", () => {
+                document.getElementById("search-input").value = "";
+                applyFilters();
+            });
+
+            document.getElementById("logout-btn").addEventListener("click", () => {
+                sessionStorage.clear();
+                localStorage.removeItem("currentUser");
+                window.location.replace("login.html");
+            });
+
+            document.getElementById("cm-cancel-btn").addEventListener("click", closeCitaModal);
+            document.getElementById("cm-accept-btn").addEventListener("click", acceptCita);
+            document.getElementById("cm-delete-btn").addEventListener("click", deleteCita);
+
+            // 🔹 Cuando cambie la hora en el modal, actualiza vista de horaExtra si aplica FULL
+            document.getElementById("cm-hora").addEventListener("change", () => {
+                if (!currentCita) return;
+                const nuevaHora = document.getElementById("cm-hora").value;
+                let nuevaHoraExtra = "";
+
+                if (currentCita.horaExtra) {
+                    nuevaHoraExtra = addHoursToTimeStr(nuevaHora, 2) || "";
+                }
+
+                document.getElementById("cm-hora-extra").value = nuevaHoraExtra;
+            });
+
+            document.getElementById("cm-fecha").addEventListener("change", () => {
+                document.getElementById("cm-fecha-error").classList.add("hidden");
+                document.getElementById("cm-hora-error").classList.add("hidden");
+                if (currentCita) {
+                    fillHoraOptionsForCurrent();
+                }
+            });
+
+            document.getElementById("citas-tbody").addEventListener("click", (e) => {
+                const btn = e.target.closest(".js-open-cita");
+                if (!btn) return;
+                const id = btn.getAttribute("data-id");
+                if (id) {
+                    openCitaModal(id);
+                }
+            });
+
+            loadCitasPendientes();
+        });
+    </script>
+</body>
+
+</html>

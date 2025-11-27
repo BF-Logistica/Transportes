@@ -1,0 +1,1331 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Control</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="img/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
+
+    <script src="/_sdk/data_sdk.js"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --bmm-blue: #0d1c84;
+            --bmm-blue-light: #1b2c9f;
+            --text-main: #0f172a;
+            --surface: #f3f4f6
+        }
+
+        html,
+        body {
+            height: 100%
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: var(--surface)
+        }
+
+        .sidebar-collapsed {
+            width: 80px
+        }
+
+        .sidebar-expanded {
+            width: 250px
+        }
+
+        .main-content-collapsed {
+            margin-left: 80px
+        }
+
+        .main-content-expanded {
+            margin-left: 250px
+        }
+
+        .menu-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+            transition: opacity .3s, width .3s
+        }
+
+        .sidebar-expanded .menu-text {
+            opacity: 1;
+            width: auto
+        }
+
+        .sidebar-collapsed .menu-text {
+            display: none
+        }
+
+        .sidebar-collapsed nav a {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0
+        }
+
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            object-fit: contain;
+            display: block
+        }
+
+        .sidebar-collapsed .nav-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto
+        }
+
+        .timeline {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            position: relative;
+            overflow: hidden
+        }
+
+        .timeline>div {
+            height: 8px;
+            background: linear-gradient(90deg, #0ea5e9, #22c55e);
+            width: 0;
+            border-radius: 999px
+        }
+
+        .truck {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            transform: translateX(-50%);
+            transition: left .35s ease
+        }
+
+        .chip {
+            width: 100px;
+            height: 100px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(2, 6, 23, .08)
+        }
+
+        .chip img {
+            width: 56px;
+            height: 56px
+        }
+
+        .chip.done {
+            background: #10b981;
+            color: #fff
+        }
+
+        .chip.todo {
+            background: #fff;
+            color: #64748b;
+            border: 2px solid #e5e7eb
+        }
+
+        /* Live en amarillo translúcido */
+        .chip.live {
+            background: rgba(250, 204, 21, .14);
+            color: #92400e;
+            border: 2px solid rgba(250, 204, 21, .55);
+            box-shadow: 0 4px 14px rgba(250, 204, 21, .25)
+        }
+
+        .modal-backdrop {
+            background: rgba(0, 0, 0, .5)
+        }
+
+        @view-transition {
+            navigation: auto
+        }
+
+        .btn {
+            padding: .45rem .75rem;
+            border-radius: .6rem;
+            font-size: .82rem;
+            font-weight: 600
+        }
+
+        .btn[disabled] {
+            opacity: .45;
+            pointer-events: none
+        }
+
+        .btn.mark {
+            background: #059669;
+            color: #fff
+        }
+
+        .btn.mark:hover {
+            background: #047857
+        }
+
+        .btn.fin {
+            background: #1d4ed8;
+            color: #fff;
+            margin-top: .6rem
+        }
+
+        .btn.fin:hover {
+            background: #1e40af
+        }
+
+        .btn.cancel {
+            background: #e5e7eb;
+            color: #111827;
+            margin-top: .6rem
+        }
+
+        .btn.cancel:hover {
+            background: #d1d5db
+        }
+
+        .btn.danger {
+            background: #dc2626;
+            color: #fff
+        }
+
+        .btn.danger:hover {
+            background: #b91c1c
+        }
+
+        @media (max-width:768px) {
+            .sidebar-expanded {
+                width: 210px
+            }
+
+            .main-content-expanded {
+                margin-left: 210px
+            }
+
+            header h1 {
+                font-size: 1.15rem
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="h-full flex">
+        <!-- SIDEBAR -->
+        <aside id="sidebar"
+            class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+            <div class="p-4 flex items-center justify-between border-b border-gray-200">
+                <div class="hidden" id="sidebar-title-wrapper">
+                    <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
+                    <span class="menu-text" id="app-title-sidebar"></span>
+                </div>
+                <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
+                    class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+            <nav class="flex-1 p-4 overflow-y-auto" aria-label="Navegación principal">
+                <ul class="space-y-2">
+                    <li>
+                        <a data-page="menu.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Solicitudes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a data-page="usuarios.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Usuarios</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a data-page="citas.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Control de Citas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a data-page="control.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Control Transportes</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a data-page="estatus.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" />
+                            </span>
+                            <span class="menu-text">Seguimiento en Vivo</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main id="main-content"
+            class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
+            <header
+                class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="img/bf_logo.png" alt="Beiersdorf" class="h-8 w-auto flex-shrink-0" />
+                    <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">Control de Transportes</h1>
+                </div>
+                <button id="logout-btn"
+                    class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span>Cerrar sesión</span>
+                </button>
+            </header>
+
+            <!-- Buscador / alta -->
+            <section class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+                <div class="flex flex-wrap items-center gap-3">
+                    <div class="flex-1 min-w-[260px]">
+                        <label for="folio-input" class="sr-only">Folio BMM</label>
+                        <input id="folio-input" type="text" inputmode="latin" placeholder="Folio (ej. BMM-19112501)"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                    </div>
+                    <button id="add-folio-btn"
+                        class="px-4 py-2 bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white rounded-lg font-semibold">
+                        Agregar transporte
+                    </button>
+                    <p class="text-xs text-gray-500">Busca en <span class="font-mono">CitasConfirmadas</span> por
+                        <code>folio</code>.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Tarjetas -->
+            <section id="cards-container" class="flex-1 overflow-auto p-4 sm:p-6">
+                <div id="empty-state"
+                    class="h-[60vh] rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-500">
+                    <div class="text-center">
+                        <img src="img/camion.png" class="w-12 h-12 opacity-40 mx-auto mb-2" alt="Camión" />
+                        <p class="text-lg font-medium">No hay transportes registrados</p>
+                        <p class="text-sm">Agrega un transporte para comenzar el seguimiento</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL DESTINO -->
+    <div id="modal-destino" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-xl font-semibold">¿A dónde se dirige el transporte?</h3>
+                <p class="text-sm text-gray-600">Seleccione el destino:</p>
+            </div>
+            <div class="p-6 flex gap-3">
+                <button data-accion="Rampa"
+                    class="destop grow px-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Rampa</button>
+                <button data-accion="Patio"
+                    class="destop grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
+                <button data-accion="Cancelar"
+                    class="destop grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL POST-LIBERACIÓN -->
+    <div id="modal-postlib" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-xl font-semibold">Destino posterior a liberación</h3>
+                <p class="text-sm text-gray-600">Solo aplica si va a Patio.</p>
+            </div>
+            <div class="p-6 flex gap-3">
+                <button data-accion="Patio"
+                    class="postlib grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
+                <button data-accion="Cerrar"
+                    class="postlib grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RAMPA -->
+    <div id="modal-rampa" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-xl font-semibold">Seleccione la Rampa</h3>
+            </div>
+            <div id="rampa-grid" class="p-6 grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+            <div class="px-6 pb-6"><button id="rampa-cancel"
+                    class="w-full py-3 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button></div>
+        </div>
+    </div>
+
+    <!-- MODAL REGISTRO (solo usuario + comentario) -->
+    <div id="modal-com" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 id="mc-title" class="text-xl font-semibold">Registro</h3>
+            </div>
+            <div class="p-6 space-y-3">
+                <div>
+                    <label for="mc-operador" class="text-xs font-semibold text-gray-600">Usuario que registra
+                        (obligatorio)</label>
+                    <input id="mc-operador" type="text" placeholder="Nombre y Apellido"
+                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                </div>
+                <div>
+                    <label for="mc-comentario" class="text-xs font-semibold text-gray-600">Comentarios
+                        (obligatorio)</label>
+                    <textarea id="mc-comentario" rows="3" placeholder="Describe lo ocurrido"
+                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
+                </div>
+                <p id="mc-error" class="text-sm text-red-600 hidden">Completa usuario y comentarios.</p>
+            </div>
+            <div class="px-6 pb-6 flex gap-3 justify-end">
+                <button id="mc-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
+                <button id="mc-ok"
+                    class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL INFO -->
+    <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden">
+            <div class="px-6 py-4 flex items-center justify-between border-b border-gray-200">
+                <h3 class="text-xl font-semibold">Información del transporte</h3>
+                <button id="mi-close" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
+            </div>
+            <div id="info-grid" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import {
+            getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, addDoc,
+            onSnapshot, query, where, serverTimestamp, orderBy, Timestamp
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
+            authDomain: "logisticatransportesbmm.firebaseapp.com",
+            projectId: "logisticatransportesbmm",
+            storageBucket: "logisticatransportesbmm.firebasestorage.app",
+            messagingSenderId: "1096949784709",
+            appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const $ = (q, root = document) => root.querySelector(q);
+        const $$ = (q, root = document) => Array.from(root.querySelectorAll(q));
+        const nowISO = () => new Date().toISOString();
+        const escapeHtml = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+        const parseHHmm = hhmm => { const [h, m] = (hhmm || "").split(":").map(Number); const d = new Date(); d.setHours(h || 0, m || 0, 0, 0); return d; };
+        const todayISO = () => {
+            const d = new Date();
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            return `${y}-${m}-${day}`;
+        };
+
+        let currentUser = null;
+
+        function normalizeRole(str) {
+            return (str || "")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, "");
+        }
+
+        function guardAccess() {
+            // Permite pruebas locales
+            if (location.protocol === "file:") return true;
+
+            try {
+                const raw =
+                    sessionStorage.getItem("currentUser") ||
+                    localStorage.getItem("currentUser");
+                currentUser = raw ? JSON.parse(raw) : null;
+            } catch {
+                currentUser = null;
+            }
+
+            if (!currentUser) {
+                alert("Debes iniciar sesión.");
+                location.replace("login.html");
+                return false;
+            }
+
+            const normRol = normalizeRole(currentUser.rol || currentUser.role);
+
+            const isCoordinadorLogistico =
+                normRol === "coordinadorlogistico" ||
+                currentUser.roleKey === "UsuarioLogistico" ||
+                currentUser.collection === "UsuarioLogistico";
+
+            const isAdmin =
+                normRol === "administrador" ||
+                currentUser.roleKey === "UsuarioAdmin" ||
+                currentUser.collection === "UsuarioAdmin";
+
+            if (!isCoordinadorLogistico && !isAdmin) {
+                alert("Acceso restringido a Coordinador Logístico o Administrador.");
+                location.replace("login.html");
+                return false;
+            }
+
+            return true;
+        }
+
+        // ==== Helpers de rol y navegación lateral (mismo criterio que en estatus.html) ====
+
+        function getCurrentUserFromStorage() {
+            try {
+                const raw =
+                    sessionStorage.getItem("currentUser") ||
+                    localStorage.getItem("currentUser");
+                return raw ? JSON.parse(raw) : null;
+            } catch {
+                return null;
+            }
+        }
+
+        function isAdminUser(user) {
+            if (!user) return false;
+            const normRol = normalizeRole(user.rol || user.role);
+            return (
+                normRol === "administrador" ||
+                user.roleKey === "UsuarioAdmin" ||
+                user.collection === "UsuarioAdmin"
+            );
+        }
+
+        function isCoordLogUser(user) {
+            if (!user) return false;
+            const normRol = normalizeRole(user.rol || user.role);
+            return (
+                normRol === "coordinadorlogistico" ||
+                user.roleKey === "UsuarioLogistico" ||
+                user.collection === "UsuarioLogistico"
+            );
+        }
+
+        function setupSidebarNav() {
+            const isFile = location.protocol === "file:";
+
+            const user = getCurrentUserFromStorage();
+            const admin = isAdminUser(user);
+            const coord = isCoordLogUser(user);
+
+            document
+                .querySelectorAll('nav a[data-page]')
+                .forEach(link => {
+                    const page = link.dataset.page;
+                    let enable = false;
+
+                    if (isFile) {
+                        // En entorno local (file://) deja todo activo para pruebas
+                        enable = true;
+                    } else if (admin) {
+                        // Admin puede ver todo
+                        enable = true;
+                    } else if (coord) {
+                        // Coordinador Logístico solo Control + Estatus
+                        if (page === "control.html" || page === "estatus.html") {
+                            enable = true;
+                        }
+                    } else {
+                        enable = false;
+                    }
+
+                    if (enable) {
+                        link.href = page;
+                        link.classList.remove("cursor-default", "opacity-80");
+                        link.classList.add("hover:bg-bmm-light");
+                    } else {
+                        link.removeAttribute("href");
+                        link.classList.add("cursor-default", "opacity-80");
+                        link.classList.remove("hover:bg-bmm-light");
+                    }
+                });
+        }
+
+        (function initLayout() {
+            const sidebar = $("#sidebar"), main = $("#main-content"), btn = $("#hamburger-btn");
+            if (btn && sidebar && main) {
+                btn.addEventListener("click", () => {
+                    const isExpanded = sidebar.classList.contains("sidebar-expanded");
+                    sidebar.classList.toggle("sidebar-expanded", !isExpanded);
+                    sidebar.classList.toggle("sidebar-collapsed", isExpanded);
+                    main.classList.toggle("main-content-expanded", !isExpanded);
+                    main.classList.toggle("main-content-collapsed", isExpanded);
+                });
+            }
+            $("#logout-btn").addEventListener("click", () => {
+                sessionStorage.clear();
+                localStorage.removeItem("currentUser");
+                location.replace("login.html");
+            });
+        })();
+
+        async function getCitaByFolio(folio) {
+            // Bloquea si ya existe control
+            const cDoc = await getDoc(doc(db, "ControlTransportes", folio));
+            if (cDoc.exists()) { return { __yaExiste: true, ...cDoc.data() }; }
+
+            const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio));
+            const snap = await getDocs(qRef);
+            if (snap.empty) return null;
+            const d = snap.docs[0]; const data = d.data();
+            if ((data.estatus || "") === "CitaFinalizada") return null;
+            return { id: d.id, ...data };
+        }
+
+        async function ensureControlDoc(folio, cita) {
+            const dref = doc(db, "ControlTransportes", folio);
+            const dsnap = await getDoc(dref);
+            if (!dsnap.exists()) {
+                await setDoc(dref, {
+                    folio,
+                    estado: "En Proceso",
+                    activo: true,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                    cita: {
+                        id: cita.id || null,
+                        linea: cita.lineaTransporte || cita.linea || "",
+                        placas: cita.placas || "",
+                        tipoTransporte: cita.tipoTransporte || "",
+                        tipoVisita: cita.tipoVisita || "",
+                        fecha: cita.fecha || "",
+                        hora: cita.hora || "",
+                        horaExtra: cita.horaExtra || null,
+                        destino: cita.destino || "",
+                        usuarioProveedor: cita.usuarioProveedor || ""
+                    },
+                    pasos: {
+                        llegada: null,
+                        ingreso: null,
+                        disuasionE_inicio: null,
+                        disuasionE_fin: null,
+                        disuasionE_destino: null,
+                        disuasionE_rampa: null,
+                        patioE_fin: null,
+                        patio_rampa: null,
+                        rampa_inicio: null,
+                        rampa_cancel: null,
+                        finDescarga: null,
+                        liberacion: null,
+                        postLiberacionDestino: null,
+                        patioS_fin: null,
+                        disuasionS_inicio: null,
+                        disuasionS_fin: null,
+                        salidaPlanta: null
+                    },
+                    comentarios: []
+                });
+            }
+            return dref;
+        }
+
+        async function setCitaFinalizada(citaId) {
+            if (!citaId) return;
+            try {
+                await updateDoc(doc(db, "CitasConfirmadas", citaId), {
+                    estatus: "CitaFinalizada",
+                    updatedAt: serverTimestamp()
+                });
+            } catch (e) {
+                console.warn("No se pudo actualizar CitasConfirmadas:", e);
+            }
+        }
+
+        async function logBitacora(folio, entry) {
+            try {
+                await addDoc(collection(db, "ControlTransportes", folio, "Bitacora"), {
+                    ...entry,
+                    createdAt: serverTimestamp()
+                });
+            } catch (e) {
+                console.warn("Bitácora error:", e);
+            }
+        }
+
+        function iconForStep(i) {
+            const icons = [
+                "img/ico_llegada.png",
+                "img/ico_ingreso.png",
+                "img/ico_parking.png",
+                "img/ico_patio.png",
+                "img/ico_rampa.png",
+                "img/ico_fdescarga.png",
+                "img/ico_party.png",
+                "img/ico_patio_out.png",
+                "img/ico_parking_out.png",
+                "img/ico_exit.png"
+            ];
+            return icons[i] || "img/camion.png";
+        }
+
+        function stepPercent(i) {
+            return [4, 14, 24, 34, 44, 54, 64, 74, 84, 96][i] || 0;
+        }
+
+        function truckIconFor(t) {
+            t = (t || "").toLowerCase();
+            if (t.includes("carga y descarga")) return "img/truck_cyd.png";
+            if (t.includes("descarga")) return "img/truck_descarga.png";
+            if (t.includes("carga")) return "img/truck_carga.png";
+            return "img/camion.png";
+        }
+
+        function setChip(folio, step, status, tsText, tagText) {
+            const chip = $("#chip-" + folio + "-" + step);
+            chip.classList.remove("todo", "live", "done");
+            chip.classList.add(status);
+            if (tsText) $("#ts-" + folio + "-" + step).textContent = tsText;
+            if (tagText !== undefined) $("#tag-" + folio + "-" + step).textContent = tagText || "";
+        }
+
+        function moveTruck(folio, step) {
+            $("#bar-" + folio).style.width = stepPercent(step) + "%";
+            $("#truck-" + folio).style.left = stepPercent(step) + "%";
+        }
+
+        function buttonsForStep(folio, step) {
+            switch (step) {
+                case 0: return `<button class="btn mark" data-f="${folio}" data-step="0">Registrar</button>`;
+                case 1: return `<button class="btn mark" data-f="${folio}" data-step="1">Registrar</button>`;
+                case 2: return `<button class="btn mark" data-f="${folio}" data-step="2">Iniciar</button><button class="btn fin" data-f="${folio}" data-step="2">Finalizar</button>`;
+                case 3: return `<button class="btn fin" data-f="${folio}" data-step="3">Finalizar</button>`;
+                case 4: return `<button class="btn mark" data-f="${folio}" data-step="4">Iniciar descarga</button><button class="btn cancel danger" data-f="${folio}" data-step="4">Cancelar</button>`;
+                case 5: return `<button class="btn mark" data-f="${folio}" data-step="5">Registrar</button>`;
+                case 6: return `<button class="btn mark" data-f="${folio}" data-step="6">Registrar</button>`;
+                case 7: return `<button class="btn mark" data-f="${folio}" data-step="7">Registrar</button>`;
+                case 8: return `<button class="btn mark" data-f="${folio}" data-step="8">Iniciar</button><button class="btn fin" data-f="${folio}" data-step="8">Finalizar</button>`;
+                case 9: return `<button class="btn mark" data-f="${folio}" data-step="9">Registrar</button>`;
+                default: return "";
+            }
+        }
+
+        const cards = new Map();
+
+        // Política de botones (con manejo especial para Disuasión E/S)
+        function applyButtonsPolicy(folio, data) {
+            const root = cards.get(folio).rootEl;
+            const p = data.pasos || {};
+            const stamps = [
+                p.llegada,
+                p.ingreso,
+                (p.disuasionE_inicio && p.disuasionE_fin),
+                p.patioE_fin,
+                p.rampa_inicio,
+                p.finDescarga,
+                p.liberacion,
+                p.patioS_fin,
+                (p.disuasionS_inicio && p.disuasionS_fin),
+                p.salidaPlanta
+            ];
+
+            let firstIncomplete = stamps.findIndex(v => !v);
+            if (firstIncomplete === -1) firstIncomplete = stamps.length;
+
+            // Oculta / deshabilita todos
+            for (let i = 0; i <= 9; i++) {
+                const btns = $$(`.btn[data-f="${folio}"][data-step="${i}"]`, root);
+                btns.forEach(b => {
+                    b.classList.add("hidden");
+                    b.disabled = true;
+                });
+            }
+
+            if (firstIncomplete >= stamps.length) return; // todo terminado
+
+            const currentStep = firstIncomplete;
+            const btns = $$(`.btn[data-f="${folio}"][data-step="${currentStep}"]`, root);
+
+            if (currentStep === 2) {
+                // Disuasión (E)
+                const started = !!p.disuasionE_inicio;
+                const finished = !!p.disuasionE_fin;
+                btns.forEach(b => {
+                    const isFin = b.classList.contains("fin");
+                    if (!started && !finished && !isFin) {
+                        b.classList.remove("hidden");
+                        b.disabled = false;
+                    } else if (started && !finished && isFin) {
+                        b.classList.remove("hidden");
+                        b.disabled = false;
+                    }
+                });
+            } else if (currentStep === 8) {
+                // Disuasión (S)
+                const started = !!p.disuasionS_inicio;
+                const finished = !!p.disuasionS_fin;
+                btns.forEach(b => {
+                    const isFin = b.classList.contains("fin");
+                    if (!started && !finished && !isFin) {
+                        b.classList.remove("hidden");
+                        b.disabled = false;
+                    } else if (started && !finished && isFin) {
+                        b.classList.remove("hidden");
+                        b.disabled = false;
+                    }
+                });
+            } else {
+                // Resto de pasos: todos los botones del step activo
+                btns.forEach(b => {
+                    b.classList.remove("hidden");
+                    b.disabled = false;
+                });
+            }
+        }
+
+        function syncUIFromData(folio, data) {
+            const p = data.pasos || {};
+            const stamps = [
+                p.llegada,
+                p.ingreso,
+                (p.disuasionE_inicio && p.disuasionE_fin),
+                p.patioE_fin,
+                p.rampa_inicio,
+                p.finDescarga,
+                p.liberacion,
+                p.patioS_fin,
+                (p.disuasionS_inicio && p.disuasionS_fin),
+                p.salidaPlanta
+            ];
+            let firstIncomplete = stamps.findIndex(ts => !ts);
+            if (firstIncomplete === -1) firstIncomplete = stamps.length;
+
+            const stepTimes = [
+                p.llegada,
+                p.ingreso,
+                p.disuasionE_inicio,
+                p.patioE_fin,
+                p.rampa_inicio,
+                p.finDescarga,
+                p.liberacion,
+                p.patioS_fin,
+                p.disuasionS_inicio,
+                p.salidaPlanta
+            ];
+
+            for (let i = 0; i <= 9; i++) {
+                if (stamps[i]) {
+                    setChip(
+                        folio,
+                        i,
+                        "done",
+                        new Date(stepTimes[i] || stamps[i]).toLocaleString()
+                    );
+                } else if (i === firstIncomplete) {
+                    setChip(folio, i, "live", "");
+                } else {
+                    setChip(folio, i, "todo", "");
+                }
+            }
+
+            if (p.disuasionE_destino) {
+                setChip(
+                    folio,
+                    2,
+                    stamps[2] ? "done" : "live",
+                    p.disuasionE_fin ? new Date(p.disuasionE_fin).toLocaleString() : "",
+                    p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : "")
+                );
+            }
+            if (p.patio_rampa) $("#tag-" + folio + "-3").textContent = p.patio_rampa;
+            if (p.postLiberacionDestino) $("#tag-" + folio + "-6").textContent = "→ " + p.postLiberacionDestino;
+
+            // Camión: sobre el paso "live". Si todo terminado, en el último.
+            let truckStep;
+            if (firstIncomplete === stamps.length) {
+                truckStep = stamps.length - 1;
+            } else {
+                truckStep = firstIncomplete;
+            }
+            moveTruck(folio, truckStep);
+
+            $("#estado-" + folio).textContent = data.estado || "En Proceso";
+            applyButtonsPolicy(folio, data);
+        }
+
+        function listenControlDoc(folio) {
+            const dref = doc(db, "ControlTransportes", folio);
+            return onSnapshot(dref, snap => {
+                if (!snap.exists()) return;
+                const data = snap.data();
+                cards.get(folio).data = data;
+                syncUIFromData(folio, data);
+                $("#empty-state").classList.add("hidden");
+            });
+        }
+
+        function renderMsg(m) {
+            const who = escapeHtml(m.userName || "Coord");
+            const when = m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleString() : new Date().toLocaleString();
+            return `<div class="bg-white border border-gray-200 rounded-lg px-3 py-2"><div class="text-xs text-gray-500">${who} · ${when}</div><div class="text-sm">${escapeHtml(m.text || "")}</div></div>`;
+        }
+
+        function listenChat(folio) {
+            const cref = collection(db, "ControlTransportes", folio, "Chat");
+            return onSnapshot(query(cref), snap => {
+                const msgs = $("#chatMsgs-" + folio), badge = $("#chatBadge-" + folio); const list = [];
+                snap.forEach(d => list.push(d.data()));
+                list.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                if (msgs) { msgs.innerHTML = list.map(renderMsg).join(""); msgs.scrollTop = msgs.scrollHeight; }
+                if (badge) { badge.textContent = list.length || 0; const open = !$("#chatBox-" + folio).classList.contains("hidden"); badge.classList.toggle("hidden", open || list.length === 0); }
+            });
+        }
+
+        async function sendChatMsg(folio) {
+            const inp = $("#chatInput-" + folio); const txt = inp?.value.trim(); if (!txt) return; inp.value = "";
+            await addDoc(collection(db, "ControlTransportes", folio, "Chat"), { text: txt, userName: currentUser?.nombre || "Coord", userEmail: currentUser?.email || "", createdAt: serverTimestamp() });
+        }
+
+        // 🔹 Validación de ventana para llegada / alta
+        function llegadaValidations(cita) {
+            const fechaCita = (cita.fecha || "");
+            const hoy = todayISO();
+            const h0 = parseHHmm(cita.hora || "00:00");
+            const now = new Date();
+
+            // Si no es hoy, no se permite
+            if (fechaCita !== hoy) {
+                return {
+                    ok: false,
+                    msg: `La cita es para ${fechaCita} a las ${cita.hora}${cita.horaExtra ? ` (ventana +2h)` : ``}.`
+                };
+            }
+
+            const diffMin = Math.round((now - h0) / 60000); // positivo = tarde, negativo = temprano
+
+            // Muy tarde: más de 15 minutos
+            if (diffMin > 15) {
+                return {
+                    ok: false,
+                    msg: `Tolerancia de 15 minutos expirada. Atraso: ${diffMin} min. Comunícate con el guardia en turno.`
+                };
+            }
+
+            // Muy temprano: más de 30 minutos antes
+            if (diffMin < -30) {
+                const faltan = Math.abs(diffMin);
+                return {
+                    ok: false,
+                    msg: `La cita es hoy a las ${cita.hora}. Solo puedes agregar el transporte 30 minutos antes como máximo. Aún faltan ${faltan} minuto${faltan === 1 ? "" : "s"}.`
+                };
+            }
+
+            // Dentro de la ventana: [-30, +15]
+            return { ok: true };
+        }
+
+        // Modales
+        const mDestino = $("#modal-destino"); let md_resolve = null;
+        $$(".destop", mDestino).forEach(b => b.addEventListener("click", () => { mDestino.classList.add("hidden"); mDestino.classList.remove("flex"); md_resolve && md_resolve(b.dataset.accion); md_resolve = null; }));
+        function openModalDestino() { mDestino.classList.remove("hidden"); mDestino.classList.add("flex"); return new Promise(res => md_resolve = res); }
+
+        const mPost = $("#modal-postlib"); let mpost_resolve = null;
+        $$(".postlib", mPost).forEach(b => b.addEventListener("click", () => { mPost.classList.add("hidden"); mPost.classList.remove("flex"); mpost_resolve && mpost_resolve(b.dataset.accion); mpost_resolve = null; }));
+        function openModalPostLiberacion() { mPost.classList.remove("hidden"); mPost.classList.add("flex"); return new Promise(res => mpost_resolve = res); }
+
+        const mRampa = $("#modal-rampa"), rampaGrid = $("#rampa-grid"); let mr_resolve = null;
+        $("#rampa-cancel").onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve(null); mr_resolve = null; };
+        function openModalRampa() {
+            rampaGrid.innerHTML = "";
+            for (let i = 1; i <= 18; i++) {
+                const b = document.createElement("button");
+                b.className = "px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold";
+                b.textContent = "Rampa " + i;
+                b.onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve("Rampa " + i); mr_resolve = null; };
+                rampaGrid.appendChild(b);
+            }
+            mRampa.classList.remove("hidden"); mRampa.classList.add("flex");
+            return new Promise(res => mr_resolve = res);
+        }
+
+        // Modal comentarios (sin foto)
+        const mCom = $("#modal-com"),
+            mcTitle = $("#mc-title"),
+            mcOperador = $("#mc-operador"),
+            mcComentario = $("#mc-comentario"),
+            mcError = $("#mc-error");
+
+        let mcom_meta = null, mcom_resolve = null;
+
+        $("#mc-cancel").onclick = () => {
+            mCom.classList.add("hidden");
+            mCom.classList.remove("flex");
+            mcom_resolve && mcom_resolve({ ok: false });
+            mcom_resolve = null;
+            mcom_meta = null;
+        };
+
+        $("#mc-ok").onclick = async () => {
+            if (!mcOperador.value.trim() || !mcComentario.value.trim()) {
+                mcError.classList.remove("hidden");
+                return;
+            }
+            mcError.classList.add("hidden");
+
+            const out = {
+                usuario: mcOperador.value.trim(),
+                comentario: mcComentario.value.trim()
+            };
+
+            mCom.classList.add("hidden");
+            mCom.classList.remove("flex");
+            mcom_resolve && mcom_resolve({ ok: true, data: out });
+            mcom_resolve = null;
+            mcom_meta = null;
+        };
+
+        function openModalComentario(title, meta) {
+            mcTitle.textContent = title;
+            mcOperador.value = currentUser?.nombre || "";
+            mcComentario.value = "";
+            mcError.classList.add("hidden");
+            mcom_meta = meta;
+            mCom.classList.remove("hidden");
+            mCom.classList.add("flex");
+            return new Promise(res => mcom_resolve = res);
+        }
+
+        function renderCardSkeleton(folio, cita) {
+            const el = document.createElement("div");
+            el.className = "mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden";
+            el.dataset.folio = folio;
+            el.innerHTML = `
+      <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100">
+        <div class="flex items-center gap-3">
+          <img src="${truckIconFor(cita.tipoVisita)}" class="w-7 h-7" alt="Tipo de visita">
+          <div>
+            <div class="text-lg font-semibold">Folio: <span class="text-[var(--bmm-blue)]">${folio}</span></div>
+            <div class="text-xs text-gray-500">Línea: ${escapeHtml(cita.linea || cita.lineaTransporte || "-")} · Placas: ${escapeHtml(cita.placas || "-")} · TipoVisita: ${escapeHtml(cita.tipoVisita || "-")}</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1 text-sm font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full"><span id="estado-${folio}">En Proceso</span></span>
+          <button class="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-1" data-info="${folio}" aria-label="Ver información"><img src="img/info.png" class="w-4 h-4" alt="Info"> Información</button>
+            <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] text-base font-semibold flex items-center gap-2" data-chat="${folio}">
+            <img src="img/chat.png" class="w-5 h-5" alt=""> Chat
+            <span id="chatBadge-${folio}" class="ml-1 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 hidden">0</span>
+          </button>
+        </div>
+      </div>
+      <div class="px-6 py-6">
+        <div class="relative mb-8">
+          <div class="timeline" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del transporte">
+            <div id="bar-${folio}" style="width:0%"></div>
+          </div>
+          <img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso">
+        </div>
+        <div class="grid grid-cols-5 lg:grid-cols-10 gap-5">
+          ${["Llegada", "Ingreso", "Disuasión (E)", "Patio (E)", "Rampa", "Fin Descarga", "Liberación", "Patio (S)", "Disuasión (S)", "Salida de Planta"].map((t, i) => `
+            <div class="text-center">
+              <div id="chip-${folio}-${i}" class="chip todo mx-auto">
+                <img src="${iconForStep(i)}" class="w-14 h-14" alt="${t}">
+              </div>
+              <div class="mt-2 font-semibold text-sm">${t}</div>
+              <div id="ts-${folio}-${i}" class="mt-1 text-xs text-gray-500"></div>
+              <div class="mt-2 space-x-2">${buttonsForStep(folio, i)}</div>
+              <div id="tag-${folio}-${i}" class="mt-1 text-[11px] text-blue-700"></div>
+            </div>
+          `).join("")}
+        </div>
+        <div id="chatBox-${folio}" class="mt-5 hidden border-t pt-4" aria-live="polite">
+          <div class="flex items-center justify-between">
+            <div class="font-semibold">Chat del folio ${folio}</div>
+            <button class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm" data-chat-close="${folio}">Cerrar</button>
+          </div>
+          <div id="chatMsgs-${folio}" class="mt-2 max-h-56 overflow-auto space-y-2 bg-gray-50 p-3 rounded-lg border"></div>
+          <div class="mt-2 flex gap-2">
+            <label class="sr-only" for="chatInput-${folio}">Mensaje</label>
+            <input id="chatInput-${folio}" type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe un mensaje… (Enter para enviar)">
+            <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)] text-white" data-chat-send="${folio}">Enviar</button>
+          </div>
+        </div>
+      </div>`;
+            return el;
+        }
+
+        function openInfo(data) {
+            const grid = $("#info-grid");
+            const rows = [["Folio", data.folio], ["Línea", data.linea || data.lineaTransporte || "-"], ["Placas", data.placas || "-"], ["Tipo transporte", data.tipoTransporte || "-"], ["Tipo visita", data.tipoVisita || "-"], ["Fecha", data.fecha || "-"], ["Hora", data.hora || "-"], ["Hora extra", data.horaExtra || "-"], ["Destino", data.destino || "-"], ["Proveedor", data.usuarioProveedor || "-"]];
+            grid.innerHTML = rows.map(([k, v]) => `<div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border"><span class="text-gray-600">${k}</span><span class="font-medium">${escapeHtml(v)}</span></div>`).join("");
+            const modal = $("#modal-info"); modal.classList.remove("hidden"); modal.classList.add("flex");
+            $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
+        }
+
+        function attachCardHandlers(cardEl, folio, cita) {
+            cardEl.querySelector(`[data-info="${folio}"]`).onclick = () => openInfo({ folio, ...cita });
+
+            cardEl.addEventListener("click", async (e) => {
+                const btnChat = e.target.closest("[data-chat]"); if (btnChat) { toggleChat(folio, true); return; }
+                const btnChatSend = e.target.closest("[data-chat-send]"); if (btnChatSend) { await sendChatMsg(folio); return; }
+                const btnChatClose = e.target.closest("[data-chat-close]"); if (btnChatClose) { toggleChat(folio, false); return; }
+
+                const act = e.target.closest(".btn"); if (!act) return;
+                const step = Number(act.dataset.step);
+                act.disabled = true;
+
+                const cref = doc(db, "ControlTransportes", folio);
+                const snap = await getDoc(cref); const control = snap.data() || {}; const p = control.pasos || {};
+                const citaId = control.cita?.id; const comentariosPrev = control.comentarios || [];
+                const appendComment = (arr, paso, data) => [...arr, { ...data, paso, ts: nowISO() }];
+
+                async function finishAndClose(newEstado) {
+                    await updateDoc(cref, {
+                        estado: newEstado,
+                        activo: false,
+                        updatedAt: serverTimestamp()
+                    });
+                    await setCitaFinalizada(citaId);
+                }
+                async function pedirComentario(titulo, paso, accion) {
+                    const res = await openModalComentario(titulo, { folio, paso });
+                    if (!res?.ok) { act.disabled = false; return null; }
+                    const { usuario, comentario } = res.data;
+                    await logBitacora(folio, { paso, accion, usuario, comentario, actorEmail: currentUser?.email || "" });
+                    return res.data;
+                }
+
+                switch (step) {
+                    case 0: {
+                        const v = llegadaValidations(cita); if (!v.ok) { alert(v.msg); act.disabled = false; break; }
+                        const com = await pedirComentario("Registrar Llegada", "llegada", "registrar"); if (!com) break;
+                        if (!p.llegada) { await updateDoc(cref, { "pasos.llegada": nowISO(), comentarios: appendComment(comentariosPrev, "llegada", com), updatedAt: serverTimestamp() }); }
+                        break;
+                    }
+                    case 1: {
+                        const com = await pedirComentario("Registrar Ingreso", "ingreso", "registrar"); if (!com) break;
+                        if (!p.ingreso) { await updateDoc(cref, { "pasos.ingreso": nowISO(), comentarios: appendComment(comentariosPrev, "ingreso", com), updatedAt: serverTimestamp() }); }
+                        break;
+                    }
+                    case 2: {
+                        if (act.classList.contains("fin")) {
+                            const dest = await openModalDestino(); if (!dest) { act.disabled = false; break; }
+                            if (dest === "Cancelar") {
+                                const com = await pedirComentario("Cancelar en Disuasión (E)", "disuasionE_cancel", "cancelar"); if (!com) break;
+                                await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || nowISO(), "pasos.disuasionE_fin": nowISO(), "pasos.disuasionE_destino": "Cancelado", comentarios: appendComment(comentariosPrev, "disuasionE_cancel", com), updatedAt: serverTimestamp() });
+                                await finishAndClose("Cancelado");
+                            } else if (dest === "Rampa") {
+                                const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
+                                const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar"); if (!com) break;
+                                const ts = nowISO();
+                                await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || ts, "pasos.disuasionE_fin": ts, "pasos.disuasionE_destino": "Rampa", "pasos.disuasionE_rampa": rSel, "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, comentarios: appendComment(comentariosPrev, "disuasionE_fin", com), updatedAt: serverTimestamp() });
+                            } else { // Patio
+                                const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar"); if (!com) break;
+                                await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || nowISO(), "pasos.disuasionE_fin": nowISO(), "pasos.disuasionE_destino": "Patio", comentarios: appendComment(comentariosPrev, "disuasionE_fin", com), updatedAt: serverTimestamp() });
+                            }
+                        } else {
+                            const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar"); if (!com) break;
+                            if (!p.disuasionE_inicio) { await updateDoc(cref, { "pasos.disuasionE_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionE_inicio", com), updatedAt: serverTimestamp() }); }
+                        }
+                        break;
+                    }
+                    case 3: {
+                        const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
+                        const com = await pedirComentario(`Finalizar Patio (E) → ${rSel}`, "patioE_fin", "finalizar"); if (!com) break;
+                        const ts = nowISO();
+                        await updateDoc(cref, { "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, comentarios: appendComment(comentariosPrev, "patioE_fin", com), updatedAt: serverTimestamp() });
+                        break;
+                    }
+                    case 4: {
+                        if (act.classList.contains("cancel")) {
+                            const com = await pedirComentario("Cancelar en Rampa", "rampa_cancel", "cancelar"); if (!com) break;
+                            await updateDoc(cref, { "pasos.rampa_cancel": nowISO(), "pasos.disuasionS_inicio": p.disuasionS_inicio || nowISO(), comentarios: appendComment(comentariosPrev, "rampa_cancel", com), updatedAt: serverTimestamp() });
+                            await finishAndClose("Cancelado");
+                        } else {
+                            const com = await pedirComentario("Iniciar descarga en Rampa", "rampa_inicio", "iniciar"); if (!com) break;
+                            if (!p.rampa_inicio) { await updateDoc(cref, { "pasos.rampa_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "rampa_inicio", com), updatedAt: serverTimestamp() }); }
+                        }
+                        break;
+                    }
+                    case 5: {
+                        const com = await pedirComentario("Registrar Fin de Descarga", "finDescarga", "registrar"); if (!com) break;
+                        if (!p.finDescarga) { await updateDoc(cref, { "pasos.finDescarga": nowISO(), comentarios: appendComment(comentariosPrev, "finDescarga", com), updatedAt: serverTimestamp() }); }
+                        break;
+                    }
+                    case 6: {
+                        const com = await pedirComentario("Registrar Liberación", "liberacion", "registrar"); if (!com) break;
+                        if (!p.liberacion) {
+                            await updateDoc(cref, { "pasos.liberacion": nowISO(), comentarios: appendComment(comentariosPrev, "liberacion", com), updatedAt: serverTimestamp() });
+                            const dest = await openModalPostLiberacion();
+                            if (dest === "Patio") { await updateDoc(cref, { "pasos.postLiberacionDestino": "Patio", updatedAt: serverTimestamp() }); }
+                        }
+                        break;
+                    }
+                    case 7: {
+                        const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar"); if (!com) break;
+                        if (!p.patioS_fin) { await updateDoc(cref, { "pasos.patioS_fin": nowISO(), comentarios: appendComment(comentariosPrev, "patioS_fin", com), updatedAt: serverTimestamp() }); }
+                        break;
+                    }
+                    case 8: {
+                        if (act.classList.contains("fin")) {
+                            const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar"); if (!com) break;
+                            if (!p.disuasionS_fin) { await updateDoc(cref, { "pasos.disuasionS_inicio": p.disuasionS_inicio || nowISO(), "pasos.disuasionS_fin": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionS_fin", com), updatedAt: serverTimestamp() }); }
+                        } else {
+                            const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar"); if (!com) break;
+                            if (!p.disuasionS_inicio) { await updateDoc(cref, { "pasos.disuasionS_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionS_inicio", com), updatedAt: serverTimestamp() }); }
+                        }
+                        break;
+                    }
+                    case 9: {
+                        const com = await pedirComentario("Registrar Salida de Planta", "salidaPlanta", "registrar"); if (!com) break;
+                        if (!p.salidaPlanta) {
+                            await updateDoc(cref, {
+                                "pasos.salidaPlanta": nowISO(),
+                                "estado": "Finalizado",
+                                "activo": false,
+                                comentarios: appendComment(comentariosPrev, "salidaPlanta", com),
+                                updatedAt: serverTimestamp()
+                            });
+                            await setCitaFinalizada(citaId);
+                        }
+                        break;
+                    }
+                }
+            });
+
+            cardEl.addEventListener("keydown", (e) => {
+                const t = e.target;
+                if (t && t.id === "chatInput-" + folio && e.key === "Enter") { e.preventDefault(); sendChatMsg(folio); }
+            });
+        }
+
+        function toggleChat(folio, forceOpen = null) {
+            const box = $("#chatBox-" + folio); const open = (forceOpen === null) ? box.classList.contains("hidden") : forceOpen;
+            box.classList.toggle("hidden", !open); $("#chatBadge-" + folio)?.classList.add("hidden"); $("#chatInput-" + folio)?.focus();
+        }
+
+        // --- Carga inicial: todos los controles ACTIVOS ---
+        async function loadActiveControls() {
+            const cont = $("#cards-container");
+
+            const qRef = query(
+                collection(db, "ControlTransportes"),
+                where("activo", "==", true),
+                orderBy("createdAt", "desc")
+            );
+
+            const snap = await getDocs(qRef);
+            let count = 0;
+            for (const d of snap.docs) {
+                const data = d.data(); const folio = d.id; if (cards.has(folio)) continue;
+                const cita = data.cita || {};
+                const cardEl = renderCardSkeleton(folio, cita);
+                cont.appendChild(cardEl);
+                const unsub = listenControlDoc(folio);
+                const chatUnsub = listenChat(folio);
+                cards.set(folio, { rootEl: cardEl, cita, unsub, chatUnsub, data });
+                attachCardHandlers(cardEl, folio, cita);
+                count++;
+            }
+            if (count > 0) $("#empty-state").classList.add("hidden");
+        }
+
+        // Alta por folio (con anti-duplicado)
+        $("#add-folio-btn").onclick = async () => {
+            const folioInput = $("#folio-input");
+            const folio = folioInput.value.trim().toUpperCase();
+            if (!/^BMM-\d{8}$/.test(folio)) { alert("Folio inválido. Formato: BMM-19112501."); return; }
+            if (cards.has(folio)) { alert("Este folio ya está en pantalla."); return; }
+
+            const cita = await getCitaByFolio(folio);
+            if (!cita) { alert("No se encontró una cita activa con ese folio o ya fue finalizada."); return; }
+
+            // 🔹 Si es una cita nueva (no existe ControlTransportes), validar ventana de tiempo
+            if (!cita.__yaExiste) {
+                const v = llegadaValidations(cita);
+                if (!v.ok) {
+                    alert(v.msg);
+                    return; // no agregamos tarjeta
+                }
+            }
+
+            // Si ya existía documento en ControlTransportes, lo dibujamos y escuchamos
+            if (cita.__yaExiste) {
+                const docSnap = await getDoc(doc(db, "ControlTransportes", folio));
+                const data = docSnap.data(); const c = data.cita || {};
+                const cardEl = renderCardSkeleton(folio, c);
+                $("#cards-container").prepend(cardEl);
+                const unsub = listenControlDoc(folio);
+                const chatUnsub = listenChat(folio);
+                cards.set(folio, { rootEl: cardEl, cita: c, unsub, chatUnsub, data });
+                attachCardHandlers(cardEl, folio, c);
+                $("#empty-state").classList.add("hidden");
+
+                // limpiar input
+                folioInput.value = "";
+                folioInput.focus();
+                return;
+            }
+
+            $("#empty-state").classList.add("hidden");
+            const cardEl = renderCardSkeleton(folio, cita);
+            $("#cards-container").prepend(cardEl);
+            await ensureControlDoc(folio, cita);
+            const unsub = listenControlDoc(folio);
+            const chatUnsub = listenChat(folio);
+            cards.set(folio, { rootEl: cardEl, cita, unsub, chatUnsub, data: null });
+            attachCardHandlers(cardEl, folio, cita);
+
+            // limpiar input
+            folioInput.value = "";
+            folioInput.focus();
+        };
+
+        (async function init() {
+            if (!guardAccess()) return;
+            try {
+                currentUser = JSON.parse(
+                    sessionStorage.getItem("currentUser") ||
+                    localStorage.getItem("currentUser") ||
+                    "{}"
+                );
+            } catch {
+                currentUser = {};
+            }
+
+            setupSidebarNav(); // 🔓 Aplica permisos de menú según rol
+
+            await loadActiveControls();
+        })();
+    </script>
+</body>
+
+</html>

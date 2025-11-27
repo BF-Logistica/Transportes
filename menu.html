@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registros</title>
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="img/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
+
+    <!-- SDKs (para el builder / theming) -->
+    <script src="/_sdk/data_sdk.js"></script>
+    <script src="/_sdk/element_sdk.js"></script>
+    <!-- Tailwind CDN (ok para entorno interno / pruebas) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        :root {
+            --bmm-blue: #0d1c84;
+            --bmm-blue-light: #1b2c9f;
+            --text-main: #000000;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #f3f4f6;
+        }
+
+        /* Sidebar / layout */
+        .sidebar-collapsed {
+            width: 80px;
+        }
+
+        .sidebar-expanded {
+            width: 250px;
+        }
+
+        .main-content-collapsed {
+            margin-left: 80px;
+        }
+
+        .main-content-expanded {
+            margin-left: 250px;
+        }
+
+        .menu-text {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+            transition: opacity 0.3s, width 0.3s;
+            white-space: nowrap;
+        }
+
+        .sidebar-expanded .menu-text {
+            opacity: 1;
+            width: auto;
+        }
+
+        .sidebar-collapsed .menu-text {
+            display: none;
+        }
+
+        .sidebar-collapsed nav a {
+            justify-content: center;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .table-container {
+            height: calc(100% - 140px);
+            overflow-y: auto;
+        }
+
+        .loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 999px;
+            border-top: 3px solid #ffffff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Helpers azul organizacional */
+        .bg-bmm {
+            background-color: var(--bmm-blue);
+        }
+
+        .bg-bmm-light {
+            background-color: var(--bmm-blue-light);
+        }
+
+        .text-bmm {
+            color: var(--bmm-blue);
+        }
+
+        /* Iconos del sidebar */
+        .nav-icon {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            object-fit: contain;
+            display: block;
+        }
+
+        .sidebar-collapsed .nav-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto;
+        }
+
+        @view-transition {
+            navigation: auto;
+        }
+
+        /* Ajustes básicos para pantallas pequeñas */
+        @media (max-width: 768px) {
+            .sidebar-expanded {
+                width: 210px;
+            }
+
+            .main-content-expanded {
+                margin-left: 210px;
+            }
+
+            .table-container {
+                height: calc(100% - 180px);
+            }
+
+            header h1 {
+                font-size: 1.15rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="h-full flex">
+
+        <!-- SIDEBAR -->
+        <aside id="sidebar"
+            class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+            <div class="p-4 flex items-center justify-between border-b border-gray-200">
+                <div class="hidden" id="sidebar-title-wrapper">
+                    <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
+                    <span class="menu-text" id="app-title-sidebar"></span>
+                </div>
+
+                <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
+                    class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <nav class="flex-1 p-4 overflow-y-auto">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="menu.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-solicitudes-text">Solicitudes</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="usuarios.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-usuarios-text">Usuarios</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="citas.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-agendar-text">Control de Citas</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="control.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/control_transportes.png" alt="Control de Transportes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-control-text">Control Transportes</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="estatus.html"
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+                            <span class="nav-icon-wrapper">
+                                <img src="img/estatus_transportes.png" alt="Estatus Transportes" class="nav-icon" />
+                            </span>
+                            <span class="menu-text" id="menu-estatus-text">Seguimiento en Vivo</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- MAIN -->
+        <main id="main-content"
+            class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
+            <header
+                class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+                <div class="flex items-center gap-3 min-w-0">
+                    <img src="img/bf_logo.png" alt="Logo Empresa" class="h-8 w-auto flex-shrink-0" />
+                    <h1 id="page-title" class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">
+                        Solicitudes de Registro
+                    </h1>
+                </div>
+
+                <button id="logout-btn"
+                    class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    <span id="logout-text">Cerrar sesión</span>
+                </button>
+            </header>
+
+            <!-- Filtros -->
+            <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
+                <div class="flex gap-4 flex-wrap items-center">
+                    <div class="flex-1 min-w-[220px]">
+                        <input id="search-input" type="text"
+                            placeholder="Buscar por nombre, apellido, proveedor o nómina..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                    </div>
+
+                    <label for="role-filter" class="sr-only">Filtrar por rol</label>
+                    <select id="role-filter" name="role-filter" aria-label="Filtrar por rol"
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)] text-sm">
+                        <option value="">Todos los roles</option>
+                        <option value="Coordinador Logístico">Coordinador Logístico</option>
+                        <option value="Administrador">Administrador</option>
+                        <option value="Proveedor">Proveedor</option>
+                    </select>
+
+                    <button id="clear-filters"
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+                        Limpiar filtros
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="flex-1 p-4 sm:p-6 table-container">
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[480px]">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Rol
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Nombre
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Apellido
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                                        Estatus
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="solicitudes-tbody" class="bg-white divide-y divide-gray-100">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div id="empty-state" class="p-12 text-center text-gray-500 hidden">
+                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p class="text-lg font-medium">No hay solicitudes pendientes</p>
+                        <p class="text-sm mt-2">Las nuevas solicitudes aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL INFORMACIÓN DE USUARIO -->
+    <div id="user-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                        <img src="img/usuario.png" alt="Usuario"
+                            class="w-8 h-8 object-contain pointer-events-none select-none" />
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Información de Usuario
+                        </h2>
+                        <p id="user-modal-subtitle" class="text-xs text-gray-500">
+                            Revisa y completa los datos antes de confirmar el acceso.
+                        </p>
+                    </div>
+                </div>
+                <span id="um-estatus"
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+                </span>
+            </div>
+
+            <form id="user-form" class="flex flex-col">
+                <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[60vh]">
+                    <!-- CORPORATIVO -->
+                    <div id="corp-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="uf-rol"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Rol</label>
+                            <input id="uf-rol" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                                readonly />
+                        </div>
+                        <div>
+                            <label for="uf-nomina"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nómina</label>
+                            <input id="uf-nomina" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="uf-nombre"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nombre(s)</label>
+                            <input id="uf-nombre" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="uf-apellidos"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Apellidos</label>
+                            <input id="uf-apellidos" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="uf-correo"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Correo
+                                organizacional</label>
+                            <input id="uf-correo" type="email"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                    </div>
+
+                    <!-- PROVEEDOR -->
+                    <div id="prov-fields" class="grid grid-cols-1 sm:grid-cols-2 gap-4 hidden">
+                        <div>
+                            <label for="uf-rol-prov"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Rol</label>
+                            <input id="uf-rol-prov" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                                readonly />
+                        </div>
+                        <div>
+                            <label for="uf-linea" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea
+                                transportista</label>
+                            <input id="uf-linea" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="uf-razon" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Razón
+                                social</label>
+                            <input id="uf-razon" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="uf-fiscal"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Dirección
+                                fiscal</label>
+                            <input id="uf-fiscal" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="uf-patios"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Dirección patios de
+                                maniobra</label>
+                            <input id="uf-patios" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="uf-frontera"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Frontera</label>
+                            <input id="uf-frontera" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="uf-email-contacto"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Correo de
+                                contacto</label>
+                            <input id="uf-email-contacto" type="email"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                        <div>
+                            <label for="uf-telefono"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Teléfono de
+                                contacto</label>
+                            <input id="uf-telefono" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" />
+                        </div>
+                    </div>
+
+                    <!-- Usuario y contraseña -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="uf-usuario"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Usuario de
+                                acceso</label>
+                            <input id="uf-usuario" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+                                readonly />
+                            <p class="text-[11px] text-gray-500 mt-1">Se usará como usuario para iniciar sesión.</p>
+                        </div>
+                        <div>
+                            <label for="uf-contrasena"
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Contraseña
+                                asignada</label>
+                            <input id="uf-contrasena" type="text"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg" required />
+                            <p class="text-[11px] text-gray-500 mt-1">
+                                Se enviará al usuario junto con su correo como credenciales de acceso.
+                            </p>
+                        </div>
+                    </div>
+
+                    <p id="user-error" class="text-xs text-red-600 hidden">
+                        Completa los campos obligatorios antes de guardar.
+                    </p>
+                </div>
+
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between gap-3">
+                    <button id="user-modal-delete" type="button"
+                        class="px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 text-sm font-medium transition-colors">
+                        Eliminar registro
+                    </button>
+                    <div class="flex gap-3">
+                        <button id="user-modal-cancel" type="button"
+                            class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors">
+                            Cancelar
+                        </button>
+                        <button id="user-modal-save" type="button"
+                            class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
+                            <span>Guardar</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- LÓGICA: FIREBASE + FILTROS + MODAL -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            query,
+            where,
+            doc,
+            updateDoc,
+            deleteDoc
+        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        let currentUser = null;
+
+        function loadCurrentUser() {
+            try {
+                const storedSession = sessionStorage.getItem("currentUser");
+                const storedLocal = localStorage.getItem("currentUser");
+                const raw = storedSession || storedLocal;
+                if (!raw) return null;
+                return JSON.parse(raw);
+            } catch {
+                return null;
+            }
+        }
+
+        function normalizeRole(str) {
+            return (str || "")
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, "");
+        }
+
+        /* 🔐 AQUÍ EL CAMBIO: reglas de acceso para file://, Admin y Coordinador */
+        function enforceAdminAccess() {
+            const isFileProtocol = window.location.protocol === "file:";
+            if (isFileProtocol) {
+                console.warn("Saltando validación de login (entorno local file://).");
+                return true;
+            }
+
+            currentUser = loadCurrentUser();
+
+            if (!currentUser) {
+                alert("Debes iniciar sesión para acceder a esta página.");
+                window.location.replace("login.html");
+                return false;
+            }
+
+            const normRol = normalizeRole(currentUser.rol || currentUser.role);
+
+            if (normRol === "administrador") {
+                return true;
+            }
+
+            if (normRol === "coordinadorlogistico") {
+                alert("Tu rol solo puede acceder a Control Transportes y Seguimiento en Vivo.");
+                window.location.replace("control.html");
+                return false;
+            }
+
+            alert("No tienes permisos para acceder a esta página.");
+            window.location.replace("login.html");
+            return false;
+        }
+
+        /* ==========================
+           CONFIGURACIÓN FIREBASE
+        =========================== */
+        const firebaseConfig = {
+            apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
+            authDomain: "logisticatransportesbmm.firebaseapp.com",
+            projectId: "logisticatransportesbmm",
+            storageBucket: "logisticatransportesbmm.firebasestorage.app",
+            messagingSenderId: "1096949784709",
+            appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const SEND_ACCESS_EMAIL_URL =
+            "https://us-central1-logisticatransportesbmm.cloudfunctions.net/sendAccessCredentials";
+
+        const defaultConfig = {
+            background_color: "#f9fafb",
+            surface_color: "#ffffff",
+            text_color: "#1f2937",
+            primary_action_color: "#dc2626",
+            secondary_action_color: "#6b7280",
+            app_title: "Sistema de Gestión",
+            logout_text: "Cerrar sesión",
+            menu_solicitudes: "Solicitudes",
+            menu_usuarios: "Usuarios",
+            menu_reportes: "Agendar Cita",
+            menu_configuracion: "Configuración",
+            font_family: "Inter",
+            font_size: 16
+        };
+
+        let allSolicitudes = [];
+        let filteredSolicitudes = [];
+        let currentSolicitud = null;
+
+        async function initSDKs() {
+            if (window.dataSdk) {
+                try {
+                    await window.dataSdk.init({});
+                } catch (e) {
+                    console.warn("Data SDK no inicializado:", e);
+                }
+            }
+
+            if (window.elementSdk) {
+                await window.elementSdk.init({
+                    defaultConfig,
+                    onConfigChange: async (config) => {
+                        const customFont = config.font_family || defaultConfig.font_family;
+                        const baseFontStack = "system-ui, -apple-system, sans-serif";
+                        const baseSize = config.font_size || defaultConfig.font_size;
+
+                        document.body.style.backgroundColor =
+                            config.background_color || defaultConfig.background_color;
+                        document.getElementById("main-content").style.backgroundColor =
+                            config.background_color || defaultConfig.background_color;
+
+                        const surfaces = document.querySelectorAll("header, .bg-white");
+                        surfaces.forEach(el => {
+                            el.style.backgroundColor =
+                                config.surface_color || defaultConfig.surface_color;
+                        });
+
+                        const pageTitle = document.getElementById("page-title");
+                        pageTitle.style.color = config.text_color || defaultConfig.text_color;
+                        pageTitle.style.fontFamily = `${customFont}, ${baseFontStack}`;
+                        pageTitle.style.fontSize = `${baseSize * 1.4}px`;
+
+                        const logoutBtn = document.getElementById("logout-btn");
+                        document.getElementById("logout-text").textContent =
+                            config.logout_text || defaultConfig.logout_text;
+                        logoutBtn.style.backgroundColor =
+                            config.primary_action_color || defaultConfig.primary_action_color;
+                        logoutBtn.style.fontFamily = `${customFont}, ${baseFontStack}`;
+                        logoutBtn.style.fontSize = `${baseSize * 0.875}px`;
+
+                        const allText = document.querySelectorAll("p, span, label, input, select, button, td, th");
+                        allText.forEach(el => {
+                            el.style.fontFamily = `${customFont}, ${baseFontStack}`;
+                            el.style.fontSize = `${baseSize * 0.875}px`;
+                        });
+                    },
+                    mapToCapabilities: (config) => ({
+                        recolorables: [
+                            {
+                                get: () => config.background_color || defaultConfig.background_color,
+                                set: (value) => {
+                                    config.background_color = value;
+                                    window.elementSdk.setConfig({ background_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.surface_color || defaultConfig.surface_color,
+                                set: (value) => {
+                                    config.surface_color = value;
+                                    window.elementSdk.setConfig({ surface_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.text_color || defaultConfig.text_color,
+                                set: (value) => {
+                                    config.text_color = value;
+                                    window.elementSdk.setConfig({ text_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.primary_action_color || defaultConfig.primary_action_color,
+                                set: (value) => {
+                                    config.primary_action_color = value;
+                                    window.elementSdk.setConfig({ primary_action_color: value });
+                                }
+                            },
+                            {
+                                get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+                                set: (value) => {
+                                    config.secondary_action_color = value;
+                                    window.elementSdk.setConfig({ secondary_action_color: value });
+                                }
+                            }
+                        ],
+                        borderables: [],
+                        fontEditable: {
+                            get: () => config.font_family || defaultConfig.font_family,
+                            set: (value) => {
+                                config.font_family = value;
+                                window.elementSdk.setConfig({ font_family: value });
+                            }
+                        },
+                        fontSizeable: {
+                            get: () => config.font_size || defaultConfig.font_size,
+                            set: (value) => {
+                                config.font_size = value;
+                                window.elementSdk.setConfig({ font_size: value });
+                            }
+                        }
+                    }),
+                    mapToEditPanelValues: (config) => new Map([
+                        ["app_title", config.app_title || defaultConfig.app_title],
+                        ["logout_text", config.logout_text || defaultConfig.logout_text],
+                        ["menu_solicitudes", config.menu_solicitudes || defaultConfig.menu_solicitudes],
+                        ["menu_usuarios", config.menu_usuarios || defaultConfig.menu_usuarios],
+                        ["menu_reportes", config.menu_reportes || defaultConfig.menu_reportes],
+                        ["menu_configuracion", config.menu_configuracion || defaultConfig.menu_configuracion]
+                    ])
+                });
+            }
+        }
+
+        const COLLECTIONS_DEF = [
+            { name: "UsuarioAdmin", tipo: "corp", rolPorDefecto: "Administrador" },
+            { name: "UsuarioLogistico", tipo: "corp", rolPorDefecto: "Coordinador Logístico" },
+            { name: "UsuarioProveedor", tipo: "prov", rolPorDefecto: "Proveedor" }
+        ];
+
+        async function loadSolicitudesPendientes() {
+            const result = [];
+
+            for (const c of COLLECTIONS_DEF) {
+                try {
+                    const qRef = query(
+                        collection(db, c.name),
+                        where("estatus", "==", "Pendiente")
+                    );
+                    const snap = await getDocs(qRef);
+
+                    snap.forEach(docSnap => {
+                        const d = docSnap.data() || {};
+                        if (c.tipo === "corp") {
+                            result.push({
+                                id: docSnap.id,
+                                collection: c.name,
+                                tipo: "corp",
+                                rol: d.rol || c.rolPorDefecto,
+                                nombre: d.nombre || "",
+                                apellido: d.apellidos || "",
+                                nomina: d.nomina || "",
+                                correo: d.correo || d.usuario || "",
+                                usuario: d.usuario || (d.correo || ""),
+                                estatus: d.estatus || "Pendiente",
+                                raw: d
+                            });
+                        } else {
+                            result.push({
+                                id: docSnap.id,
+                                collection: c.name,
+                                tipo: "prov",
+                                rol: "Proveedor",
+                                nombre: d.linea || "",
+                                apellido: d.razon || "",
+                                nomina: "",
+                                correo: d.emailContacto || d.usuario || "",
+                                usuario: d.usuario || (d.emailContacto || ""),
+                                telefono: d.telefonoContacto || "",
+                                estatus: d.estatus || "Pendiente",
+                                raw: d
+                            });
+                        }
+                    });
+                } catch (e) {
+                    console.error("Error leyendo colección", c.name, e);
+                }
+            }
+
+            allSolicitudes = result;
+            applyFilters();
+        }
+
+        function renderSolicitudes() {
+            const tbody = document.getElementById("solicitudes-tbody");
+            const emptyState = document.getElementById("empty-state");
+
+            if (!filteredSolicitudes.length) {
+                tbody.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+
+            tbody.innerHTML = filteredSolicitudes.map(solicitud => {
+                const badgeClasses =
+                    (solicitud.estatus || "").toLowerCase() === "pendiente"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-green-100 text-green-800";
+
+                return `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${solicitud.rol || ""}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${solicitud.nombre || ""}
+            </td>
+            <td class="px-6 py-4 text-sm text-gray-900">
+              ${solicitud.apellido || ""}
+            </td>
+            <td class="px-6 py-4 text-sm">
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 text-xs font-semibold rounded-full ${badgeClasses}">
+                  ${solicitud.estatus || ""}
+                </span>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors js-open-user"
+                  data-collection="${solicitud.collection}"
+                  data-id="${solicitud.id}"
+                  title="Editar usuario">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536M9 11l6.232-6.232a2.121 2.121 0 113 3L12 14l-4 1 1-4z" />
+                  </svg>
+                  <span>Editar</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+            }).join("");
+        }
+
+        function applyFilters() {
+            const searchInput = document.getElementById("search-input");
+            const roleFilter = document.getElementById("role-filter");
+
+            const searchTerm = (searchInput.value || "").toLowerCase().trim();
+            const roleValue = roleFilter.value || "";
+
+            filteredSolicitudes = allSolicitudes.filter(solicitud => {
+                if ((solicitud.estatus || "").toLowerCase() !== "pendiente") return false;
+                if (roleValue && solicitud.rol !== roleValue) return false;
+                if (!searchTerm) return true;
+
+                const haystack = [
+                    solicitud.nombre,
+                    solicitud.apellido,
+                    solicitud.nomina,
+                    solicitud.correo,
+                    solicitud.usuario
+                ]
+                    .map(v => (v || "").toString().toLowerCase())
+                    .join(" ");
+
+                return haystack.includes(searchTerm);
+            });
+
+            renderSolicitudes();
+        }
+
+        function fillModalFields(s) {
+            const corpFields = document.getElementById("corp-fields");
+            const provFields = document.getElementById("prov-fields");
+            const estatusEl = document.getElementById("um-estatus");
+
+            document.getElementById("user-error").classList.add("hidden");
+
+            if (s.tipo === "corp") {
+                corpFields.classList.remove("hidden");
+                provFields.classList.add("hidden");
+
+                document.getElementById("uf-rol").value = s.rol || "";
+                document.getElementById("uf-nomina").value = s.nomina || "";
+                document.getElementById("uf-nombre").value = s.nombre || "";
+                document.getElementById("uf-apellidos").value = s.apellido || "";
+                document.getElementById("uf-correo").value = s.correo || "";
+            } else {
+                corpFields.classList.add("hidden");
+                provFields.classList.remove("hidden");
+
+                document.getElementById("uf-rol-prov").value = s.rol || "Proveedor";
+                document.getElementById("uf-linea").value = s.raw?.linea || s.nombre || "";
+                document.getElementById("uf-razon").value = s.raw?.razon || s.apellido || "";
+                document.getElementById("uf-fiscal").value = s.raw?.direccionFiscal || "";
+                document.getElementById("uf-patios").value = s.raw?.direccionPatios || "";
+                document.getElementById("uf-frontera").value = s.raw?.frontera || "";
+                document.getElementById("uf-email-contacto").value = s.correo || s.raw?.emailContacto || "";
+                document.getElementById("uf-telefono").value = s.telefono || s.raw?.telefonoContacto || "";
+            }
+
+            document.getElementById("uf-usuario").value = s.usuario || s.correo || "";
+            document.getElementById("uf-contrasena").value = "";
+
+            const statusText = s.estatus || "Pendiente";
+            estatusEl.textContent = statusText;
+            estatusEl.className =
+                "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold " +
+                (statusText.toLowerCase() === "pendiente"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : "bg-green-100 text-green-800");
+        }
+
+        function openUserModal(collectionName, docId) {
+            currentSolicitud = allSolicitudes.find(
+                s => s.collection === collectionName && s.id === docId
+            );
+            if (!currentSolicitud) return;
+
+            fillModalFields(currentSolicitud);
+
+            const modal = document.getElementById("user-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeUserModal(redirect = false) {
+            const modal = document.getElementById("user-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+            currentSolicitud = null;
+
+            if (redirect) {
+                window.location.href = "menu.html";
+            }
+        }
+
+        async function saveUserChanges() {
+            if (!currentSolicitud) {
+                closeUserModal();
+                return;
+            }
+
+            const pass = (document.getElementById("uf-contrasena").value || "").trim();
+            const errorBox = document.getElementById("user-error");
+
+            if (!pass || pass.length < 6) {
+                errorBox.textContent = "La contraseña debe tener al menos 6 caracteres.";
+                errorBox.classList.remove("hidden");
+                return;
+            }
+
+            const saveBtn = document.getElementById("user-modal-save");
+            const originalHTML = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<div class="loading-spinner"></div>';
+
+            try {
+                const s = currentSolicitud;
+                const docRef = doc(db, s.collection, s.id);
+
+                let updatePayload = {
+                    estatus: "Confirmado",
+                    contrasena: pass
+                };
+
+                if (s.tipo === "corp") {
+                    const rol = document.getElementById("uf-rol").value.trim();
+                    const nomina = document.getElementById("uf-nomina").value.trim();
+                    const nombre = document.getElementById("uf-nombre").value.trim();
+                    const apellidos = document.getElementById("uf-apellidos").value.trim();
+                    const correo = document.getElementById("uf-correo").value.trim().toLowerCase();
+
+                    updatePayload = {
+                        ...updatePayload,
+                        rol,
+                        nomina,
+                        nombre,
+                        apellidos,
+                        correo,
+                        usuario: correo
+                    };
+                } else {
+                    const rol = "Proveedor";
+                    const linea = document.getElementById("uf-linea").value.trim();
+                    const razon = document.getElementById("uf-razon").value.trim();
+                    const fiscal = document.getElementById("uf-fiscal").value.trim();
+                    const patios = document.getElementById("uf-patios").value.trim();
+                    const frontera = document.getElementById("uf-frontera").value.trim();
+                    const email = document.getElementById("uf-email-contacto").value.trim().toLowerCase();
+                    const tel = document.getElementById("uf-telefono").value.trim();
+
+                    updatePayload = {
+                        ...updatePayload,
+                        rol,
+                        linea,
+                        razon,
+                        direccionFiscal: fiscal,
+                        direccionPatios: patios,
+                        frontera,
+                        emailContacto: email,
+                        telefonoContacto: tel,
+                        usuario: email
+                    };
+                }
+
+                await updateDoc(docRef, updatePayload);
+
+                const correoDestino =
+                    (currentSolicitud.tipo === "corp")
+                        ? (updatePayload.correo || currentSolicitud.correo)
+                        : (updatePayload.emailContacto || currentSolicitud.correo);
+
+                if (!correoDestino) {
+                    console.warn("No se encontró correoDestino para enviar credenciales.");
+                }
+
+                const usuarioAcceso = updatePayload.usuario || correoDestino;
+
+                const payload = {
+                    to: correoDestino,
+                    usuario: usuarioAcceso,
+                    contrasena: pass,
+                    rol: updatePayload.rol || currentSolicitud.rol || "Usuario",
+                    tipoUsuario: currentSolicitud.tipo,
+                    proveedor: currentSolicitud.tipo === "prov"
+                        ? {
+                            linea: updatePayload.linea,
+                            razon: updatePayload.razon,
+                            direccionFiscal: updatePayload.direccionFiscal,
+                            direccionPatios: updatePayload.direccionPatios,
+                            frontera: updatePayload.frontera,
+                            emailContacto: updatePayload.emailContacto,
+                            telefonoContacto: updatePayload.telefonoContacto
+                        }
+                        : null,
+                    extra: {
+                        id: currentSolicitud.id,
+                        collection: currentSolicitud.collection
+                    }
+                };
+
+                console.log("Payload que se envía a la función:", payload);
+
+                let correoOk = true;
+
+                if (correoDestino) {
+                    try {
+                        const res = await fetch(SEND_ACCESS_EMAIL_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(payload)
+                        });
+
+                        let body = null;
+                        try {
+                            body = await res.json();
+                        } catch (_) { }
+
+                        console.log("Respuesta de la función:", res.status, body);
+
+                        if (!res.ok || (body && body.success === false)) {
+                            correoOk = false;
+                        }
+                    } catch (mailErr) {
+                        correoOk = false;
+                        console.error("Error al enviar correo de acceso:", mailErr);
+                    }
+                } else {
+                    correoOk = false;
+                }
+
+                if (correoOk) {
+                    alert("Usuario guardado con éxito. El estatus cambió a Confirmado y se enviaron las credenciales al correo registrado.");
+                } else {
+                    alert("Usuario guardado, pero hubo un problema al enviar el correo. Revisa los logs de la función.");
+                }
+
+                allSolicitudes = allSolicitudes.filter(
+                    s => !(s.collection === currentSolicitud.collection && s.id === currentSolicitud.id)
+                );
+                applyFilters();
+                closeUserModal();
+
+            } catch (err) {
+                console.error(err);
+                errorBox.textContent = "Ocurrió un error al guardar los cambios. Intenta de nuevo.";
+                errorBox.classList.remove("hidden");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = originalHTML;
+            }
+        }
+
+        async function deleteCurrentSolicitud() {
+            if (!currentSolicitud) return;
+
+            const confirmar = confirm("¿Seguro que deseas eliminar este registro? Esta acción no se puede deshacer.");
+            if (!confirmar) return;
+
+            const deleteBtn = document.getElementById("user-modal-delete");
+            const originalText = deleteBtn.textContent;
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = "Eliminando...";
+
+            try {
+                const s = currentSolicitud;
+                const docRef = doc(db, s.collection, s.id);
+
+                await deleteDoc(docRef);
+
+                allSolicitudes = allSolicitudes.filter(
+                    x => !(x.collection === s.collection && x.id === s.id)
+                );
+                applyFilters();
+
+                alert("Registro eliminado correctamente.");
+                closeUserModal();
+            } catch (err) {
+                console.error("Error al eliminar registro:", err);
+                alert("Ocurrió un error al eliminar el registro. Intenta de nuevo.");
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = originalText;
+                return;
+            }
+
+            deleteBtn.disabled = false;
+            deleteBtn.textContent = originalText;
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (!enforceAdminAccess()) return;
+
+            const sidebar = document.getElementById("sidebar");
+            const mainContent = document.getElementById("main-content");
+            const hamburgerBtn = document.getElementById("hamburger-btn");
+
+            if (hamburgerBtn && sidebar && mainContent) {
+                hamburgerBtn.addEventListener("click", () => {
+                    const isExpanded = sidebar.classList.contains("sidebar-expanded");
+
+                    sidebar.classList.toggle("sidebar-expanded", !isExpanded);
+                    sidebar.classList.toggle("sidebar-collapsed", isExpanded);
+
+                    mainContent.classList.toggle("main-content-expanded", !isExpanded);
+                    mainContent.classList.toggle("main-content-collapsed", isExpanded);
+                });
+            }
+
+            document.getElementById("search-input").addEventListener("input", applyFilters);
+            document.getElementById("role-filter").addEventListener("change", applyFilters);
+
+            document.getElementById("clear-filters").addEventListener("click", () => {
+                document.getElementById("search-input").value = "";
+                document.getElementById("role-filter").value = "";
+                applyFilters();
+            });
+
+            document.getElementById("user-modal-cancel").addEventListener("click", () => closeUserModal(true));
+            document.getElementById("user-modal-save").addEventListener("click", saveUserChanges);
+            document.getElementById("user-modal-delete").addEventListener("click", deleteCurrentSolicitud);
+
+            document.getElementById("solicitudes-tbody").addEventListener("click", (e) => {
+                const btn = e.target.closest(".js-open-user");
+                if (!btn) return;
+                const collection = btn.getAttribute("data-collection");
+                const id = btn.getAttribute("data-id");
+                if (collection && id) {
+                    openUserModal(collection, id);
+                }
+            });
+
+            document.getElementById("logout-btn").addEventListener("click", () => {
+                sessionStorage.clear();
+                localStorage.removeItem("currentUser");
+                window.location.replace("login.html");
+            });
+
+            initSDKs();
+            loadSolicitudesPendientes();
+        });
+    </script>
+</body>
+
+</html>
