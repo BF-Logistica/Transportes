@@ -10,10 +10,8 @@
     <link rel="icon" href="img/icon-192.png" type="image/png">
     <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
 
-    <!-- SDKs (para el builder / theming si lo usas) -->
     <script src="/_sdk/data_sdk.js"></script>
     <script src="/_sdk/element_sdk.js"></script>
-    <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -38,7 +36,6 @@
             background-color: #f3f4f6;
         }
 
-        /* Sidebar / layout */
         .sidebar-collapsed {
             width: 80px;
         }
@@ -106,7 +103,6 @@
             }
         }
 
-        /* Helpers azul organizacional */
         .bg-bmm {
             background-color: var(--bmm-blue);
         }
@@ -251,7 +247,6 @@
                 </button>
             </header>
 
-            <!-- Filtros -->
             <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
                 <div class="flex gap-4 flex-wrap items-center">
                     <div class="flex-1 min-w-[220px]">
@@ -267,7 +262,6 @@
                 </div>
             </div>
 
-            <!-- Tabla -->
             <div class="flex-1 p-4 sm:p-6 table-container">
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                     <div class="overflow-x-auto">
@@ -322,7 +316,6 @@
     <!-- MODAL DETALLE DE CITA -->
     <div id="cita-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
-            <!-- Header modal -->
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
@@ -345,10 +338,8 @@
                 </span>
             </div>
 
-            <!-- Cuerpo modal -->
             <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[60vh]">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Fecha -->
                     <div>
                         <label for="cm-fecha" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha de
                             visita</label>
@@ -359,7 +350,6 @@
                         </p>
                     </div>
 
-                    <!-- Hora -->
                     <div>
                         <label for="cm-hora"
                             class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora</label>
@@ -374,7 +364,6 @@
                         </p>
                     </div>
 
-                    <!-- Info transporte -->
                     <div>
                         <label for="cm-linea" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea
                             transportista</label>
@@ -472,7 +461,6 @@
                 </p>
             </div>
 
-            <!-- Footer modal -->
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
                 <button id="cm-delete-btn" type="button"
                     class="px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 text-sm font-medium transition-colors">
@@ -505,12 +493,10 @@
             doc,
             updateDoc,
             deleteDoc,
-            setDoc
+            setDoc,
+            runTransaction
         } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        /* ================
-           FIREBASE CONFIG
-        =================== */
         const firebaseConfig = {
             apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
             authDomain: "logisticatransportesbmm.firebaseapp.com",
@@ -526,18 +512,10 @@
         const SEND_CITA_CONFIRM_EMAIL_URL =
             "https://us-central1-logisticatransportesbmm.cloudfunctions.net/sendCitaConfirmacion";
 
-        /* ================
-           STATE
-        =================== */
-
         let allCitas = [];
         let filteredCitas = [];
-        let currentCita = null; // objeto con data + id
+        let currentCita = null;
         let currentUser = null;
-
-        /* ================
-           HELPERS
-        =================== */
 
         function sanitize(value) {
             if (value === null || value === undefined) return "";
@@ -579,7 +557,6 @@
             return slots;
         }
 
-        // 🔹 Helper para sumar horas al string "HH:MM"
         function addHoursToTimeStr(timeStr, hoursToAdd) {
             if (!timeStr) return null;
             const [hStr, mStr] = timeStr.split(":");
@@ -594,7 +571,6 @@
             return `${hh}:${mm}`;
         }
 
-        // Lógica de capacidad: 1 transporte por hora, excepto 05:00, 13:00, 21:00 que permiten 2
         const specialDoubleSlots = new Set(["05:00", "13:00", "21:00"]);
 
         function getMaxCapacityForSlot(hora) {
@@ -605,9 +581,36 @@
             return a === b;
         }
 
-        /* ================
-           LOGIN / ROLES
-        =================== */
+        // ====== FOLIOS CONSECUTIVOS POR FECHA ======
+        async function getNextFolioForDate(fechaISO) {
+            if (!fechaISO) {
+                throw new Error("Fecha inválida para generar folio");
+            }
+
+            const [yyyy, mm, dd] = fechaISO.split("-");
+            const ddmmyy = `${dd}${mm}${String(yyyy).slice(2)}`;
+
+            const counterRef = doc(db, "FolioCounters", fechaISO);
+
+            const indice = await runTransaction(db, async (tx) => {
+                const snap = await tx.get(counterRef);
+
+                let lastIndex = -1;
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (typeof data.lastIndex === "number") {
+                        lastIndex = data.lastIndex;
+                    }
+                }
+
+                const nextIndex = lastIndex + 1;
+                tx.set(counterRef, { lastIndex: nextIndex }, { merge: true });
+                return nextIndex;
+            });
+
+            const sufijo = String(indice).padStart(2, "0");
+            return `BMM-${ddmmyy}${sufijo}`;
+        }
 
         function loadCurrentUser() {
             try {
@@ -624,9 +627,9 @@
         function normalizeRole(str) {
             return (str || "")
                 .toLowerCase()
-                .normalize("NFD")                   // quita acentos
-                .replace(/[\u0300-\u036f]/g, "")    // LOGÍSTICO → LOGISTICO
-                .replace(/\s+/g, "");               // quita espacios
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, "");
         }
 
         function isAdminUser(user) {
@@ -649,7 +652,6 @@
             );
         }
 
-        // 👉 Guard de acceso: esta página sigue siendo SOLO Admin (excepto file://)
         function enforceAdminAccess() {
             const isFileProtocol = window.location.protocol === "file:";
             if (isFileProtocol) {
@@ -667,10 +669,6 @@
             return true;
         }
 
-        // 👉 Sidebar nav: 
-        // file:// → todo habilitado
-        // Admin → todo habilitado
-        // Coordinador logístico → solo control.html y estatus.html
         function setupSidebarNav() {
             const isFile = window.location.protocol === "file:";
             const user = loadCurrentUser();
@@ -684,13 +682,10 @@
                     let enable = false;
 
                     if (isFile) {
-                        // entorno local: todo habilitado
                         enable = true;
                     } else if (admin) {
-                        // Admin ve todo
                         enable = true;
                     } else if (coord) {
-                        // Coordinador Logístico solo Control + Estatus
                         if (page === "control.html" || page === "estatus.html") {
                             enable = true;
                         }
@@ -709,10 +704,6 @@
                     }
                 });
         }
-
-        /* ================
-           CARGA DE CITAS
-        =================== */
 
         async function loadCitasPendientes() {
             const result = [];
@@ -754,10 +745,6 @@
             allCitas = result;
             applyFilters();
         }
-
-        /* ================
-           RENDER TABLA
-        =================== */
 
         function renderCitas() {
             const tbody = document.getElementById("citas-tbody");
@@ -815,10 +802,6 @@
                 .join("");
         }
 
-        /* ================
-           FILTROS
-        =================== */
-
         function applyFilters() {
             const searchInput = document.getElementById("search-input");
             const searchTerm = (searchInput.value || "").toLowerCase().trim();
@@ -843,10 +826,6 @@
             renderCitas();
         }
 
-        /* ================
-           MODAL
-        =================== */
-
         const allSlots = generateTimeSlots24h();
 
         function openCitaModal(citaId) {
@@ -858,7 +837,6 @@
             document.getElementById("cm-fecha-error").classList.add("hidden");
             document.getElementById("cm-hora-error").classList.add("hidden");
 
-            // Llenar campos
             document.getElementById("cm-linea").value = currentCita.linea || "";
             document.getElementById("cm-placas").value = currentCita.placas || "";
             document.getElementById("cm-tipo-transporte").value = currentCita.tipoTransporte || "";
@@ -969,10 +947,6 @@
             return used < maxCap;
         }
 
-        /* ================
-           GUARDAR / ELIMINAR
-        =================== */
-
         async function acceptCita() {
             if (!currentCita) return;
 
@@ -1006,7 +980,6 @@
             const dt = new Date(fecha + "T00:00:00");
             const esDomingo = dt.getDay() === 0;
 
-            // 🔹 Nueva lógica: si la cita tiene horaExtra (full), recalcular como hora + 2h
             const nuevaHoraExtra = currentCita.horaExtra
                 ? addHoursToTimeStr(hora, 2)
                 : null;
@@ -1017,7 +990,6 @@
             acceptBtn.innerHTML = '<div class="loading-spinner"></div>';
 
             try {
-                // 1) Actualizar CitasProveedor
                 const docRef = doc(db, "CitasProveedor", currentCita.id);
                 const updatePayload = {
                     fecha,
@@ -1028,23 +1000,14 @@
                 };
                 await updateDoc(docRef, updatePayload);
 
-                // 2) Crear registro en CitasConfirmadas con folio BMM-ddmmyyNN
-                const [yyyy, mm, dd] = (fecha || "").split("-");
-                const ddmmyy = `${dd}${mm}${String(yyyy).slice(2)}`;
-
-                // contamos cuántas citas confirmadas ya existen para esa fecha
-                const qCount = query(collection(db, "CitasConfirmadas"), where("fecha", "==", fecha));
-                const snapCount = await getDocs(qCount);
-                const consecutivo = String(snapCount.size + 1).padStart(2, "0");
-
-                // folio final
-                const folio = `BMM-${ddmmyy}${consecutivo}`;
+                // ===== FOLIO CON TRANSACCIÓN POR FECHA =====
+                const folio = await getNextFolioForDate(fecha);
 
                 const confirmRef = doc(collection(db, "CitasConfirmadas"));
 
                 const dataConfirmada = {
                     ...currentCita.raw,
-                    ...updatePayload, // incluye nueva horaExtra
+                    ...updatePayload,
                     folio,
                     citaProveedorId: currentCita.id,
                     updatedAt: new Date().toISOString()
@@ -1052,7 +1015,6 @@
 
                 await setDoc(confirmRef, dataConfirmada);
 
-                // 3) Enviar correo de confirmación
                 const correoDestino = currentCita.usuarioProveedor || "";
                 if (correoDestino) {
                     const payloadEmail = {
@@ -1105,7 +1067,6 @@
                     alert("Cita confirmada. No se encontró correo de proveedor para enviar confirmación.");
                 }
 
-                // 4) Actualizar lista en pantalla
                 allCitas = allCitas.filter(c => c.id !== currentCita.id);
                 applyFilters();
                 closeCitaModal();
@@ -1150,14 +1111,9 @@
             }
         }
 
-        /* ================
-           EVENTOS UI
-        =================== */
-
         document.addEventListener("DOMContentLoaded", () => {
             if (!enforceAdminAccess()) return;
 
-            // 🔓 Aplica permisos de menú según rol (file:// todo, Admin todo, Coord solo control + estatus)
             setupSidebarNav();
 
             const sidebar = document.getElementById("sidebar");
@@ -1193,7 +1149,6 @@
             document.getElementById("cm-accept-btn").addEventListener("click", acceptCita);
             document.getElementById("cm-delete-btn").addEventListener("click", deleteCita);
 
-            // 🔹 Cuando cambie la hora en el modal, actualiza vista de horaExtra si aplica FULL
             document.getElementById("cm-hora").addEventListener("change", () => {
                 if (!currentCita) return;
                 const nuevaHora = document.getElementById("cm-hora").value;
