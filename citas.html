@@ -492,8 +492,7 @@
     </div>
 
     <!-- MODAL CALENDARIO SEMANAL -->
-    <div id="calendar-modal"
-        class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+    <div id="calendar-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto max-h-[90vh] flex flex-col overflow-hidden">
             <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
                 <div>
@@ -1235,11 +1234,12 @@
             calendarBaseWeekStart = getWeekStartMonday(calendarTodayDate);
             calendarCurrentWeekStart = new Date(calendarBaseWeekStart);
 
-            const todayISO = getTodayISO();
+            // 🔹 Nuevo: usamos el inicio de semana como límite inferior
+            const baseISO = formatISOFromDate(calendarBaseWeekStart);
             const result = [];
 
             try {
-                // Pendientes futuras
+                // Pendientes futuras (desde el lunes de la semana actual)
                 const qPend = query(
                     collection(db, "CitasProveedor"),
                     where("estatus", "==", "CitaPendiente")
@@ -1248,7 +1248,8 @@
                 snapPend.forEach(docSnap => {
                     const d = docSnap.data() || {};
                     const fecha = d.fecha || "";
-                    if (!fecha || fecha < todayISO) return;
+                    if (!fecha || fecha < baseISO) return;   // 👈 aquí antes usábamos todayISO
+
                     result.push({
                         id: docSnap.id,
                         estatus: d.estatus || "CitaPendiente",
@@ -1262,7 +1263,7 @@
                     });
                 });
 
-                // Confirmadas futuras
+                // Confirmadas futuras (desde el lunes de la semana actual)
                 const qConf = query(
                     collection(db, "CitasProveedor"),
                     where("estatus", "==", "CitaConfirmada")
@@ -1271,7 +1272,8 @@
                 snapConf.forEach(docSnap => {
                     const d = docSnap.data() || {};
                     const fecha = d.fecha || "";
-                    if (!fecha || fecha < todayISO) return;
+                    if (!fecha || fecha < baseISO) return;   // 👈 igual aquí
+
                     result.push({
                         id: docSnap.id,
                         estatus: d.estatus || "CitaConfirmada",
