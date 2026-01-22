@@ -955,22 +955,23 @@
                     }
                 };
 
-                let correoOk = true;
-                try {
-                    const res = await fetch(SEND_APPOINTMENT_EMAIL_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(payloadEmail)
-                    });
-                    const body = await res.json().catch(() => null);
-                    if (!res.ok || (body && body.success === false)) {
-                        correoOk = false;
-                        console.error("Error en función sendAppointmentNotification:", body);
-                    }
-                } catch (mailErr) {
-                    correoOk = false;
-                    console.error("Error al llamar a sendAppointmentNotification:", mailErr);
-                }
+let correoOk = true;
+try {
+  const res = await fetch(SEND_APPOINTMENT_EMAIL_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payloadEmail)
+  });
+  const body = await res.json().catch(() => null);
+  if (!res.ok || (body && body.success === false)) {
+    correoOk = false;
+    console.error("Error en función sendAppointmentNotification:", body);
+  }
+} catch (mailErr) {
+  correoOk = false;
+  console.error("Error al llamar a sendAppointmentNotification:", mailErr);
+}
+
 
                 if (correoOk) {
                     alert("Cita registrada como pre-registro.\n\nEstatus: CitaPendiente.\nSe te notificará por correo cuando la cita sea aprobada.");
@@ -1103,3 +1104,4 @@
 </body>
 
 </html>
+
