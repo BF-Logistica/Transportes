@@ -955,22 +955,40 @@
                     }
                 };
 
-let correoOk = true;
-try {
-  const res = await fetch(SEND_APPOINTMENT_EMAIL_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payloadEmail)
-  });
-  const body = await res.json().catch(() => null);
-  if (!res.ok || (body && body.success === false)) {
-    correoOk = false;
-    console.error("Error en función sendAppointmentNotification:", body);
-  }
-} catch (mailErr) {
-  correoOk = false;
-  console.error("Error al llamar a sendAppointmentNotification:", mailErr);
-}
+                let correoOk = true;
+                
+                try {
+                  const res = await fetch(SEND_APPOINTMENT_EMAIL_URL, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "Accept": "application/json"
+                    },
+                    body: JSON.stringify(payloadEmail)
+                  });
+                
+                  // Antes asumías JSON sí o sí. Eso hoy te puede romper aunque "haya enviado".
+                  const raw = await res.text(); // <- siempre lee texto
+                  let body = null;
+                  try { body = raw ? JSON.parse(raw) : null; } catch (_) {}
+                
+                  // Mantiene tu lógica original:
+                  // - si no es ok => fallo
+                  // - si body.success === false => fallo
+                  // - si no hay body (o no es JSON) pero res.ok => lo damos como ok (como “antes”)
+                  if (!res.ok || (body && body.success === false)) {
+                    correoOk = false;
+                    console.error("Error en función sendAppointmentNotification:", {
+                      status: res.status,
+                      raw,
+                      body
+                    });
+                  }
+                
+                } catch (mailErr) {
+                  correoOk = false;
+                  console.error("Error al llamar a sendAppointmentNotification:", mailErr);
+                }
 
 
                 if (correoOk) {
@@ -1104,4 +1122,5 @@ try {
 </body>
 
 </html>
+
 
