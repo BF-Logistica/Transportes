@@ -114,8 +114,9 @@
                 <form id="cita-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
                     <!-- Fecha -->
                     <div>
-                        <label for="cf-fecha"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha</label>
+                        <label for="cf-fecha" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha
+                            <span class="text-red-600">*</span>
+                        </label>
                         <input id="cf-fecha" type="date"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             required />
@@ -126,12 +127,13 @@
 
                     <!-- Hora -->
                     <div>
-                        <label for="cf-hora"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora</label>
+                        <label for="cf-hora" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora
+                            <span class="text-red-600">*</span>
+                        </label>
                         <select id="cf-hora"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             required>
-                            <option value="">Selecciona un horario</option>
+                            <option value="">Selecciona primero tipo de visita y transporte</option>
                         </select>
                         <p class="text-[11px] text-gray-500 mt-1">
                             Citas disponibles las 24 horas. Horas 5:00, 13:00 y 21:00 permiten hasta 2 transportes.
@@ -141,7 +143,9 @@
                     <!-- Tipo de visita -->
                     <div>
                         <label for="cf-tipo-visita"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de visita</label>
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de visita
+                            <span class="text-red-600">*</span>
+                        </label>
                         <select id="cf-tipo-visita"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             required>
@@ -155,7 +159,9 @@
                     <!-- Tipo de transporte -->
                     <div>
                         <label for="cf-tipo-transporte"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de transporte</label>
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de transporte
+                            <span class="text-red-600">*</span>
+                        </label>
                         <select id="cf-tipo-transporte"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             required>
@@ -174,7 +180,9 @@
                     <div>
                         <label for="cf-recolecta-caja"
                             class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Va a recolectar
-                            caja?</label>
+                            caja?
+                            <span class="text-red-600">*</span>
+                        </label>
                         <select id="cf-recolecta-caja"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             required>
@@ -184,11 +192,13 @@
                         </select>
                     </div>
 
-                    <!-- Datos específicos CARGA / DESCARGA -->
+                    <!-- Datos específicos -->
                     <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label for="cf-destino"
-                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Destino</label>
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Destino
+                                <span class="text-red-600">*</span>
+                            </label>
                             <input id="cf-destino" type="text"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                                 placeholder="Ej. Bodega, Línea, etc." />
@@ -196,16 +206,18 @@
 
                         <div>
                             <label for="cf-chofer"
-                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nombre del
-                                chofer</label>
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nombre del chofer
+                                <span class="text-red-600">*</span>
+                            </label>
                             <input id="cf-chofer" type="text"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
                         </div>
 
                         <div>
                             <label for="cf-linea-transporte"
-                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Transporte /
-                                línea</label>
+                                class="block text-xs font-semibold text-gray-500 uppercase mb-1">Transporte / línea
+                                <span class="text-red-600">*</span>
+                            </label>
                             <input id="cf-linea-transporte" type="text"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed focus:outline-none focus:ring-0"
                                 placeholder="Se llenará con tu línea por defecto" readonly />
@@ -235,13 +247,11 @@
 
                         <div id="grupo-sello">
                             <label for="cf-sello" class="block text-xs font-semibold text-gray-500 uppercase mb-1">No.
-                                sello (solo
-                                descarga)</label>
+                                sello (solo descarga)</label>
                             <input id="cf-sello" type="text"
                                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
                         </div>
 
-                        <!-- Campos cuando recolecta caja -->
                         <div id="grupo-recolecta" class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 hidden">
                             <div>
                                 <label for="cf-caja-deja"
@@ -273,9 +283,7 @@
                     <!-- Sección especial domingo -->
                     <div id="domingo-extra"
                         class="md:col-span-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-3 hidden">
-                        <p class="text-xs text-amber-900 font-semibold mb-1">
-                            Domingo seleccionado
-                        </p>
+                        <p class="text-xs text-amber-900 font-semibold mb-1">Domingo seleccionado</p>
                         <p class="text-xs text-amber-900 mb-2">
                             Las citas en domingo requieren aprobación especial. Indica claramente el motivo de la
                             visita y la hora estimada de llegada en el campo de comentarios. Se enviará tu solicitud a
@@ -308,20 +316,16 @@
                             <tr>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                    Fecha
-                                </th>
+                                    Fecha</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                    Hora
-                                </th>
+                                    Hora</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                    Estatus
-                                </th>
+                                    Estatus</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                    Tipo visita
-                                </th>
+                                    Tipo visita</th>
                             </tr>
                         </thead>
                         <tbody id="citas-tbody" class="bg-white divide-y divide-gray-100"></tbody>
@@ -331,7 +335,6 @@
                                 <td colspan="4" class="px-6 py-6 text-center text-gray-500 text-sm">
                                     Aún no tienes citas registradas.
                                 </td>
-
                             </tr>
                         </tbody>
                     </table>
@@ -350,7 +353,6 @@
             query,
             where,
             addDoc,
-            orderBy,
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
@@ -454,81 +456,121 @@
             errorEl.classList.add("hidden");
         }
 
+        function setHoraEnabled(enabled, placeholderText) {
+            const select = document.getElementById("cf-hora");
+            select.disabled = !enabled;
+            select.innerHTML = `<option value="">${placeholderText || "Selecciona un horario"}</option>`;
+            if (!enabled) select.value = "";
+        }
+
+        function normalizeTipoVisita(v) {
+            const t = (v || "").trim();
+            if (t === "Carga" || t === "Descarga" || t === "CargaDescarga") return t;
+            return t;
+        }
+
+        function typesForTipoVisita(tipoVisita) {
+            const t = normalizeTipoVisita(tipoVisita);
+            if (t === "CargaDescarga") return ["Carga", "Descarga"];
+            if (t === "Carga") return ["Carga"];
+            if (t === "Descarga") return ["Descarga"];
+            return [];
+        }
+
+        function getCapByHour(hhmm) {
+            return DOUBLE_CAPACITY_HOURS.includes(hhmm) ? 2 : 1;
+        }
+
+        function buildUsageByType(citas) {
+            const usage = {};
+            for (const h of ALL_HOURS) {
+                usage[h] = { Carga: 0, Descarga: 0 };
+            }
+
+            for (const c of citas) {
+                const tipos = typesForTipoVisita(c.tipoVisita);
+                const horasOcupa = [c.hora, c.horaExtra].filter(Boolean);
+                for (const h of horasOcupa) {
+                    if (!usage[h]) usage[h] = { Carga: 0, Descarga: 0 };
+                    for (const t of tipos) {
+                        if (t === "Carga" || t === "Descarga") {
+                            usage[h][t] = (usage[h][t] || 0) + 1;
+                        }
+                    }
+                }
+            }
+            return usage;
+        }
+
         // ==========================
         //  ACCESS GUARD: SOLO PROVEEDOR
         // ==========================
         function getStoredUser() {
             let raw = localStorage.getItem("currentUser");
-            if (!raw) {
-                raw = sessionStorage.getItem("currentUser");
-            }
+            if (!raw) raw = sessionStorage.getItem("currentUser");
             if (!raw) return null;
-
-            try {
-                return JSON.parse(raw);
-            } catch (e) {
-                console.error("Error parseando currentUser:", e);
-                return null;
-            }
+            try { return JSON.parse(raw); } catch (e) { console.error("Error parseando currentUser:", e); return null; }
         }
 
         function checkAccessGuard() {
-            // 1) Entorno local (file://) → pantalla habilitada sin validar sesión/rol
             if (window.location.protocol === "file:") {
                 console.warn("Modo local: se omite validación de sesión y rol en agendarcita.html.");
                 return true;
             }
 
-            // 2) Obtener usuario guardado
             currentUser = getStoredUser();
             console.log("currentUser en agendarcita.html:", currentUser);
 
-            // 3) Sin sesión → alerta + login
             if (!currentUser) {
                 alert("Debes iniciar sesión para acceder a esta pantalla.");
                 window.location.replace("login.html");
                 return false;
             }
 
-            // 4) Validar solo rol Proveedor
             const rolNorm = ((currentUser.rol || currentUser.role || "").trim()).toLowerCase();
-
             if (rolNorm !== "proveedor") {
                 alert("Para acceder a esta pantalla debes iniciar sesión como proveedor.");
                 window.location.replace("login.html");
                 return false;
             }
-
-            // 5) OK: Proveedor autenticado
             return true;
         }
 
         // ==========================
         //  UI: HORARIOS + DOMINGO
         // ==========================
-        function buildHourOptions() {
-            const select = document.getElementById("cf-hora");
-            select.innerHTML = '<option value="">Selecciona un horario</option>';
-
-            ALL_HOURS.forEach(h => {
-                if (BLOCKED_HOURS.includes(h)) return;
-                const opt = document.createElement("option");
-                opt.value = opt.textContent = h;
-                select.appendChild(opt);
-            });
-        }
-
         async function updateHourOptionsForDate(fecha) {
-            const select = document.getElementById("cf-hora");
-            select.innerHTML = '<option value="">Selecciona un horario</option>';
+            const tipoVisitaSel = (document.getElementById("cf-tipo-visita").value || "").trim();
+            const tipoTransporteSel = (document.getElementById("cf-tipo-transporte").value || "").trim();
 
-            if (!fecha) return;
+            // BLINDAJE: sin precondiciones, no habilitar horas
+            if (!fecha) {
+                setHoraEnabled(false, "Selecciona una fecha primero");
+                return;
+            }
+            if (!tipoVisitaSel) {
+                setHoraEnabled(false, "Selecciona primero tipo de visita");
+                return;
+            }
+            if (!tipoTransporteSel) {
+                setHoraEnabled(false, "Selecciona primero tipo de transporte");
+                return;
+            }
+
+            // Si fecha no cumple anticipación, no cargar horas
+            const hoy = todayISO();
+            const diff = daysDiff(hoy, fecha);
+            if (diff < MIN_DAYS_AHEAD) {
+                setHoraEnabled(false, "Fecha no válida (mínimo 3 días)");
+                return;
+            }
+
+            const select = document.getElementById("cf-hora");
+            select.disabled = false;
+            select.innerHTML = '<option value="">Selecciona un horario</option>';
 
             try {
-                const qRef = query(
-                    collection(db, "CitasProveedor"),
-                    where("fecha", "==", fecha)
-                );
+                const qRef = query(collection(db, "CitasProveedor"), where("fecha", "==", fecha));
                 const snap = await getDocs(qRef);
 
                 const citas = [];
@@ -539,43 +581,75 @@
                     citas.push(d);
                 });
 
+                const usage = buildUsageByType(citas);
+
                 const lineaProv = currentProveedorDoc?.linea || "";
+                const requiereHoraExtraSel = (tipoVisitaSel === "CargaDescarga" || tipoTransporteSel === "Full");
+                const tiposReqSel = typesForTipoVisita(tipoVisitaSel);
 
                 ALL_HOURS.forEach(h => {
                     if (BLOCKED_HOURS.includes(h)) return;
 
-                    const capBase = DOUBLE_CAPACITY_HOURS.includes(h) ? 2 : 1;
-                    const ocupanHora = citas.filter(c => c.hora === h || c.horaExtra === h).length;
+                    const capBase = getCapByHour(h);
 
-                    const citasLinea = lineaProv
-                        ? citas.filter(c => (c.linea || "") === lineaProv)
-                        : [];
-
+                    // Bloqueo por proveedor (no mismo ni consecutivo), considerando horaExtra
                     let invalidForProvider = false;
                     if (lineaProv) {
+                        const citasLinea = citas.filter(c => (c.linea || "") === lineaProv);
                         for (const c of citasLinea) {
-                            const diff = Math.abs(hourToNumber(c.hora) - hourToNumber(h));
-                            if (diff === 0 || diff === 1) {
-                                invalidForProvider = true;
-                                break;
+                            const horasProv = [c.hora, c.horaExtra].filter(Boolean);
+                            for (const hh of horasProv) {
+                                const d = Math.abs(hourToNumber(hh) - hourToNumber(h));
+                                if (d === 0 || d === 1) { invalidForProvider = true; break; }
                             }
+                            if (invalidForProvider) break;
                         }
                     }
 
-                    const disabled = ocupanHora >= capBase || invalidForProvider;
+                    // Cupo por tipo en hora base
+                    let fullByTypeBase = tiposReqSel.some(t => (usage[h]?.[t] || 0) >= capBase);
+
+                    // Cupo por tipo en hora extra (hora+2) si aplica
+                    let fullByTypeExtra = false;
+                    if (requiereHoraExtraSel) {
+                        const horaExtra = addHours(h, 2);
+                        if (!horaExtra || BLOCKED_HOURS.includes(horaExtra)) {
+                            fullByTypeExtra = true;
+                        } else {
+                            const capExtra = getCapByHour(horaExtra);
+                            fullByTypeExtra = tiposReqSel.some(t => (usage[horaExtra]?.[t] || 0) >= capExtra);
+                        }
+                    }
+
+                    const disabled = invalidForProvider || fullByTypeBase || fullByTypeExtra;
 
                     const opt = document.createElement("option");
                     opt.value = h;
-                    opt.textContent = h + (ocupanHora >= capBase ? " (COMPLETO)" : "");
+                    opt.textContent = h + ((fullByTypeBase || fullByTypeExtra) ? " (COMPLETO)" : "");
+
                     if (disabled) {
                         opt.disabled = true;
                         opt.classList.add("text-gray-400");
                     }
                     select.appendChild(opt);
                 });
+
+                // Si el valor actual queda inválido, limpiar
+                const cur = select.value;
+                if (cur) {
+                    const o = Array.from(select.options).find(x => x.value === cur);
+                    if (!o || o.disabled) select.value = "";
+                }
             } catch (err) {
                 console.error("Error actualizando opciones de hora:", err);
-                buildHourOptions();
+                setHoraEnabled(true, "Selecciona un horario");
+                // fallback simple
+                ALL_HOURS.forEach(h => {
+                    if (BLOCKED_HOURS.includes(h)) return;
+                    const opt = document.createElement("option");
+                    opt.value = opt.textContent = h;
+                    document.getElementById("cf-hora").appendChild(opt);
+                });
             }
         }
 
@@ -590,7 +664,7 @@
                 helpEl.textContent = "Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.";
                 helpEl.classList.remove("text-gray-500");
                 helpEl.classList.add("text-red-600", "font-semibold");
-                buildHourOptions();
+                setHoraEnabled(false, "Selecciona una fecha primero");
                 return;
             }
 
@@ -599,17 +673,15 @@
                 helpEl.textContent = "Debes seleccionar una fecha de visita con al menos 3 días de anticipación.";
                 helpEl.classList.remove("text-gray-500");
                 helpEl.classList.add("text-red-600", "font-semibold");
+                setHoraEnabled(false, "Fecha no válida (mínimo 3 días)");
             } else {
                 helpEl.textContent = "Fecha válida: tu visita tiene al menos 3 días de anticipación.";
                 helpEl.classList.remove("text-red-600");
                 helpEl.classList.add("text-gray-500");
             }
 
-            if (isSunday(fecha)) {
-                domingoBox.classList.remove("hidden");
-            } else {
-                domingoBox.classList.add("hidden");
-            }
+            if (isSunday(fecha)) domingoBox.classList.remove("hidden");
+            else domingoBox.classList.add("hidden");
 
             updateHourOptionsForDate(fecha);
         }
@@ -617,11 +689,8 @@
         function handleRecolectaChange() {
             const val = document.getElementById("cf-recolecta-caja").value;
             const grupo = document.getElementById("grupo-recolecta");
-            if (val === "Si") {
-                grupo.classList.remove("hidden");
-            } else {
-                grupo.classList.add("hidden");
-            }
+            if (val === "Si") grupo.classList.remove("hidden");
+            else grupo.classList.add("hidden");
         }
 
         function handleTipoVisitaChange() {
@@ -629,17 +698,25 @@
             const grpFactura = document.getElementById("grupo-factura");
             const grpSello = document.getElementById("grupo-sello");
 
-            if (tipo === "Carga" || tipo === "CargaDescarga") {
-                grpFactura.classList.remove("opacity-50");
-            } else {
-                grpFactura.classList.add("opacity-50");
-            }
+            if (tipo === "Carga" || tipo === "CargaDescarga") grpFactura.classList.remove("opacity-50");
+            else grpFactura.classList.add("opacity-50");
 
-            if (tipo === "Descarga" || tipo === "CargaDescarga") {
-                grpSello.classList.remove("opacity-50");
-            } else {
-                grpSello.classList.add("opacity-50");
-            }
+            if (tipo === "Descarga" || tipo === "CargaDescarga") grpSello.classList.remove("opacity-50");
+            else grpSello.classList.add("opacity-50");
+
+            // BLINDAJE: reset hora al cambiar tipo
+            document.getElementById("cf-hora").value = "";
+            const fecha = document.getElementById("cf-fecha").value;
+            if (fecha) updateHourOptionsForDate(fecha);
+            else setHoraEnabled(false, "Selecciona una fecha primero");
+        }
+
+        function handleTipoTransporteChange() {
+            // BLINDAJE: reset hora al cambiar transporte (Full cambia horaExtra)
+            document.getElementById("cf-hora").value = "";
+            const fecha = document.getElementById("cf-fecha").value;
+            if (fecha) updateHourOptionsForDate(fecha);
+            else setHoraEnabled(false, "Selecciona una fecha primero");
         }
 
         // ==========================
@@ -655,10 +732,7 @@
             infoEl.textContent = "Buscando información del proveedor...";
 
             try {
-                const qRef = query(
-                    collection(db, "UsuarioProveedor"),
-                    where("usuario", "==", currentUser.usuario)
-                );
+                const qRef = query(collection(db, "UsuarioProveedor"), where("usuario", "==", currentUser.usuario));
                 const snap = await getDocs(qRef);
 
                 if (snap.empty) {
@@ -696,10 +770,7 @@
         //  VALIDACIONES DE HORARIO
         // ==========================
         async function validarSlotCita({ fecha, hora, tipoVisita, tipoTransporte, linea }) {
-            const qRef = query(
-                collection(db, "CitasProveedor"),
-                where("fecha", "==", fecha)
-            );
+            const qRef = query(collection(db, "CitasProveedor"), where("fecha", "==", fecha));
             const snap = await getDocs(qRef);
 
             const citas = [];
@@ -717,30 +788,27 @@
                 });
             });
 
-            const capBase = DOUBLE_CAPACITY_HOURS.includes(hora) ? 2 : 1;
+            const usage = buildUsageByType(citas);
+            const capBase = getCapByHour(hora);
 
-            const ocupanHora = citas.filter(c => c.hora === hora || c.horaExtra === hora).length;
-            if (ocupanHora >= capBase) {
-                return {
-                    ok: false,
-                    message: `La hora ${hora} ya no tiene espacio disponible para este día.`
-                };
+            const tiposReq = typesForTipoVisita(tipoVisita);
+            if (!tiposReq.length) return { ok: false, message: "Selecciona el tipo de visita." };
+
+            for (const t of tiposReq) {
+                const used = usage[hora]?.[t] || 0;
+                if (used >= capBase) {
+                    return { ok: false, message: `La hora ${hora} ya no tiene espacio disponible para ${t} en este día.` };
+                }
             }
 
+            // Restricción por línea (no mismo ni consecutivo) considerando horaExtra
             const citasLinea = citas.filter(c => c.linea === linea);
             for (const c of citasLinea) {
-                const diff = Math.abs(hourToNumber(c.hora) - hourToNumber(hora));
-                if (diff === 0) {
-                    return {
-                        ok: false,
-                        message: `Ya tienes una cita a las ${hora} este día. No puedes registrar dos transportes en el mismo horario.`
-                    };
-                }
-                if (diff === 1) {
-                    return {
-                        ok: false,
-                        message: `No puedes agendar dos horarios seguidos el mismo día.`
-                    };
+                const horasProv = [c.hora, c.horaExtra].filter(Boolean);
+                for (const hh of horasProv) {
+                    const diff = Math.abs(hourToNumber(hh) - hourToNumber(hora));
+                    if (diff === 0) return { ok: false, message: `Ya tienes una cita a las ${hora} este día. No puedes registrar dos transportes en el mismo horario.` };
+                    if (diff === 1) return { ok: false, message: `No puedes agendar dos horarios seguidos el mismo día.` };
                 }
             }
 
@@ -750,23 +818,15 @@
             if (requiereHoraExtra) {
                 horaExtra = addHours(hora, 2);
                 if (!horaExtra || BLOCKED_HOURS.includes(horaExtra)) {
-                    return {
-                        ok: false,
-                        message: `No se puede usar la hora ${hora} porque no hay una segunda hora posterior disponible para bloqueo.`
-                    };
+                    return { ok: false, message: `No se puede usar la hora ${hora} porque no hay una segunda hora posterior disponible para bloqueo.` };
                 }
 
-                const capExtra = DOUBLE_CAPACITY_HOURS.includes(horaExtra) ? 2 : 1;
-                const ocupanHoraExtra = citas.filter(
-                    c => c.hora === horaExtra || c.horaExtra === horaExtra
-                ).length;
-
-                if (ocupanHoraExtra >= capExtra) {
-                    const msgBase = `No se puede agendar a las ${hora} porque la segunda hora posterior (${horaExtra}) ya está ocupada.`;
-                    return {
-                        ok: false,
-                        message: msgBase
-                    };
+                const capExtra = getCapByHour(horaExtra);
+                for (const t of tiposReq) {
+                    const usedExtra = usage[horaExtra]?.[t] || 0;
+                    if (usedExtra >= capExtra) {
+                        return { ok: false, message: `No se puede agendar a las ${hora} porque la segunda hora posterior (${horaExtra}) ya está ocupada para ${t}.` };
+                    }
                 }
             }
 
@@ -813,59 +873,38 @@
             const cajaDeja = (cajaDejaEl.value || "").trim().toUpperCase();
             const cajaRecolecta = (cajaRecolectaEl.value || "").trim().toUpperCase();
 
-            if (!fecha || !hora) {
-                return setError("Selecciona fecha y hora para la cita.");
-            }
-            if (!tipoVisita) {
-                return setError("Selecciona el tipo de visita.");
-            }
-            if (!tipoTransporte) {
-                return setError("Selecciona el tipo de transporte.");
-            }
+            // BLINDAJE: si hora está deshabilitada, no permitir submit
+            if (horaEl.disabled) return setError("Primero selecciona fecha válida, tipo de visita y tipo de transporte para ver horarios disponibles.");
+
+            if (!fecha || !hora) return setError("Selecciona fecha y hora para la cita.");
+            if (!tipoVisita) return setError("Selecciona el tipo de visita.");
+            if (!tipoTransporte) return setError("Selecciona el tipo de transporte.");
+
+            // BLINDAJE: validar que la hora elegida siga habilitada en el select
+            const opt = Array.from(horaEl.options).find(o => o.value === hora);
+            if (!opt || opt.disabled) return setError("El horario seleccionado ya no está disponible. Selecciona otro horario.");
 
             const hoy = todayISO();
-            if (fecha < hoy) {
-                return setError("No puedes agendar citas en fechas pasadas.");
-            }
+            if (fecha < hoy) return setError("No puedes agendar citas en fechas pasadas.");
 
             const diff = daysDiff(hoy, fecha);
-            if (diff < MIN_DAYS_AHEAD) {
-                return setError("Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.");
-            }
+            if (diff < MIN_DAYS_AHEAD) return setError("Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.");
 
             const esDomingo = isSunday(fecha);
-            if (esDomingo && !notas) {
-                return setError("Para citas en domingo es obligatorio explicar el motivo en comentarios.");
-            }
+            if (esDomingo && !notas) return setError("Para citas en domingo es obligatorio explicar el motivo en comentarios.");
 
-            if (recolectaCaja === "Si" && (!cajaDeja || !cajaRecolecta)) {
-                return setError("Indica qué caja deja y qué caja recolecta.");
-            }
+            if (recolectaCaja === "Si" && (!cajaDeja || !cajaRecolecta)) return setError("Indica qué caja deja y qué caja recolecta.");
 
-            if (!destino || !chofer || !lineaTransporte || !placas || !caja) {
-                return setError("Destino, chofer, transporte/línea, placas y número de caja son obligatorios.");
-            }
-            if (tipoVisita === "Carga" || tipoVisita === "CargaDescarga") {
-                if (!factura) {
-                    return setError("Para visitas de Carga es obligatorio indicar la factura.");
-                }
-            }
-            if (tipoVisita === "Descarga" || tipoVisita === "CargaDescarga") {
-                if (!sello) {
-                    return setError("Para visitas de Descarga es obligatorio indicar el número de sello.");
-                }
-            }
+            // placas y caja no obligatorios
+            if (!destino || !chofer || !lineaTransporte) return setError("Destino, chofer y transporte/línea son obligatorios.");
+
+            if ((tipoVisita === "Carga" || tipoVisita === "CargaDescarga") && !factura) return setError("Para visitas de Carga es obligatorio indicar la factura.");
+            if ((tipoVisita === "Descarga" || tipoVisita === "CargaDescarga") && !sello) return setError("Para visitas de Descarga es obligatorio indicar el número de sello.");
 
             setLoadingButton(btn, true);
             try {
                 const lineaProveedor = (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase();
-                const validacion = await validarSlotCita({
-                    fecha,
-                    hora,
-                    tipoVisita,
-                    tipoTransporte,
-                    linea: lineaProveedor
-                });
+                const validacion = await validarSlotCita({ fecha, hora, tipoVisita, tipoTransporte, linea: lineaProveedor });
 
                 if (!validacion.ok) {
                     setLoadingButton(btn, false);
@@ -907,23 +946,12 @@
                     providerFrontera: currentProveedorDoc?.frontera || "",
                     citaId: docRef.id,
                     cita: {
-                        fecha,
-                        hora,
-                        horaExtra,
-                        tipoVisita,
-                        tipoTransporte,
-                        destino,
-                        chofer,
-                        lineaTransporte,
-                        placas,
-                        factura,
-                        caja,
-                        sello,
+                        fecha, hora, horaExtra, tipoVisita, tipoTransporte,
+                        destino, chofer, lineaTransporte, placas, factura, caja, sello,
                         recolectaCaja,
                         cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
                         cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
-                        notas,
-                        esDomingo
+                        notas, esDomingo
                     }
                 };
 
@@ -945,18 +973,12 @@
                 }
 
                 if (correoOk) {
-                    alert(
-                        "Cita registrada como pre-registro.\n\n" +
-                        "Estatus: CitaPendiente.\n" +
-                        "Se te notificará por correo cuando la cita sea aprobada."
-                    );
+                    alert("Cita registrada como pre-registro.\n\nEstatus: CitaPendiente.\nSe te notificará por correo cuando la cita sea aprobada.");
                 } else {
-                    alert(
-                        "La cita se guardó correctamente, pero hubo un problema al enviar el correo de notificación.\n" +
-                        "Por favor informa a logística si no recibes el correo."
-                    );
+                    alert("La cita se guardó correctamente, pero hubo un problema al enviar el correo de notificación.\nPor favor informa a logística si no recibes el correo.");
                 }
 
+                // reset
                 horaEl.value = "";
                 notasEl.value = "";
                 destinoEl.value = "";
@@ -971,7 +993,7 @@
                 document.getElementById("grupo-recolecta").classList.add("hidden");
 
                 await loadCitasProveedor();
-                await updateHourOptionsForDate(fecha); // refresca horarios tras guardar
+                await updateHourOptionsForDate(fecha);
             } catch (err) {
                 console.error("Error guardando cita:", err);
                 setError("Ocurrió un error al guardar la cita. Intenta de nuevo.");
@@ -999,26 +1021,13 @@
             }
 
             try {
-                console.log("loadCitasProveedor → currentUser:", currentUser);
-
-                // 1) Traer SOLO por usuarioProveedor, sin orderBy para evitar índices
-                const qRef = query(
-                    collection(db, "CitasProveedor"),
-                    where("usuarioProveedor", "==", currentUser.usuario)
-                );
-
+                const qRef = query(collection(db, "CitasProveedor"), where("usuarioProveedor", "==", currentUser.usuario));
                 const snap = await getDocs(qRef);
-                const citas = [];
-                snap.forEach(docSnap => {
-                    citas.push({ id: docSnap.id, ...docSnap.data() });
-                });
 
-                // 2) Ordenar en cliente (fecha + hora)
-                citas.sort((a, b) => {
-                    const fa = (a.fecha || "") + " " + (a.hora || "");
-                    const fb = (b.fecha || "") + " " + (b.hora || "");
-                    return fa.localeCompare(fb);
-                });
+                const citas = [];
+                snap.forEach(docSnap => { citas.push({ id: docSnap.id, ...docSnap.data() }); });
+
+                citas.sort((a, b) => ((a.fecha || "") + " " + (a.hora || "")).localeCompare((b.fecha || "") + " " + (b.hora || "")));
 
                 if (!citas.length) {
                     emptyRow.classList.remove("hidden");
@@ -1030,32 +1039,26 @@
                 tbody.innerHTML = citas.map(c => {
                     const estatus = c.estatus || "CitaPendiente";
                     let badgeClasses = "bg-gray-100 text-gray-800";
-                    if (estatus === "CitaPendiente") {
-                        badgeClasses = "bg-yellow-100 text-yellow-800";
-                    } else if (estatus === "CitaConfirmada") {
-                        badgeClasses = "bg-green-100 text-green-800";
-                    } else if (estatus === "CitaCancelada" || estatus === "CitaRechazada") {
-                        badgeClasses = "bg-red-100 text-red-800";
-                    }
+                    if (estatus === "CitaPendiente") badgeClasses = "bg-yellow-100 text-yellow-800";
+                    else if (estatus === "CitaConfirmada") badgeClasses = "bg-green-100 text-green-800";
+                    else if (estatus === "CitaCancelada" || estatus === "CitaRechazada") badgeClasses = "bg-red-100 text-red-800";
 
-                    const horaMostrar = c.horaExtra
-                        ? `${c.hora} - ${c.horaExtra}`
-                        : c.hora;
+                    const horaMostrar = c.horaExtra ? `${c.hora} - ${c.horaExtra}` : c.hora;
 
                     return `
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="px-6 py-3 text-sm text-gray-900">${sanitize(c.fecha) || "-"}</td>
-                    <td class="px-6 py-3 text-sm text-gray-900">${sanitize(horaMostrar) || "-"}</td>
-                    <td class="px-6 py-3 text-sm">
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${badgeClasses}">
-                            ${sanitize(estatus)}
-                        </span>
-                    </td>
-                    <td class="px-6 py-3 text-sm text-gray-900">
-                        ${sanitize(c.tipoVisita || "")}
-                    </td>                    
-                </tr>
-            `;
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-3 text-sm text-gray-900">${sanitize(c.fecha) || "-"}</td>
+                            <td class="px-6 py-3 text-sm text-gray-900">${sanitize(horaMostrar) || "-"}</td>
+                            <td class="px-6 py-3 text-sm">
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full ${badgeClasses}">
+                                    ${sanitize(estatus)}
+                                </span>
+                            </td>
+                            <td class="px-6 py-3 text-sm text-gray-900">
+                                ${sanitize(c.tipoVisita || "")}
+                            </td>
+                        </tr>
+                    `;
                 }).join("");
 
                 countEl.textContent = `${citas.length} ${citas.length === 1 ? "cita" : "citas"}`;
@@ -1078,12 +1081,13 @@
             fechaInput.min = addDaysISO(hoy, MIN_DAYS_AHEAD);
             fechaInput.max = addDaysISO(hoy, 13);
 
-            buildHourOptions();
-            handleTipoVisitaChange();
+            // BLINDAJE: hora bloqueada al inicio
+            setHoraEnabled(false, "Selecciona primero tipo de visita y transporte");
 
             document.getElementById("cf-fecha").addEventListener("change", handleFechaChange);
             document.getElementById("cf-recolecta-caja").addEventListener("change", handleRecolectaChange);
             document.getElementById("cf-tipo-visita").addEventListener("change", handleTipoVisitaChange);
+            document.getElementById("cf-tipo-transporte").addEventListener("change", handleTipoTransporteChange);
 
             document.getElementById("logout-btn").addEventListener("click", () => {
                 sessionStorage.clear();
