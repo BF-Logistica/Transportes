@@ -576,8 +576,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const SEND_ACCESS_EMAIL_URL =
-            "https://us-central1-logisticatransportesbmm.cloudfunctions.net/sendAccessCredentials";
+        const APPS_SCRIPT_WEBAPP_URL =
+            "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
+        
+        const AUTH_TOKEN = "tk_logistica_bmm_2026";
 
         const defaultConfig = {
             background_color: "#f9fafb",
@@ -1029,22 +1031,35 @@
 
                 if (correoDestino) {
                     try {
-                        const res = await fetch(SEND_ACCESS_EMAIL_URL, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(payload)
-                        });
+                    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec"; 
+                    
+                    const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            authToken: AUTH_TOKEN,
+                            action: "sendAccessCredentials",
+                            payload: {
+                                to: correoDestino,
+                                usuario: usuarioAcceso,
+                                contrasena: pass,
+                                rol: updatePayload.rol || currentSolicitud.rol || "Usuario"
+                            }
+                        })
+                    });
+                    
+                    let body = null;
+                    try {
+                        body = await res.json();
+                    } catch (_) { }
+                    
+                    console.log("Respuesta Apps Script:", res.status, body);
+                    
+                    // Tu doPost regresa: { success: true, message: "Credenciales enviadas." }
+                    if (!res.ok || !body || body.success === false) {
+                        correoOk = false;
+                    }
 
-                        let body = null;
-                        try {
-                            body = await res.json();
-                        } catch (_) { }
-
-                        console.log("Respuesta de la función:", res.status, body);
-
-                        if (!res.ok || (body && body.success === false)) {
-                            correoOk = false;
-                        }
                     } catch (mailErr) {
                         correoOk = false;
                         console.error("Error al enviar correo de acceso:", mailErr);
@@ -1164,5 +1179,6 @@
         });
     </script>
 </body>
+
 
 </html>
