@@ -570,7 +570,7 @@
         const db = getFirestore(app);
 
         const SEND_CITA_CONFIRM_EMAIL_URL =
-            "https://us-central1-logisticatransportesbmm.cloudfunctions.net/sendCitaConfirmacion";
+            "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
 
         let allCitas = [];
         let filteredCitas = [];
@@ -1109,8 +1109,14 @@
                     try {
                         const res = await fetch(SEND_CITA_CONFIRM_EMAIL_URL, {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(payloadEmail)
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                action: "sendCitaConfirmacion",
+                                authToken: MAIL_AUTH_TOKEN,
+                                payload: payloadEmail
+                            })
                         });
 
                         let body = null;
@@ -1503,5 +1509,6 @@
 </body>
 
 </html>
+
 
 
