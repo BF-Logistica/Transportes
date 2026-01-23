@@ -1020,45 +1020,47 @@
                 const correoDestino = currentCita.usuarioProveedor || "";
                 if (correoDestino) {
                     const payloadEmail = {
-                        authToken: APPS_SCRIPT_AUTH_TOKEN,
-                        action: "sendCitaConfirmacion",
-                        payload: {
-                            to: correoDestino,
-                            folio,
-                            citaId: currentCita.id,
-                            datosCita: {
-                                linea: currentCita.linea,
-                                placas: currentCita.placas,
-                                tipoTransporte: currentCita.tipoTransporte,
-                                tipoVisita: currentCita.tipoVisita,
-                                fecha,
-                                hora,
-                                horaExtra: nuevaHoraExtra,
-                                chofer: currentCita.chofer,
-                                destino: currentCita.destino,
-                                factura: currentCita.factura,
-                                notas: currentCita.notas,
-                                frontera: currentCita.frontera,
-                                recolectaCaja: currentCita.recolectaCaja
-                            }
+                        to: correoDestino,
+                        folio,
+                        citaId: currentCita.id,
+                        datosCita: {
+                            linea: currentCita.linea,
+                            placas: currentCita.placas,
+                            tipoTransporte: currentCita.tipoTransporte,
+                            tipoVisita: currentCita.tipoVisita,
+                            fecha,
+                            hora,
+                            horaExtra: nuevaHoraExtra,
+                            chofer: currentCita.chofer,
+                            destino: currentCita.destino,
+                            factura: currentCita.factura,
+                            notas: currentCita.notas,
+                            frontera: currentCita.frontera,
+                            recolectaCaja: currentCita.recolectaCaja
                         }
                     };
 
                     try {
                         const res = await fetch(APPS_SCRIPT_MAIL_URL, {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(payloadEmail)
+                            headers: {
+                                // ✅ Igual que agendarcita.html para evitar preflight CORS
+                                "Content-Type": "text/plain;charset=utf-8"
+                            },
+                            body: JSON.stringify({
+                                authToken: APPS_SCRIPT_AUTH_TOKEN,
+                                action: "sendCitaConfirmacion",
+                                payload: payloadEmail
+                            })
                         });
 
-                        let body = null;
-                        try {
-                            body = await res.json();
-                        } catch (_) { }
+                        const raw = await res.text();
+                        let data = null;
+                        try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
 
-                        if (!res.ok || !body || body.success !== true) {
-                            console.warn("Problema al enviar correo (Apps Script):", res.status, body);
-                            alert("La cita se confirmó, pero hubo un problema al enviar el correo desde Apps Script.");
+                        if (!res.ok || (data && data.success === false) || !data) {
+                            console.warn("Problema al enviar correo (Apps Script):", { status: res.status, raw, data });
+                            alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
                         } else {
                             alert(
                                 "Cita confirmada correctamente.\n\nSe ha enviado un correo al proveedor con su folio y el PDF de indicaciones."
@@ -1189,3 +1191,4 @@
 </body>
 
 </html>
+
