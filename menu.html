@@ -578,7 +578,7 @@
 
         const APPS_SCRIPT_WEBAPP_URL =
             "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
-        
+
         const AUTH_TOKEN = "tk_logistica_bmm_2026";
 
         const defaultConfig = {
@@ -1002,64 +1002,45 @@
 
                 const usuarioAcceso = updatePayload.usuario || correoDestino;
 
-                const payload = {
+                console.log("Payload que se envía a la función:", {
                     to: correoDestino,
                     usuario: usuarioAcceso,
                     contrasena: pass,
-                    rol: updatePayload.rol || currentSolicitud.rol || "Usuario",
-                    tipoUsuario: currentSolicitud.tipo,
-                    proveedor: currentSolicitud.tipo === "prov"
-                        ? {
-                            linea: updatePayload.linea,
-                            razon: updatePayload.razon,
-                            direccionFiscal: updatePayload.direccionFiscal,
-                            direccionPatios: updatePayload.direccionPatios,
-                            frontera: updatePayload.frontera,
-                            emailContacto: updatePayload.emailContacto,
-                            telefonoContacto: updatePayload.telefonoContacto
-                        }
-                        : null,
-                    extra: {
-                        id: currentSolicitud.id,
-                        collection: currentSolicitud.collection
-                    }
-                };
-
-                console.log("Payload que se envía a la función:", payload);
+                    rol: updatePayload.rol || currentSolicitud.rol || "Usuario"
+                });
 
                 let correoOk = true;
 
                 if (correoDestino) {
                     try {
-                    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec"; 
-                    
-                    const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            authToken: AUTH_TOKEN,
-                            action: "sendAccessCredentials",
-                            payload: {
-                                to: correoDestino,
-                                usuario: usuarioAcceso,
-                                contrasena: pass,
-                                rol: updatePayload.rol || currentSolicitud.rol || "Usuario"
-                            }
-                        })
-                    });
-                    
-                    let body = null;
-                    try {
-                        body = await res.json();
-                    } catch (_) { }
-                    
-                    console.log("Respuesta Apps Script:", res.status, body);
-                    
-                    // Tu doPost regresa: { success: true, message: "Credenciales enviadas." }
-                    if (!res.ok || !body || body.success === false) {
-                        correoOk = false;
-                    }
+                        // ✅ MISMA LÓGICA QUE agendarcita.html (sin preflight / sin CORS)
+                        const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "text/plain;charset=utf-8"
+                            },
+                            body: JSON.stringify({
+                                authToken: AUTH_TOKEN,
+                                action: "sendAccessCredentials",
+                                payload: {
+                                    to: correoDestino,
+                                    usuario: usuarioAcceso,
+                                    contrasena: pass,
+                                    rol: updatePayload.rol || currentSolicitud.rol || "Usuario"
+                                }
+                            })
+                        });
 
+                        const raw = await res.text();
+                        let data = null;
+                        try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
+
+                        console.log("Respuesta Apps Script:", { status: res.status, raw, data });
+
+                        if (!res.ok || (data && data.success === false)) {
+                            correoOk = false;
+                            console.error("Apps Script email error:", { status: res.status, raw, data });
+                        }
                     } catch (mailErr) {
                         correoOk = false;
                         console.error("Error al enviar correo de acceso:", mailErr);
@@ -1179,6 +1160,5 @@
         });
     </script>
 </body>
-
 
 </html>
