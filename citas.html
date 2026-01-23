@@ -1146,14 +1146,6 @@
                                 );
                             }
 
-                    } catch (mailErr) {
-                        console.error("Error al llamar a la función de correo:", mailErr);
-                        alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
-                    }
-                } else {
-                    alert("Cita confirmada. No se encontró correo de proveedor para enviar confirmación.");
-                }
-
                 allCitas = allCitas.filter(c => c.id !== currentCita.id);
                 applyFilters();
                 closeCitaModal();
@@ -1523,3 +1515,4 @@
 </body>
 
 </html>
+
