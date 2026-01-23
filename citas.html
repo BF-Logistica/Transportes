@@ -2,839 +2,810 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Citas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Citas</title>
 
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="img/icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="img/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
 
-    <script src="/_sdk/data_sdk.js"></script>
-    <script src="/_sdk/element_sdk.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <style>
-        :root {
-            --bmm-blue: #0d1c84;
-            --bmm-blue-light: #1b2c9f;
-            --text-main: #000000;
-        }
+  <style>
+    :root {
+      --bmm-blue: #0d1c84;
+      --bmm-blue-light: #1b2c9f;
+      --text-main: #000000;
+    }
 
-        html,
-        body {
-            height: 100%;
-        }
+    html,
+    body {
+      height: 100%;
+    }
 
-        body {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: var(--text-main);
-            background-color: #f3f4f6;
-        }
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      background-color: #f3f4f6;
+    }
 
-        .sidebar-collapsed {
-            width: 80px;
-        }
+    .sidebar-collapsed {
+      width: 80px;
+    }
 
-        .sidebar-expanded {
-            width: 250px;
-        }
+    .sidebar-expanded {
+      width: 250px;
+    }
 
-        .main-content-collapsed {
-            margin-left: 80px;
-        }
+    .main-content-collapsed {
+      margin-left: 80px;
+    }
 
-        .main-content-expanded {
-            margin-left: 250px;
-        }
+    .main-content-expanded {
+      margin-left: 250px;
+    }
 
-        .menu-text {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-            transition: opacity 0.3s, width 0.3s;
-            white-space: nowrap;
-        }
+    .menu-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      transition: opacity 0.3s, width 0.3s;
+      white-space: nowrap;
+    }
 
-        .sidebar-expanded .menu-text {
-            opacity: 1;
-            width: auto;
-        }
+    .sidebar-expanded .menu-text {
+      opacity: 1;
+      width: auto;
+    }
 
-        .sidebar-collapsed .menu-text {
-            display: none;
-        }
+    .sidebar-collapsed .menu-text {
+      display: none;
+    }
 
-        .sidebar-collapsed nav a {
-            justify-content: center;
-            padding-left: 0;
-            padding-right: 0;
-        }
+    .sidebar-collapsed nav a {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
 
-        .modal-backdrop {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
+    .modal-backdrop {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
 
-        .table-container {
-            height: calc(100% - 140px);
-            overflow-y: auto;
-        }
+    .table-container {
+      height: calc(100% - 140px);
+      overflow-y: auto;
+    }
 
-        .loading-spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 999px;
-            border-top: 3px solid #ffffff;
-            width: 20px;
-            height: 20px;
-            animation: spin 1s linear infinite;
-        }
+    .loading-spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 999px;
+      border-top: 3px solid #ffffff;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
 
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
 
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
 
-        .bg-bmm {
-            background-color: var(--bmm-blue);
-        }
+    .bg-bmm {
+      background-color: var(--bmm-blue);
+    }
 
-        .bg-bmm-light {
-            background-color: var(--bmm-blue-light);
-        }
+    .bg-bmm-light {
+      background-color: var(--bmm-blue-light);
+    }
 
-        .text-bmm {
-            color: var(--bmm-blue);
-        }
+    .text-bmm {
+      color: var(--bmm-blue);
+    }
 
-        .nav-icon {
-            width: 32px;
-            height: 32px;
-            flex-shrink: 0;
-            object-fit: contain;
-            display: block;
-        }
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      object-fit: contain;
+      display: block;
+    }
 
-        .sidebar-collapsed .nav-icon {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto;
-        }
+    .sidebar-collapsed .nav-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+    }
 
-        @view-transition {
-            navigation: auto;
-        }
+    @view-transition {
+      navigation: auto;
+    }
 
-        @media (max-width: 768px) {
-            .sidebar-expanded {
-                width: 210px;
-            }
+    @media (max-width: 768px) {
+      .sidebar-expanded {
+        width: 210px;
+      }
 
-            .main-content-expanded {
-                margin-left: 210px;
-            }
+      .main-content-expanded {
+        margin-left: 210px;
+      }
 
-            .table-container {
-                height: calc(100% - 180px);
-            }
+      .table-container {
+        height: calc(100% - 180px);
+      }
 
-            header h1 {
-                font-size: 1.15rem;
-            }
-        }
-    </style>
+      header h1 {
+        font-size: 1.15rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div id="app" class="h-full flex">
+  <div id="app" class="h-full flex">
 
-        <!-- SIDEBAR -->
-        <aside id="sidebar"
-            class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
-            <div class="p-4 flex items-center justify-between border-b border-gray-200">
-                <div class="hidden" id="sidebar-title-wrapper">
-                    <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
-                    <span class="menu-text" id="app-title-sidebar"></span>
-                </div>
-
-                <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
-                    class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
-            </div>
-
-            <nav class="flex-1 p-4 overflow-y-auto">
-                <ul class="space-y-2">
-                    <li>
-                        <a href="menu.html" data-page="menu.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Solicitudes</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="usuarios.html" data-page="usuarios.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Usuarios</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="citas.html" data-page="citas.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Control de Citas</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="control.html" data-page="control.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/control_transportes.png" alt="Citas pendientes" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Control Transportes</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="estatus.html" data-page="estatus.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/estatus_transportes.png" alt="Seguimiento en vivo" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Seguimiento en Vivo</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-
-        <!-- MAIN -->
-        <main id="main-content"
-            class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
-            <header
-                class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
-                <div class="flex items-center gap-3 min-w-0">
-                    <img src="img/bf_logo.png" alt="Logo Empresa" class="h-8 w-auto flex-shrink-0" />
-                    <h1 id="page-title" class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">
-                        Citas de transporte pendientes
-                    </h1>
-                </div>
-
-                <button id="logout-btn"
-                    class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    <span>Cerrar sesión</span>
-                </button>
-            </header>
-
-            <!-- FILTROS -->
-            <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
-                <div class="flex gap-4 flex-wrap items-center">
-                    <div class="flex-1 min-w-[220px]">
-                        <input id="search-input" type="text" placeholder="Buscar por línea, placas, chofer o factura..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
-                            aria-label="Buscar cita por línea, placas, chofer o factura" />
-                    </div>
-
-                    <button id="clear-filters"
-                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
-                        Limpiar filtros
-                    </button>
-
-                    <!-- BOTÓN CALENDARIO SEMANAL -->
-                    <button id="calendar-btn" type="button"
-                        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
-                        title="Ver calendario semanal de citas">
-                        <img src="img/calendar.png" alt="Calendario" class="w-5 h-5">
-                        <span class="hidden sm:inline">Calendario</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- TABLA PENDIENTES -->
-            <div class="flex-1 p-4 sm:p-6 table-container">
-                <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
-                    <div class="overflow-x-auto">
-                        <table class="w-full min-w-[640px]">
-                            <thead class="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Línea
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Placas
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Tipo transporte
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Tipo visita
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Hora
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Acciones
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="citas-tbody" class="bg-white divide-y divide-gray-100">
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div id="empty-state" class="p-12 text-center text-gray-500 hidden">
-                        <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z" />
-                        </svg>
-                        <p class="text-lg font-medium">No hay citas pendientes</p>
-                        <p class="text-sm mt-2">Las nuevas citas con estatus CitaPendiente aparecerán aquí.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-    </div>
-
-    <!-- MODAL DETALLE DE CITA -->
-    <div id="cita-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
-            <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
-                        <img src="img/camion.png" alt="Cita"
-                            class="w-7 h-7 object-contain pointer-events-none select-none" />
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900">
-                            Detalle de cita
-                        </h2>
-                        <p class="text-xs text-gray-500">
-                            Revisa la información del transporte y ajusta fecha / hora si es necesario antes de
-                            confirmar.
-                        </p>
-                    </div>
-                </div>
-                <span id="cm-estatus"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                    CitaPendiente
-                </span>
-            </div>
-
-            <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[60vh]">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="cm-fecha" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha de
-                            visita</label>
-                        <input id="cm-fecha" type="date"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
-                        <p id="cm-fecha-error" class="text-[11px] text-red-600 mt-1 hidden">
-                            Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.
-                        </p>
-                    </div>
-
-                    <div>
-                        <label for="cm-hora"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora</label>
-                        <select id="cm-hora"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
-                        </select>
-                        <p class="text-[11px] text-gray-500 mt-1">
-                            Citas disponibles las 24 horas. Horas 05:00, 13:00 y 21:00 permiten hasta 2 transportes.
-                        </p>
-                        <p id="cm-hora-error" class="text-[11px] text-red-600 mt-1 hidden">
-                            La hora seleccionada ya no tiene capacidad disponible. Elige otro horario.
-                        </p>
-                    </div>
-
-                    <div>
-                        <label for="cm-linea" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea
-                            transportista</label>
-                        <input id="cm-linea" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-placas"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Placas</label>
-                        <input id="cm-placas" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-tipo-transporte"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de
-                            transporte</label>
-                        <input id="cm-tipo-transporte" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-tipo-visita"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de visita</label>
-                        <input id="cm-tipo-visita" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-chofer"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Chofer</label>
-                        <input id="cm-chofer" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-destino"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Destino</label>
-                        <input id="cm-destino" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-factura"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Factura</label>
-                        <input id="cm-factura" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-hora-extra" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora
-                            extra (si
-                            aplica)</label>
-                        <input id="cm-hora-extra" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-frontera"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Frontera</label>
-                        <input id="cm-frontera" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div>
-                        <label for="cm-recolecta-caja"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Recolecta caja?</label>
-                        <input id="cm-recolecta-caja" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <label for="cm-notas"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Comentarios /
-                            notas</label>
-                        <textarea id="cm-notas" rows="2"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly></textarea>
-                    </div>
-                </div>
-
-                <p id="cm-general-error" class="text-xs text-red-600 hidden">
-                    Ocurrió un error al procesar la cita. Intenta nuevamente.
-                </p>
-            </div>
-
-            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
-                <button id="cm-delete-btn" type="button"
-                    class="px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 text-sm font-medium transition-colors">
-                    Eliminar cita
-                </button>
-
-                <div class="flex gap-3">
-                    <button id="cm-cancel-btn" type="button"
-                        class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium transition-colors">
-                        Cerrar
-                    </button>
-                    <button id="cm-accept-btn" type="button"
-                        class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
-                        <span>Aceptar cita</span>
-                    </button>
-                </div>
-            </div>
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+      class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+      <div class="p-4 flex items-center justify-between border-b border-gray-200">
+        <div class="hidden" id="sidebar-title-wrapper">
+          <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
+          <span class="menu-text" id="app-title-sidebar"></span>
         </div>
-    </div>
 
-    <!-- MODAL CALENDARIO SEMANAL -->
-    <div id="calendar-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto max-h-[90vh] flex flex-col overflow-hidden">
-            <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
-                <div class="flex items-start gap-2">
-                    <img src="img/calendar.png" alt="Calendario" class="w-11 h-11" />
-                    <div class="flex flex-col">
-                        <h2 class="text-lg font-semibold text-gray-900">
-                            Calendario de citas
-                        </h2>
-                        <p class="text-xs text-gray-500">
-                            Vista semanal de citas futuras. Solo lectura.
-                        </p>
-                    </div>
-                </div>
-                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-                    <div class="flex items-center gap-3 text-xs">
-                        <span class="inline-flex items-center gap-1">
-                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
-                            <span>Confirmada</span>
-                        </span>
-                        <span class="inline-flex items-center gap-1">
-                            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-                            <span>Pendiente</span>
-                        </span>
-                    </div>
-                    <div class="flex items-center gap-2 justify-end">
-                        <span id="cal-week-label" class="text-sm font-medium text-gray-700"></span>
-                        <button id="cal-prev-week"
-                            class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">
-                            ◀
-                        </button>
-                        <button id="cal-next-week"
-                            class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">
-                            ▶
-                        </button>
-                        <button id="cal-close-btn"
-                            class="px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs sm:text-sm font-medium transition-colors">
-                            Cerrar
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
+          class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
 
-            <!-- CUERPO DEL CALENDARIO -->
-            <div id="calendar-body" class="p-4 flex-1 overflow-y-auto bg-white text-xs sm:text-sm">
-            </div>
+      <nav class="flex-1 p-4 overflow-y-auto">
+        <ul class="space-y-2">
+          <li>
+            <a href="menu.html" data-page="menu.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+              <span class="nav-icon-wrapper">
+                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
+              </span>
+              <span class="menu-text">Solicitudes</span>
+            </a>
+          </li>
+          <li>
+            <a href="usuarios.html" data-page="usuarios.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+              <span class="nav-icon-wrapper">
+                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
+              </span>
+              <span class="menu-text">Usuarios</span>
+            </a>
+          </li>
+          <li>
+            <a href="citas.html" data-page="citas.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+              <span class="nav-icon-wrapper">
+                <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
+              </span>
+              <span class="menu-text">Control de Citas</span>
+            </a>
+          </li>
+          <li>
+            <a href="control.html" data-page="control.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+              <span class="nav-icon-wrapper">
+                <img src="img/control_transportes.png" alt="Citas pendientes" class="nav-icon" />
+              </span>
+              <span class="menu-text">Control Transportes</span>
+            </a>
+          </li>
+          <li>
+            <a href="estatus.html" data-page="estatus.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+              <span class="nav-icon-wrapper">
+                <img src="img/estatus_transportes.png" alt="Seguimiento en vivo" class="nav-icon" />
+              </span>
+              <span class="menu-text">Seguimiento en Vivo</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main id="main-content" class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
+      <header class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+        <div class="flex items-center gap-3 min-w-0">
+          <img src="img/bf_logo.png" alt="Logo Empresa" class="h-8 w-auto flex-shrink-0" />
+          <h1 id="page-title" class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">
+            Citas de transporte pendientes
+          </h1>
         </div>
+
+        <button id="logout-btn"
+          class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Cerrar sesión</span>
+        </button>
+      </header>
+
+      <!-- FILTROS -->
+      <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
+        <div class="flex gap-4 flex-wrap items-center">
+          <div class="flex-1 min-w-[220px]">
+            <input id="search-input" type="text" placeholder="Buscar por línea, placas, chofer o factura..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              aria-label="Buscar cita por línea, placas, chofer o factura" />
+          </div>
+
+          <button id="clear-filters"
+            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
+            Limpiar filtros
+          </button>
+
+          <!-- BOTÓN CALENDARIO SEMANAL -->
+          <button id="calendar-btn" type="button"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+            title="Ver calendario semanal de citas">
+            <img src="img/calendar.png" alt="Calendario" class="w-5 h-5">
+            <span class="hidden sm:inline">Calendario</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TABLA PENDIENTES -->
+      <div class="flex-1 p-4 sm:p-6 table-container">
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[640px]">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                    Línea
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                    Placas
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                    Tipo transporte
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                    Tipo visita
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                    Hora
+                  </th>
+                  <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="citas-tbody" class="bg-white divide-y divide-gray-100">
+              </tbody>
+            </table>
+          </div>
+
+          <div id="empty-state" class="p-12 text-center text-gray-500 hidden">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-lg font-medium">No hay citas pendientes</p>
+            <p class="text-sm mt-2">Las nuevas citas con estatus CitaPendiente aparecerán aquí.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL DETALLE DE CITA -->
+  <div id="cita-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center overflow-hidden">
+            <img src="img/camion.png" alt="Cita" class="w-7 h-7 object-contain pointer-events-none select-none" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900">
+              Detalle de cita
+            </h2>
+            <p class="text-xs text-gray-500">
+              Revisa la información del transporte y ajusta fecha / hora si es necesario antes de
+              confirmar.
+            </p>
+          </div>
+        </div>
+        <span id="cm-estatus"
+          class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+          CitaPendiente
+        </span>
+      </div>
+
+      <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[60vh]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="cm-fecha" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha de
+              visita</label>
+            <input id="cm-fecha" type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+            <p id="cm-fecha-error" class="text-[11px] text-red-600 mt-1 hidden">
+              Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.
+            </p>
+          </div>
+
+          <div>
+            <label for="cm-hora" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora</label>
+            <select id="cm-hora"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+            </select>
+            <p class="text-[11px] text-gray-500 mt-1">
+              Citas disponibles las 24 horas. Horas 05:00, 13:00 y 21:00 permiten hasta 2 transportes.
+            </p>
+            <p id="cm-hora-error" class="text-[11px] text-red-600 mt-1 hidden">
+              La hora seleccionada ya no tiene capacidad disponible. Elige otro horario.
+            </p>
+          </div>
+
+          <div>
+            <label for="cm-linea" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea
+              transportista</label>
+            <input id="cm-linea" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-placas" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Placas</label>
+            <input id="cm-placas" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-tipo-transporte" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de
+              transporte</label>
+            <input id="cm-tipo-transporte" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-tipo-visita" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de
+              visita</label>
+            <input id="cm-tipo-visita" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-chofer" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Chofer</label>
+            <input id="cm-chofer" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-destino" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Destino</label>
+            <input id="cm-destino" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-factura" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Factura</label>
+            <input id="cm-factura" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-hora-extra" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora
+              extra (si aplica)</label>
+            <input id="cm-hora-extra" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-frontera" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Frontera</label>
+            <input id="cm-frontera" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div>
+            <label for="cm-recolecta-caja" class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Recolecta
+              caja?</label>
+            <input id="cm-recolecta-caja" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" readonly />
+          </div>
+
+          <div class="md:col-span-2">
+            <label for="cm-notas" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Comentarios /
+              notas</label>
+            <textarea id="cm-notas" rows="2"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
+              readonly></textarea>
+          </div>
+        </div>
+
+        <p id="cm-general-error" class="text-xs text-red-600 hidden">
+          Ocurrió un error al procesar la cita. Intenta nuevamente.
+        </p>
+      </div>
+
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
+        <button id="cm-delete-btn" type="button"
+          class="px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 text-sm font-medium transition-colors">
+          Eliminar cita
+        </button>
+
+        <div class="flex gap-3">
+          <button id="cm-cancel-btn" type="button"
+            class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium transition-colors">
+            Cerrar
+          </button>
+          <button id="cm-accept-btn" type="button"
+            class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
+            <span>Aceptar cita</span>
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- LÓGICA -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import {
-            getFirestore,
-            collection,
-            getDocs,
-            query,
-            where,
-            doc,
-            updateDoc,
-            deleteDoc,
-            setDoc,
-            runTransaction
-        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  <!-- MODAL CALENDARIO SEMANAL -->
+  <div id="calendar-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto max-h-[90vh] flex flex-col overflow-hidden">
+      <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div class="flex items-start gap-2">
+          <img src="img/calendar.png" alt="Calendario" class="w-11 h-11" />
+          <div class="flex flex-col">
+            <h2 class="text-lg font-semibold text-gray-900">
+              Calendario de citas
+            </h2>
+            <p class="text-xs text-gray-500">
+              Vista semanal de citas futuras. Solo lectura.
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+          <div class="flex items-center gap-3 text-xs">
+            <span class="inline-flex items-center gap-1">
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+              <span>Confirmada</span>
+            </span>
+            <span class="inline-flex items-center gap-1">
+              <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+              <span>Pendiente</span>
+            </span>
+          </div>
+          <div class="flex items-center gap-2 justify-end">
+            <span id="cal-week-label" class="text-sm font-medium text-gray-700"></span>
+            <button id="cal-prev-week"
+              class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">
+              ◀
+            </button>
+            <button id="cal-next-week"
+              class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">
+              ▶
+            </button>
+            <button id="cal-close-btn"
+              class="px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs sm:text-sm font-medium transition-colors">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
-            authDomain: "logisticatransportesbmm.firebaseapp.com",
-            projectId: "logisticatransportesbmm",
-            storageBucket: "logisticatransportesbmm.firebasestorage.app",
-            messagingSenderId: "1096949784709",
-            appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
-        };
+      <!-- CUERPO DEL CALENDARIO -->
+      <div id="calendar-body" class="p-4 flex-1 overflow-y-auto bg-white text-xs sm:text-sm">
+      </div>
+    </div>
+  </div>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+  <!-- LÓGICA -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      query,
+      where,
+      doc,
+      updateDoc,
+      deleteDoc,
+      setDoc,
+      runTransaction
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        const APPS_SCRIPT_MAIL_URL =
-            "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
+      authDomain: "logisticatransportesbmm.firebaseapp.com",
+      projectId: "logisticatransportesbmm",
+      storageBucket: "logisticatransportesbmm.firebasestorage.app",
+      messagingSenderId: "1096949784709",
+      appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
+    };
 
-        const APPS_SCRIPT_AUTH_TOKEN = "tk_logistica_bmm_2026";
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        let allCitas = [];
-        let filteredCitas = [];
-        let currentCita = null;
-        let currentUser = null;
+    const APPS_SCRIPT_MAIL_URL =
+      "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
 
-        // ==== estado calendario semanal ====
-        let calendarCitas = [];
-        let calendarIndex = {};
-        let calendarDataLoaded = false;
-        let calendarTodayDate = null;
-        let calendarBaseWeekStart = null;
-        let calendarCurrentWeekStart = null;
+    const APPS_SCRIPT_AUTH_TOKEN = "tk_logistica_bmm_2026";
 
-        function sanitize(value) {
-            if (value === null || value === undefined) return "";
-            return String(value)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+    let allCitas = [];
+    let filteredCitas = [];
+    let currentCita = null;
+    let currentUser = null;
+
+    // ==== estado calendario semanal ====
+    let calendarCitas = [];
+    let calendarIndex = {};
+    let calendarDataLoaded = false;
+    let calendarTodayDate = null;
+    let calendarBaseWeekStart = null;
+    let calendarCurrentWeekStart = null;
+
+    function sanitize(value) {
+      if (value === null || value === undefined) return "";
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function getTodayISO() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, "0");
+      const d = String(now.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function addDays(dateStr, days) {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      const dt = new Date(y, m - 1, d);
+      dt.setDate(dt.getDate() + days);
+      const yy = dt.getFullYear();
+      const mm = String(dt.getMonth() + 1).padStart(2, "0");
+      const dd = String(dt.getDate()).padStart(2, "0");
+      return `${yy}-${mm}-${dd}`;
+    }
+
+    function dateToComparable(dateStr) {
+      return dateStr;
+    }
+
+    function generateTimeSlots24h() {
+      const slots = [];
+      for (let h = 0; h < 24; h++) {
+        slots.push(`${String(h).padStart(2, "0")}:00`);
+      }
+      return slots;
+    }
+
+    function addHoursToTimeStr(timeStr, hoursToAdd) {
+      if (!timeStr) return null;
+      const [hStr, mStr] = timeStr.split(":");
+      let h = parseInt(hStr, 10);
+      let m = parseInt(mStr || "0", 10);
+
+      if (Number.isNaN(h) || Number.isNaN(m)) return null;
+
+      h = (h + hoursToAdd) % 24;
+      const hh = String(h).padStart(2, "0");
+      const mm = String(m).padStart(2, "0");
+      return `${hh}:${mm}`;
+    }
+
+    const specialDoubleSlots = new Set(["05:00", "13:00", "21:00"]);
+
+    function getMaxCapacityForSlot(hora) {
+      return specialDoubleSlots.has(hora) ? 2 : 1;
+    }
+
+    function sameDate(a, b) {
+      return a === b;
+    }
+
+    // ====== FOLIOS CONSECUTIVOS POR FECHA ======
+    async function getNextFolioForDate(fechaISO) {
+      if (!fechaISO) {
+        throw new Error("Fecha inválida para generar folio");
+      }
+
+      const [yyyy, mm, dd] = fechaISO.split("-");
+      const ddmmyy = `${dd}${mm}${String(yyyy).slice(2)}`;
+
+      const counterRef = doc(db, "FolioCounters", fechaISO);
+
+      const indice = await runTransaction(db, async (tx) => {
+        const snap = await tx.get(counterRef);
+
+        let lastIndex = -1;
+        if (snap.exists()) {
+          const data = snap.data();
+          if (typeof data.lastIndex === "number") {
+            lastIndex = data.lastIndex;
+          }
         }
 
-        function getTodayISO() {
-            const now = new Date();
-            const y = now.getFullYear();
-            const m = String(now.getMonth() + 1).padStart(2, "0");
-            const d = String(now.getDate()).padStart(2, "0");
-            return `${y}-${m}-${d}`;
-        }
+        const nextIndex = lastIndex + 1;
+        tx.set(counterRef, { lastIndex: nextIndex }, { merge: true });
+        return nextIndex;
+      });
 
-        function addDays(dateStr, days) {
-            const [y, m, d] = dateStr.split("-").map(Number);
-            const dt = new Date(y, m - 1, d);
-            dt.setDate(dt.getDate() + days);
-            const yy = dt.getFullYear();
-            const mm = String(dt.getMonth() + 1).padStart(2, "0");
-            const dd = String(dt.getDate()).padStart(2, "0");
-            return `${yy}-${mm}-${dd}`;
-        }
+      const sufijo = String(indice).padStart(2, "0");
+      return `BMM-${ddmmyy}${sufijo}`;
+    }
 
-        function dateToComparable(dateStr) {
-            return dateStr;
-        }
+    function loadCurrentUser() {
+      try {
+        const storedSession = sessionStorage.getItem("currentUser");
+        const storedLocal = localStorage.getItem("currentUser");
+        const raw = storedSession || storedLocal;
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
 
-        function generateTimeSlots24h() {
-            const slots = [];
-            for (let h = 0; h < 24; h++) {
-                slots.push(`${String(h).padStart(2, "0")}:00`);
+    function normalizeRole(str) {
+      return (str || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "");
+    }
+
+    function isAdminUser(user) {
+      if (!user) return false;
+      const normRol = normalizeRole(user.rol || user.role);
+      return (
+        normRol === "administrador" ||
+        user.roleKey === "UsuarioAdmin" ||
+        user.collection === "UsuarioAdmin"
+      );
+    }
+
+    function isCoordLogUser(user) {
+      if (!user) return false;
+      const normRol = normalizeRole(user.rol || user.role);
+      return (
+        normRol === "coordinadorlogistico" ||
+        user.roleKey === "UsuarioLogistico" ||
+        user.collection === "UsuarioLogistico"
+      );
+    }
+
+    function enforceAdminAccess() {
+      const isFileProtocol = window.location.protocol === "file:";
+      if (isFileProtocol) {
+        console.warn("Saltando validación de login (entorno local file://).");
+        return true;
+      }
+
+      currentUser = loadCurrentUser();
+
+      if (!isAdminUser(currentUser)) {
+        alert("Debes iniciar sesión como Administrador para acceder a esta página.");
+        window.location.replace("login.html");
+        return false;
+      }
+      return true;
+    }
+
+    function setupSidebarNav() {
+      const isFile = window.location.protocol === "file:";
+      const user = loadCurrentUser();
+      const admin = isAdminUser(user);
+      const coord = isCoordLogUser(user);
+
+      document
+        .querySelectorAll('nav a[data-page]')
+        .forEach(link => {
+          const page = link.dataset.page;
+          let enable = false;
+
+          if (isFile) {
+            enable = true;
+          } else if (admin) {
+            enable = true;
+          } else if (coord) {
+            if (page === "control.html" || page === "estatus.html") {
+              enable = true;
             }
-            return slots;
-        }
+          } else {
+            enable = false;
+          }
 
-        function addHoursToTimeStr(timeStr, hoursToAdd) {
-            if (!timeStr) return null;
-            const [hStr, mStr] = timeStr.split(":");
-            let h = parseInt(hStr, 10);
-            let m = parseInt(mStr || "0", 10);
+          if (enable) {
+            link.href = page;
+            link.classList.remove("cursor-default", "opacity-80");
+            link.classList.add("hover:bg-bmm-light");
+          } else {
+            link.removeAttribute("href");
+            link.classList.add("cursor-default", "opacity-80");
+            link.classList.remove("hover:bg-bmm-light");
+          }
+        });
+    }
 
-            if (Number.isNaN(h) || Number.isNaN(m)) return null;
+    async function loadCitasPendientes() {
+      const result = [];
+      try {
+        const qRef = query(
+          collection(db, "CitasProveedor"),
+          where("estatus", "==", "CitaPendiente")
+        );
+        const snap = await getDocs(qRef);
 
-            h = (h + hoursToAdd) % 24;
-            const hh = String(h).padStart(2, "0");
-            const mm = String(m).padStart(2, "0");
-            return `${hh}:${mm}`;
-        }
+        snap.forEach(docSnap => {
+          const d = docSnap.data() || {};
+          result.push({
+            id: docSnap.id,
+            raw: d,
+            linea: d.lineaTransporte || d.linea || "",
+            placas: d.placas || "",
+            tipoTransporte: d.tipoTransporte || "",
+            tipoVisita: d.tipoVisita || "",
+            fecha: d.fecha || "",
+            hora: d.hora || "",
+            horaExtra: d.horaExtra || null,
+            chofer: d.chofer || "",
+            destino: d.destino || "",
+            factura: d.factura || "",
+            notas: d.notas || "",
+            esDomingo: !!d.esDomingo,
+            frontera: d.frontera ?? "",
+            recolectaCaja: d.recolectaCaja || "",
+            usuarioProveedor: d.usuarioProveedor || "",
+            estatus: d.estatus || "CitaPendiente"
+          });
+        });
+      } catch (err) {
+        console.error("Error cargando CitasProveedor:", err);
+        alert("Ocurrió un error al cargar las citas pendientes.");
+      }
 
-        const specialDoubleSlots = new Set(["05:00", "13:00", "21:00"]);
+      allCitas = result;
+      applyFilters();
+    }
 
-        function getMaxCapacityForSlot(hora) {
-            return specialDoubleSlots.has(hora) ? 2 : 1;
-        }
+    function renderCitas() {
+      const tbody = document.getElementById("citas-tbody");
+      const emptyState = document.getElementById("empty-state");
 
-        function sameDate(a, b) {
-            return a === b;
-        }
+      if (!filteredCitas.length) {
+        tbody.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
 
-        // ====== FOLIOS CONSECUTIVOS POR FECHA ======
-        async function getNextFolioForDate(fechaISO) {
-            if (!fechaISO) {
-                throw new Error("Fecha inválida para generar folio");
-            }
+      emptyState.classList.add("hidden");
 
-            const [yyyy, mm, dd] = fechaISO.split("-");
-            const ddmmyy = `${dd}${mm}${String(yyyy).slice(2)}`;
+      tbody.innerHTML = filteredCitas
+        .map(c => {
+          const horaMostrar = c.horaExtra
+            ? `${c.hora} - ${c.horaExtra}`
+            : c.hora || "-";
 
-            const counterRef = doc(db, "FolioCounters", fechaISO);
-
-            const indice = await runTransaction(db, async (tx) => {
-                const snap = await tx.get(counterRef);
-
-                let lastIndex = -1;
-                if (snap.exists()) {
-                    const data = snap.data();
-                    if (typeof data.lastIndex === "number") {
-                        lastIndex = data.lastIndex;
-                    }
-                }
-
-                const nextIndex = lastIndex + 1;
-                tx.set(counterRef, { lastIndex: nextIndex }, { merge: true });
-                return nextIndex;
-            });
-
-            const sufijo = String(indice).padStart(2, "0");
-            return `BMM-${ddmmyy}${sufijo}`;
-        }
-
-        function loadCurrentUser() {
-            try {
-                const storedSession = sessionStorage.getItem("currentUser");
-                const storedLocal = localStorage.getItem("currentUser");
-                const raw = storedSession || storedLocal;
-                if (!raw) return null;
-                return JSON.parse(raw);
-            } catch {
-                return null;
-            }
-        }
-
-        function normalizeRole(str) {
-            return (str || "")
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/\s+/g, "");
-        }
-
-        function isAdminUser(user) {
-            if (!user) return false;
-            const normRol = normalizeRole(user.rol || user.role);
-            return (
-                normRol === "administrador" ||
-                user.roleKey === "UsuarioAdmin" ||
-                user.collection === "UsuarioAdmin"
-            );
-        }
-
-        function isCoordLogUser(user) {
-            if (!user) return false;
-            const normRol = normalizeRole(user.rol || user.role);
-            return (
-                normRol === "coordinadorlogistico" ||
-                user.roleKey === "UsuarioLogistico" ||
-                user.collection === "UsuarioLogistico"
-            );
-        }
-
-        function enforceAdminAccess() {
-            const isFileProtocol = window.location.protocol === "file:";
-            if (isFileProtocol) {
-                console.warn("Saltando validación de login (entorno local file://).");
-                return true;
-            }
-
-            currentUser = loadCurrentUser();
-
-            if (!isAdminUser(currentUser)) {
-                alert("Debes iniciar sesión como Administrador para acceder a esta página.");
-                window.location.replace("login.html");
-                return false;
-            }
-            return true;
-        }
-
-        function setupSidebarNav() {
-            const isFile = window.location.protocol === "file:";
-            const user = loadCurrentUser();
-            const admin = isAdminUser(user);
-            const coord = isCoordLogUser(user);
-
-            document
-                .querySelectorAll('nav a[data-page]')
-                .forEach(link => {
-                    const page = link.dataset.page;
-                    let enable = false;
-
-                    if (isFile) {
-                        enable = true;
-                    } else if (admin) {
-                        enable = true;
-                    } else if (coord) {
-                        if (page === "control.html" || page === "estatus.html") {
-                            enable = true;
-                        }
-                    } else {
-                        enable = false;
-                    }
-
-                    if (enable) {
-                        link.href = page;
-                        link.classList.remove("cursor-default", "opacity-80");
-                        link.classList.add("hover:bg-bmm-light");
-                    } else {
-                        link.removeAttribute("href");
-                        link.classList.add("cursor-default", "opacity-80");
-                        link.classList.remove("hover:bg-bmm-light");
-                    }
-                });
-        }
-
-        async function loadCitasPendientes() {
-            const result = [];
-            try {
-                const qRef = query(
-                    collection(db, "CitasProveedor"),
-                    where("estatus", "==", "CitaPendiente")
-                );
-                const snap = await getDocs(qRef);
-
-                snap.forEach(docSnap => {
-                    const d = docSnap.data() || {};
-                    result.push({
-                        id: docSnap.id,
-                        raw: d,
-                        linea: d.lineaTransporte || d.linea || "",
-                        placas: d.placas || "",
-                        tipoTransporte: d.tipoTransporte || "",
-                        tipoVisita: d.tipoVisita || "",
-                        fecha: d.fecha || "",
-                        hora: d.hora || "",
-                        horaExtra: d.horaExtra || null,
-                        chofer: d.chofer || "",
-                        destino: d.destino || "",
-                        factura: d.factura || "",
-                        notas: d.notas || "",
-                        esDomingo: !!d.esDomingo,
-                        frontera: d.frontera ?? "",
-                        recolectaCaja: d.recolectaCaja || "",
-                        usuarioProveedor: d.usuarioProveedor || "",
-                        estatus: d.estatus || "CitaPendiente"
-                    });
-                });
-            } catch (err) {
-                console.error("Error cargando CitasProveedor:", err);
-                alert("Ocurrió un error al cargar las citas pendientes.");
-            }
-
-            allCitas = result;
-            applyFilters();
-        }
-
-        function renderCitas() {
-            const tbody = document.getElementById("citas-tbody");
-            const emptyState = document.getElementById("empty-state");
-
-            if (!filteredCitas.length) {
-                tbody.innerHTML = "";
-                emptyState.classList.remove("hidden");
-                return;
-            }
-
-            emptyState.classList.add("hidden");
-
-            tbody.innerHTML = filteredCitas
-                .map(c => {
-                    const horaMostrar = c.horaExtra
-                        ? `${c.hora} - ${c.horaExtra}`
-                        : c.hora || "-";
-
-                    return `
+          return `
           <tr class="hover:bg-gray-50 transition-colors">
             <td class="px-6 py-4 text-sm text-gray-900">
               ${sanitize(c.linea)}
@@ -868,646 +839,713 @@
             </td>
           </tr>
         `;
-                })
-                .join("");
+        })
+        .join("");
+    }
+
+    function applyFilters() {
+      const searchInput = document.getElementById("search-input");
+      const searchTerm = (searchInput.value || "").toLowerCase().trim();
+
+      filteredCitas = allCitas.filter(c => {
+        if (!searchTerm) return true;
+
+        const haystack = [
+          c.linea,
+          c.placas,
+          c.tipoTransporte,
+          c.tipoVisita,
+          c.chofer,
+          c.factura,
+        ]
+          .map(v => (v || "").toString().toLowerCase())
+          .join(" ");
+
+        return haystack.includes(searchTerm);
+      });
+
+      renderCitas();
+    }
+
+    const allSlots = generateTimeSlots24h();
+
+    function openCitaModal(citaId) {
+      currentCita = allCitas.find(c => c.id === citaId);
+      if (!currentCita) return;
+
+      const modal = document.getElementById("cita-modal");
+      document.getElementById("cm-general-error").classList.add("hidden");
+      document.getElementById("cm-fecha-error").classList.add("hidden");
+      document.getElementById("cm-hora-error").classList.add("hidden");
+
+      document.getElementById("cm-linea").value = currentCita.linea || "";
+      document.getElementById("cm-placas").value = currentCita.placas || "";
+      document.getElementById("cm-tipo-transporte").value = currentCita.tipoTransporte || "";
+      document.getElementById("cm-tipo-visita").value = currentCita.tipoVisita || "";
+      document.getElementById("cm-chofer").value = currentCita.chofer || "";
+      document.getElementById("cm-destino").value = currentCita.destino || "";
+      document.getElementById("cm-factura").value = currentCita.factura || "";
+      document.getElementById("cm-hora-extra").value = currentCita.horaExtra || "";
+      document.getElementById("cm-frontera").value = currentCita.frontera || "";
+      document.getElementById("cm-recolecta-caja").value = currentCita.recolectaCaja || "";
+      document.getElementById("cm-notas").value = currentCita.notas || "";
+
+      document.getElementById("cm-fecha").value = currentCita.fecha || "";
+
+      const estatusEl = document.getElementById("cm-estatus");
+      estatusEl.textContent = currentCita.estatus || "CitaPendiente";
+      estatusEl.className =
+        "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold " +
+        ((currentCita.estatus || "").toLowerCase() === "citapendiente"
+          ? "bg-yellow-100 text-yellow-800"
+          : "bg-green-100 text-green-800");
+
+      fillHoraOptionsForCurrent();
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeCitaModal() {
+      const modal = document.getElementById("cita-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      currentCita = null;
+    }
+
+    function fillHoraOptionsForCurrent() {
+      const select = document.getElementById("cm-hora");
+      select.innerHTML = "";
+
+      if (!currentCita) return;
+
+      const fechaSel = document.getElementById("cm-fecha").value || currentCita.fecha;
+      const currentHora = currentCita.hora || "";
+
+      const ocupacion = countSlotsForDate(fechaSel, currentCita.id);
+
+      allSlots.forEach(h => {
+        const maxCap = getMaxCapacityForSlot(h);
+        const used = ocupacion[h] || 0;
+
+        const isCurrent = h === currentHora;
+
+        if (used < maxCap || isCurrent) {
+          const opt = document.createElement("option");
+          opt.value = h;
+          opt.textContent = h;
+          if (h === currentHora) {
+            opt.selected = true;
+          }
+          select.appendChild(opt);
         }
-
-        function applyFilters() {
-            const searchInput = document.getElementById("search-input");
-            const searchTerm = (searchInput.value || "").toLowerCase().trim();
-
-            filteredCitas = allCitas.filter(c => {
-                if (!searchTerm) return true;
-
-                const haystack = [
-                    c.linea,
-                    c.placas,
-                    c.tipoTransporte,
-                    c.tipoVisita,
-                    c.chofer,
-                    c.factura,
-                ]
-                    .map(v => (v || "").toString().toLowerCase())
-                    .join(" ");
-
-                return haystack.includes(searchTerm);
-            });
-
-            renderCitas();
-        }
-
-        const allSlots = generateTimeSlots24h();
-
-        function openCitaModal(citaId) {
-            currentCita = allCitas.find(c => c.id === citaId);
-            if (!currentCita) return;
-
-            const modal = document.getElementById("cita-modal");
-            document.getElementById("cm-general-error").classList.add("hidden");
-            document.getElementById("cm-fecha-error").classList.add("hidden");
-            document.getElementById("cm-hora-error").classList.add("hidden");
-
-            document.getElementById("cm-linea").value = currentCita.linea || "";
-            document.getElementById("cm-placas").value = currentCita.placas || "";
-            document.getElementById("cm-tipo-transporte").value = currentCita.tipoTransporte || "";
-            document.getElementById("cm-tipo-visita").value = currentCita.tipoVisita || "";
-            document.getElementById("cm-chofer").value = currentCita.chofer || "";
-            document.getElementById("cm-destino").value = currentCita.destino || "";
-            document.getElementById("cm-factura").value = currentCita.factura || "";
-            document.getElementById("cm-hora-extra").value = currentCita.horaExtra || "";
-            document.getElementById("cm-frontera").value = currentCita.frontera || "";
-            document.getElementById("cm-recolecta-caja").value = currentCita.recolectaCaja || "";
-            document.getElementById("cm-notas").value = currentCita.notas || "";
-
-            document.getElementById("cm-fecha").value = currentCita.fecha || "";
-
-            const estatusEl = document.getElementById("cm-estatus");
-            estatusEl.textContent = currentCita.estatus || "CitaPendiente";
-            estatusEl.className =
-                "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold " +
-                ((currentCita.estatus || "").toLowerCase() === "citapendiente"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-green-100 text-green-800");
-
-            fillHoraOptionsForCurrent();
-
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-        }
-
-        function closeCitaModal() {
-            const modal = document.getElementById("cita-modal");
-            modal.classList.add("hidden");
-            modal.classList.remove("flex");
-            currentCita = null;
-        }
-
-        function fillHoraOptionsForCurrent() {
-            const select = document.getElementById("cm-hora");
-            select.innerHTML = "";
-
-            if (!currentCita) return;
-
-            const fechaSel = document.getElementById("cm-fecha").value || currentCita.fecha;
-            const currentHora = currentCita.hora || "";
-
-            const ocupacion = countSlotsForDate(fechaSel, currentCita.id);
-
-            allSlots.forEach(h => {
-                const maxCap = getMaxCapacityForSlot(h);
-                const used = ocupacion[h] || 0;
-
-                const isCurrent = h === currentHora;
-
-                if (used < maxCap || isCurrent) {
-                    const opt = document.createElement("option");
-                    opt.value = h;
-                    opt.textContent = h;
-                    if (h === currentHora) {
-                        opt.selected = true;
-                    }
-                    select.appendChild(opt);
-                }
-            });
-
-            if (currentHora && !Array.from(select.options).some(o => o.value === currentHora)) {
-                const opt = document.createElement("option");
-                opt.value = currentHora;
-                opt.textContent = currentHora + " (lleno, conservar)";
-                opt.selected = true;
-                select.appendChild(opt);
-            }
-        }
-
-        function countSlotsForDate(fechaISO, excludeId) {
-            const ocupacion = {};
-            allCitas.forEach(c => {
-                if (c.id === excludeId) return;
-                if (!sameDate(c.fecha, fechaISO)) return;
-
-                const horasConsiderar = [];
-                if (c.hora) horasConsiderar.push(c.hora);
-                if (c.horaExtra) horasConsiderar.push(c.horaExtra);
-
-                horasConsiderar.forEach(h => {
-                    if (!h) return;
-                    ocupacion[h] = (ocupacion[h] || 0) + 1;
-                });
-            });
-            return ocupacion;
-        }
-
-        function validateFecha(fechaISO) {
-            if (!fechaISO) return false;
-            const hoy = getTodayISO();
-            const minFecha = addDays(hoy, 3);
-            return dateToComparable(fechaISO) >= dateToComparable(minFecha);
-        }
-
-        function validateHora(fechaISO, horaSeleccionada) {
-            if (!fechaISO || !horaSeleccionada || !currentCita) return false;
-
-            const ocupacion = countSlotsForDate(fechaISO, currentCita.id);
-            const maxCap = getMaxCapacityForSlot(horaSeleccionada);
-            const used = ocupacion[horaSeleccionada] || 0;
-
-            if (horaSeleccionada === currentCita.hora) {
-                return true;
-            }
-            return used < maxCap;
-        }
-
-        async function acceptCita() {
-            if (!currentCita) return;
-
-            const fechaInput = document.getElementById("cm-fecha");
-            const horaSelect = document.getElementById("cm-hora");
-            const fechaError = document.getElementById("cm-fecha-error");
-            const horaError = document.getElementById("cm-hora-error");
-            const generalError = document.getElementById("cm-general-error");
-
-            generalError.classList.add("hidden");
-            fechaError.classList.add("hidden");
-            horaError.classList.add("hidden");
-
-            const fecha = fechaInput.value;
-            const hora = horaSelect.value;
-
-            let ok = true;
-
-            if (!validateFecha(fecha)) {
-                fechaError.classList.remove("hidden");
-                ok = false;
-            }
-
-            if (!validateHora(fecha, hora)) {
-                horaError.classList.remove("hidden");
-                ok = false;
-            }
-
-            if (!ok) return;
-
-            const dt = new Date(fecha + "T00:00:00");
-            const esDomingo = dt.getDay() === 0;
-
-            const nuevaHoraExtra = currentCita.horaExtra
-                ? addHoursToTimeStr(hora, 2)
-                : null;
-
-            const acceptBtn = document.getElementById("cm-accept-btn");
-            const originalHTML = acceptBtn.innerHTML;
-            acceptBtn.disabled = true;
-            acceptBtn.innerHTML = '<div class="loading-spinner"></div>';
-
-            try {
-                const docRef = doc(db, "CitasProveedor", currentCita.id);
-                const updatePayload = {
-                    fecha,
-                    hora,
-                    horaExtra: nuevaHoraExtra,
-                    esDomingo,
-                    estatus: "CitaConfirmada"
-                };
-                await updateDoc(docRef, updatePayload);
-
-                const folio = await getNextFolioForDate(fecha);
-
-                const confirmRef = doc(collection(db, "CitasConfirmadas"));
-
-                const dataConfirmada = {
-                    ...currentCita.raw,
-                    ...updatePayload,
-                    folio,
-                    citaProveedorId: currentCita.id,
-                    updatedAt: new Date().toISOString()
-                };
-
-                await setDoc(confirmRef, dataConfirmada);
-
-                const correoDestino = currentCita.usuarioProveedor || "";
-                if (correoDestino) {
-                    const payloadEmail = {
-                        to: correoDestino,
-                        folio,
-                        citaId: currentCita.id,
-                        datosCita: {
-                            linea: currentCita.linea,
-                            placas: currentCita.placas,
-                            tipoTransporte: currentCita.tipoTransporte,
-                            tipoVisita: currentCita.tipoVisita,
-                            fecha,
-                            hora,
-                            horaExtra: nuevaHoraExtra,
-                            chofer: currentCita.chofer,
-                            destino: currentCita.destino,
-                            factura: currentCita.factura,
-                            notas: currentCita.notas,
-                            frontera: currentCita.frontera,
-                            recolectaCaja: currentCita.recolectaCaja
-                        },
-                        attachmentPath: "docs/Indicaciones de ingreso a transportistas.pdf"
-                    };
-
-                    try {
-                        const res = await fetch(APPS_SCRIPT_MAIL_URL, {
-                            method: "POST",
-                            headers: {
-                                // ✅ Igual que agendarcita.html para evitar preflight CORS
-                                "Content-Type": "text/plain;charset=utf-8"
-                            },
-                            body: JSON.stringify({
-                                authToken: APPS_SCRIPT_AUTH_TOKEN,
-                                action: "sendCitaConfirmacion",
-                                payload: payloadEmail
-                            })
-                        });
-
-                        const raw = await res.text();
-                        let data = null;
-                        try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
-
-                        if (!res.ok || (data && data.success === false) || !data) {
-                            console.warn("Problema al enviar correo (Apps Script):", { status: res.status, raw, data });
-                            alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
-                        } else {
-                            alert(
-                                "Cita confirmada correctamente.\n\nSe ha enviado un correo al proveedor con su folio y el PDF de indicaciones."
-                            );
-                        }
-                    } catch (mailErr) {
-                        console.error("Error al llamar Apps Script (correo):", mailErr);
-                        alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
-                    }
-                } else {
-                    alert("Cita confirmada. No se encontró correo de proveedor para enviar confirmación.");
-                }
-
-                allCitas = allCitas.filter(c => c.id !== currentCita.id);
-                applyFilters();
-                closeCitaModal();
-
-            } catch (err) {
-                console.error("Error al confirmar cita:", err);
-                generalError.textContent = "Ocurrió un error al confirmar la cita. Intenta nuevamente.";
-                generalError.classList.remove("hidden");
-            } finally {
-                acceptBtn.disabled = false;
-                acceptBtn.innerHTML = originalHTML;
-            }
-        }
-
-        async function deleteCita() {
-            if (!currentCita) return;
-
-            const confirmar = confirm(
-                "¿Seguro que deseas eliminar esta cita? Esta acción no se puede deshacer."
-            );
-            if (!confirmar) return;
-
-            const deleteBtn = document.getElementById("cm-delete-btn");
-            const originalText = deleteBtn.textContent;
-            deleteBtn.disabled = true;
-            deleteBtn.textContent = "Eliminando...";
-
-            try {
-                const docRef = doc(db, "CitasProveedor", currentCita.id);
-                await deleteDoc(docRef);
-
-                allCitas = allCitas.filter(c => c.id !== currentCita.id);
-                applyFilters();
-                alert("Cita eliminada correctamente.");
-                closeCitaModal();
-            } catch (err) {
-                console.error("Error al eliminar cita:", err);
-                alert("Ocurrió un error al eliminar la cita. Intenta nuevamente.");
-            } finally {
-                deleteBtn.disabled = false;
-                deleteBtn.textContent = originalText;
-            }
-        }
-
-        // ====== helpers calendario semanal ======
-        function startOfDay(date) {
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        }
-
-        function getWeekStartMonday(date) {
-            const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-            const day = d.getDay(); // 0 dom ... 6 sáb
-            const diff = (day === 0 ? -6 : 1 - day); // lunes como inicio
-            d.setDate(d.getDate() + diff);
-            return d;
-        }
-
-        function addDaysToDate(base, days) {
-            const d = new Date(base.getTime());
-            d.setDate(d.getDate() + days);
-            return d;
-        }
-
-        function formatISOFromDate(date) {
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, "0");
-            const d = String(date.getDate()).padStart(2, "0");
-            return `${y}-${m}-${d}`;
-        }
-
-        function formatWeekLabel(startDate, endDate) {
-            const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-            const d1 = startDate.getDate();
-            const d2 = endDate.getDate();
-            const m1 = meses[startDate.getMonth()];
-            const m2 = meses[endDate.getMonth()];
-            const y = startDate.getFullYear();
-            if (startDate.getMonth() === endDate.getMonth()) {
-                return `${d1}–${d2} ${m1} ${y}`;
-            }
-            return `${d1} ${m1} – ${d2} ${m2} ${y}`;
-        }
-
-        function canGoPrevWeek() {
-            if (!calendarBaseWeekStart || !calendarCurrentWeekStart) return false;
-            const prevStart = addDaysToDate(calendarCurrentWeekStart, -7);
-            return prevStart >= calendarBaseWeekStart;
-        }
-
-        function updateCalendarNavButtons() {
-            const prevBtn = document.getElementById("cal-prev-week");
-            if (!prevBtn) return;
-            const enabled = canGoPrevWeek();
-            prevBtn.disabled = !enabled;
-            prevBtn.classList.toggle("opacity-40", !enabled);
-            prevBtn.classList.toggle("cursor-not-allowed", !enabled);
-        }
-
-        async function loadCalendarDataIfNeeded() {
-            if (calendarDataLoaded) return;
-
-            calendarTodayDate = startOfDay(new Date());
-            calendarBaseWeekStart = getWeekStartMonday(calendarTodayDate);
-            calendarCurrentWeekStart = new Date(calendarBaseWeekStart);
-
-            const baseISO = formatISOFromDate(calendarBaseWeekStart);
-            const result = [];
-
-            try {
-                // Pendientes futuras (desde el lunes de la semana actual)
-                const qPend = query(
-                    collection(db, "CitasProveedor"),
-                    where("estatus", "==", "CitaPendiente")
-                );
-                const snapPend = await getDocs(qPend);
-                snapPend.forEach(docSnap => {
-                    const d = docSnap.data() || {};
-                    const fecha = d.fecha || "";
-                    if (!fecha || fecha < baseISO) return;
-
-                    result.push({
-                        id: docSnap.id,
-                        estatus: d.estatus || "CitaPendiente",
-                        fecha,
-                        hora: d.hora || "",
-                        horaExtra: d.horaExtra || null,
-                        linea: d.lineaTransporte || d.linea || "",
-                        placas: d.placas || "",
-                        tipoTransporte: d.tipoTransporte || "",
-                        tipoVisita: d.tipoVisita || ""
-                    });
-                });
-
-                // Confirmadas futuras (desde el lunes de la semana actual)
-                const qConf = query(
-                    collection(db, "CitasProveedor"),
-                    where("estatus", "==", "CitaConfirmada")
-                );
-                const snapConf = await getDocs(qConf);
-                snapConf.forEach(docSnap => {
-                    const d = docSnap.data() || {};
-                    const fecha = d.fecha || "";
-                    if (!fecha || fecha < baseISO) return;
-
-                    result.push({
-                        id: docSnap.id,
-                        estatus: d.estatus || "CitaConfirmada",
-                        fecha,
-                        hora: d.hora || "",
-                        horaExtra: d.horaExtra || null,
-                        linea: d.lineaTransporte || d.linea || "",
-                        placas: d.placas || "",
-                        tipoTransporte: d.tipoTransporte || "",
-                        tipoVisita: d.tipoVisita || ""
-                    });
-                });
-            } catch (err) {
-                console.error("Error cargando citas para calendario:", err);
-            }
-
-            calendarCitas = result;
-
-            // 🔹 Indexar por hora y también por horaExtra para que se vea dos veces si ocupa dos slots
-            calendarIndex = {};
-            calendarCitas.forEach(c => {
-                if (!c.fecha) return;
-
-                const slots = [];
-                if (c.hora) slots.push(c.hora);
-                if (c.horaExtra) slots.push(c.horaExtra);
-
-                slots.forEach(h => {
-                    const key = `${c.fecha}|${h}`;
-                    if (!calendarIndex[key]) {
-                        calendarIndex[key] = [];
-                    }
-                    calendarIndex[key].push(c);
-                });
-            });
-
-            calendarDataLoaded = true;
-        }
-
-        function renderCalendarWeek() {
-            const body = document.getElementById("calendar-body");
-            if (!body || !calendarCurrentWeekStart) return;
-
-            const days = [];
-            for (let i = 0; i < 7; i++) {
-                days.push(addDaysToDate(calendarCurrentWeekStart, i));
-            }
-
-            const weekLabelEl = document.getElementById("cal-week-label");
-            if (weekLabelEl) {
-                weekLabelEl.textContent = formatWeekLabel(days[0], days[6]);
-            }
-
-            const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
-            const hours = generateTimeSlots24h();
-
-            let html = '<div class="overflow-x-auto"><table class="w-full text-[11px] sm:text-xs border-collapse">';
-            html += '<thead><tr>';
-            html += '<th class="border-b border-gray-200 p-2 text-left text-[10px] text-gray-400 sticky left-0 bg-white z-10">Hora</th>';
-
-            days.forEach((d, idx) => {
-                const label = `${dayNames[idx]} ${String(d.getDate()).padStart(2, "0")}`;
-                html += `<th class="border-b border-gray-200 p-2 text-left text-[11px] text-gray-500">${label}</th>`;
-            });
-            html += '</tr></thead><tbody>';
-
-            hours.forEach(h => {
-                html += '<tr>';
-                html += `<td class="border-t border-gray-100 align-top p-1 text-[10px] text-gray-400 sticky left-0 bg-white z-10">${h}</td>`;
-
-                days.forEach(d => {
-                    const fechaISO = formatISOFromDate(d);
-                    const key = `${fechaISO}|${h}`;
-                    const citasSlot = calendarIndex[key] || [];
-
-                    if (!citasSlot.length) {
-                        html += '<td class="border-t border-gray-100 align-top p-1"></td>';
-                    } else {
-                        const itemsHtml = citasSlot.map(c => {
-                            const baseClasses = "mb-1 px-2 py-1 rounded border text-[10px] sm:text-[11px] leading-tight";
-                            const colorClasses =
-                                (c.estatus === "CitaConfirmada")
-                                    ? " bg-emerald-50 border-emerald-400 text-emerald-800"
-                                    : " bg-yellow-50 border-yellow-400 text-yellow-800";
-                            const label = sanitize(`${c.linea || "Sin línea"} • ${c.tipoVisita || ""}`);
-                            return `<div class="${baseClasses}${colorClasses}">${label}</div>`;
-                        }).join("");
-                        html += `<td class="border-t border-gray-100 align-top p-1 align-middle">${itemsHtml}</td>`;
-                    }
-                });
-
-                html += '</tr>';
-            });
-
-            html += '</tbody></table></div>';
-            body.innerHTML = html;
-
-            updateCalendarNavButtons();
-        }
-
-        function openCalendarModalUI() {
-            const modal = document.getElementById("calendar-modal");
-            if (!modal) return;
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
-        }
-
-        function closeCalendarModalUI() {
-            const modal = document.getElementById("calendar-modal");
-            if (!modal) return;
-            modal.classList.add("hidden");
-            modal.classList.remove("flex");
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            if (!enforceAdminAccess()) return;
-
-            setupSidebarNav();
-
-            const sidebar = document.getElementById("sidebar");
-            const mainContent = document.getElementById("main-content");
-            const hamburgerBtn = document.getElementById("hamburger-btn");
-
-            if (hamburgerBtn && sidebar && mainContent) {
-                hamburgerBtn.addEventListener("click", () => {
-                    const isExpanded = sidebar.classList.contains("sidebar-expanded");
-
-                    sidebar.classList.toggle("sidebar-expanded", !isExpanded);
-                    sidebar.classList.toggle("sidebar-collapsed", isExpanded);
-
-                    mainContent.classList.toggle("main-content-expanded", !isExpanded);
-                    mainContent.classList.toggle("main-content-collapsed", isExpanded);
-                });
-            }
-
-            document.getElementById("search-input").addEventListener("input", applyFilters);
-
-            document.getElementById("clear-filters").addEventListener("click", () => {
-                document.getElementById("search-input").value = "";
-                applyFilters();
-            });
-
-            document.getElementById("logout-btn").addEventListener("click", () => {
-                sessionStorage.clear();
-                localStorage.removeItem("currentUser");
-                window.location.replace("login.html");
-            });
-
-            document.getElementById("cm-cancel-btn").addEventListener("click", closeCitaModal);
-            document.getElementById("cm-accept-btn").addEventListener("click", acceptCita);
-            document.getElementById("cm-delete-btn").addEventListener("click", deleteCita);
-
-            document.getElementById("cm-hora").addEventListener("change", () => {
-                if (!currentCita) return;
-                const nuevaHora = document.getElementById("cm-hora").value;
-                let nuevaHoraExtra = "";
-
-                if (currentCita.horaExtra) {
-                    nuevaHoraExtra = addHoursToTimeStr(nuevaHora, 2) || "";
-                }
-
-                document.getElementById("cm-hora-extra").value = nuevaHoraExtra;
-            });
-
-            document.getElementById("cm-fecha").addEventListener("change", () => {
-                document.getElementById("cm-fecha-error").classList.add("hidden");
-                document.getElementById("cm-hora-error").classList.add("hidden");
-                if (currentCita) {
-                    fillHoraOptionsForCurrent();
-                }
-            });
-
-            document.getElementById("citas-tbody").addEventListener("click", (e) => {
-                const btn = e.target.closest(".js-open-cita");
-                if (!btn) return;
-                const id = btn.getAttribute("data-id");
-                if (id) {
-                    openCitaModal(id);
-                }
-            });
-
-            // Calendario: abrir modal
-            const calendarBtn = document.getElementById("calendar-btn");
-            if (calendarBtn) {
-                calendarBtn.addEventListener("click", async () => {
-                    openCalendarModalUI();
-                    const body = document.getElementById("calendar-body");
-                    if (body) {
-                        body.innerHTML = '<p class="text-xs text-gray-500">Cargando citas...</p>';
-                    }
-                    await loadCalendarDataIfNeeded();
-                    renderCalendarWeek();
-                });
-            }
-
-            const calendarCloseBtn = document.getElementById("cal-close-btn");
-            if (calendarCloseBtn) {
-                calendarCloseBtn.addEventListener("click", () => {
-                    closeCalendarModalUI();
-                });
-            }
-
-            const calendarPrevWeekBtn = document.getElementById("cal-prev-week");
-            if (calendarPrevWeekBtn) {
-                calendarPrevWeekBtn.addEventListener("click", () => {
-                    if (!canGoPrevWeek()) return;
-                    calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, -7);
-                    renderCalendarWeek();
-                });
-            }
-
-            const calendarNextWeekBtn = document.getElementById("cal-next-week");
-            if (calendarNextWeekBtn) {
-                calendarNextWeekBtn.addEventListener("click", () => {
-                    calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, 7);
-                    renderCalendarWeek();
-                });
-            }
-
-            loadCitasPendientes();
+      });
+
+      if (currentHora && !Array.from(select.options).some(o => o.value === currentHora)) {
+        const opt = document.createElement("option");
+        opt.value = currentHora;
+        opt.textContent = currentHora + " (lleno, conservar)";
+        opt.selected = true;
+        select.appendChild(opt);
+      }
+    }
+
+    function countSlotsForDate(fechaISO, excludeId) {
+      const ocupacion = {};
+      allCitas.forEach(c => {
+        if (c.id === excludeId) return;
+        if (!sameDate(c.fecha, fechaISO)) return;
+
+        const horasConsiderar = [];
+        if (c.hora) horasConsiderar.push(c.hora);
+        if (c.horaExtra) horasConsiderar.push(c.horaExtra);
+
+        horasConsiderar.forEach(h => {
+          if (!h) return;
+          ocupacion[h] = (ocupacion[h] || 0) + 1;
         });
-    </script>
+      });
+      return ocupacion;
+    }
+
+    function validateFecha(fechaISO) {
+      if (!fechaISO) return false;
+      const hoy = getTodayISO();
+      const minFecha = addDays(hoy, 3);
+      return dateToComparable(fechaISO) >= dateToComparable(minFecha);
+    }
+
+    function validateHora(fechaISO, horaSeleccionada) {
+      if (!fechaISO || !horaSeleccionada || !currentCita) return false;
+
+      const ocupacion = countSlotsForDate(fechaISO, currentCita.id);
+      const maxCap = getMaxCapacityForSlot(horaSeleccionada);
+      const used = ocupacion[horaSeleccionada] || 0;
+
+      if (horaSeleccionada === currentCita.hora) {
+        return true;
+      }
+      return used < maxCap;
+    }
+
+    // ===============================
+    // ✅ NUEVO: helpers "hot refresh" del calendario
+    // ===============================
+    function isCalendarOpen() {
+      const modal = document.getElementById("calendar-modal");
+      return modal && modal.classList.contains("flex") && !modal.classList.contains("hidden");
+    }
+
+    function rebuildCalendarIndexFromArray() {
+      calendarIndex = {};
+      calendarCitas.forEach(c => {
+        if (!c.fecha) return;
+
+        const slots = [];
+        if (c.hora) slots.push(c.hora);
+        if (c.horaExtra) slots.push(c.horaExtra);
+
+        slots.forEach(h => {
+          const key = `${c.fecha}|${h}`;
+          if (!calendarIndex[key]) calendarIndex[key] = [];
+          calendarIndex[key].push(c);
+        });
+      });
+    }
+
+    function upsertCalendarCitaFromAcceptance({ id, fecha, hora, horaExtra, estatus, linea, tipoVisita }) {
+      // Si el calendario nunca se ha cargado, no hay cache que actualizar.
+      // Se verá bien cuando lo abras (porque carga desde Firestore).
+      if (!calendarDataLoaded) return;
+
+      const baseISO = formatISOFromDate(calendarBaseWeekStart);
+      if (!fecha || fecha < baseISO) return;
+
+      calendarCitas = calendarCitas.filter(c => c.id !== id);
+
+      calendarCitas.push({
+        id,
+        estatus,
+        fecha,
+        hora: hora || "",
+        horaExtra: horaExtra || null,
+        linea: linea || "",
+        tipoVisita: tipoVisita || ""
+      });
+
+      rebuildCalendarIndexFromArray();
+
+      if (isCalendarOpen()) {
+        renderCalendarWeek();
+      }
+    }
+
+    function removeCalendarCitaById(id) {
+      if (!calendarDataLoaded) return;
+      calendarCitas = calendarCitas.filter(c => c.id !== id);
+      rebuildCalendarIndexFromArray();
+
+      if (isCalendarOpen()) {
+        renderCalendarWeek();
+      }
+    }
+
+    async function acceptCita() {
+      if (!currentCita) return;
+
+      const fechaInput = document.getElementById("cm-fecha");
+      const horaSelect = document.getElementById("cm-hora");
+      const fechaError = document.getElementById("cm-fecha-error");
+      const horaError = document.getElementById("cm-hora-error");
+      const generalError = document.getElementById("cm-general-error");
+
+      generalError.classList.add("hidden");
+      fechaError.classList.add("hidden");
+      horaError.classList.add("hidden");
+
+      const fecha = fechaInput.value;
+      const hora = horaSelect.value;
+
+      let ok = true;
+
+      if (!validateFecha(fecha)) {
+        fechaError.classList.remove("hidden");
+        ok = false;
+      }
+
+      if (!validateHora(fecha, hora)) {
+        horaError.classList.remove("hidden");
+        ok = false;
+      }
+
+      if (!ok) return;
+
+      const dt = new Date(fecha + "T00:00:00");
+      const esDomingo = dt.getDay() === 0;
+
+      const nuevaHoraExtra = currentCita.horaExtra
+        ? addHoursToTimeStr(hora, 2)
+        : null;
+
+      const acceptBtn = document.getElementById("cm-accept-btn");
+      const originalHTML = acceptBtn.innerHTML;
+      acceptBtn.disabled = true;
+      acceptBtn.innerHTML = '<div class="loading-spinner"></div>';
+
+      try {
+        const docRef = doc(db, "CitasProveedor", currentCita.id);
+        const updatePayload = {
+          fecha,
+          hora,
+          horaExtra: nuevaHoraExtra,
+          esDomingo,
+          estatus: "CitaConfirmada"
+        };
+        await updateDoc(docRef, updatePayload);
+
+        const folio = await getNextFolioForDate(fecha);
+
+        const confirmRef = doc(collection(db, "CitasConfirmadas"));
+
+        const dataConfirmada = {
+          ...currentCita.raw,
+          ...updatePayload,
+          folio,
+          citaProveedorId: currentCita.id,
+          updatedAt: new Date().toISOString()
+        };
+
+        await setDoc(confirmRef, dataConfirmada);
+
+        // ✅ NUEVO: actualizar calendario "en caliente" (sin recargar)
+        upsertCalendarCitaFromAcceptance({
+          id: currentCita.id,
+          fecha,
+          hora,
+          horaExtra: nuevaHoraExtra,
+          estatus: "CitaConfirmada",
+          linea: currentCita.linea,
+          tipoVisita: currentCita.tipoVisita
+        });
+
+        const correoDestino = currentCita.usuarioProveedor || "";
+        if (correoDestino) {
+          const payloadEmail = {
+            to: correoDestino,
+            folio,
+            citaId: currentCita.id,
+            datosCita: {
+              linea: currentCita.linea,
+              placas: currentCita.placas,
+              tipoTransporte: currentCita.tipoTransporte,
+              tipoVisita: currentCita.tipoVisita,
+              fecha,
+              hora,
+              horaExtra: nuevaHoraExtra,
+              chofer: currentCita.chofer,
+              destino: currentCita.destino,
+              factura: currentCita.factura,
+              notas: currentCita.notas,
+              frontera: currentCita.frontera,
+              recolectaCaja: currentCita.recolectaCaja
+            },
+            attachmentPath: "docs/Indicaciones de ingreso a transportistas.pdf"
+          };
+
+          try {
+            const res = await fetch(APPS_SCRIPT_MAIL_URL, {
+              method: "POST",
+              headers: {
+                // ✅ Igual que agendarcita.html para evitar preflight CORS
+                "Content-Type": "text/plain;charset=utf-8"
+              },
+              body: JSON.stringify({
+                authToken: APPS_SCRIPT_AUTH_TOKEN,
+                action: "sendCitaConfirmacion",
+                payload: payloadEmail
+              })
+            });
+
+            const raw = await res.text();
+            let data = null;
+            try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
+
+            if (!res.ok || (data && data.success === false) || !data) {
+              console.warn("Problema al enviar correo (Apps Script):", { status: res.status, raw, data });
+              alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
+            } else {
+              alert(
+                "Cita confirmada correctamente.\n\nSe ha enviado un correo al proveedor con su folio y el PDF de indicaciones."
+              );
+            }
+          } catch (mailErr) {
+            console.error("Error al llamar Apps Script (correo):", mailErr);
+            alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
+          }
+        } else {
+          alert("Cita confirmada. No se encontró correo de proveedor para enviar confirmación.");
+        }
+
+        // ✅ remover de tabla pendientes
+        allCitas = allCitas.filter(c => c.id !== currentCita.id);
+        applyFilters();
+
+        // ✅ opcional: si el calendario está mostrando "pendiente" como item previo, lo limpiamos por id
+        // (no es estrictamente necesario porque el upsert ya lo reemplaza con Confirmada si ya estaba)
+        // removeCalendarCitaById(currentCita.id);
+
+        closeCitaModal();
+
+      } catch (err) {
+        console.error("Error al confirmar cita:", err);
+        generalError.textContent = "Ocurrió un error al confirmar la cita. Intenta nuevamente.";
+        generalError.classList.remove("hidden");
+      } finally {
+        acceptBtn.disabled = false;
+        acceptBtn.innerHTML = originalHTML;
+      }
+    }
+
+    async function deleteCita() {
+      if (!currentCita) return;
+
+      const confirmar = confirm(
+        "¿Seguro que deseas eliminar esta cita? Esta acción no se puede deshacer."
+      );
+      if (!confirmar) return;
+
+      const deleteBtn = document.getElementById("cm-delete-btn");
+      const originalText = deleteBtn.textContent;
+      deleteBtn.disabled = true;
+      deleteBtn.textContent = "Eliminando...";
+
+      try {
+        const docRef = doc(db, "CitasProveedor", currentCita.id);
+        await deleteDoc(docRef);
+
+        // ✅ NUEVO: si el calendario ya se cargó, quitarlo del cache para refrescar el modal al instante
+        removeCalendarCitaById(currentCita.id);
+
+        allCitas = allCitas.filter(c => c.id !== currentCita.id);
+        applyFilters();
+        alert("Cita eliminada correctamente.");
+        closeCitaModal();
+      } catch (err) {
+        console.error("Error al eliminar cita:", err);
+        alert("Ocurrió un error al eliminar la cita. Intenta nuevamente.");
+      } finally {
+        deleteBtn.disabled = false;
+        deleteBtn.textContent = originalText;
+      }
+    }
+
+    // ====== helpers calendario semanal ======
+    function startOfDay(date) {
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+
+    function getWeekStartMonday(date) {
+      const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const day = d.getDay(); // 0 dom ... 6 sáb
+      const diff = (day === 0 ? -6 : 1 - day); // lunes como inicio
+      d.setDate(d.getDate() + diff);
+      return d;
+    }
+
+    function addDaysToDate(base, days) {
+      const d = new Date(base.getTime());
+      d.setDate(d.getDate() + days);
+      return d;
+    }
+
+    function formatISOFromDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatWeekLabel(startDate, endDate) {
+      const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+      const d1 = startDate.getDate();
+      const d2 = endDate.getDate();
+      const m1 = meses[startDate.getMonth()];
+      const m2 = meses[endDate.getMonth()];
+      const y = startDate.getFullYear();
+      if (startDate.getMonth() === endDate.getMonth()) {
+        return `${d1}–${d2} ${m1} ${y}`;
+      }
+      return `${d1} ${m1} – ${d2} ${m2} ${y}`;
+    }
+
+    function canGoPrevWeek() {
+      if (!calendarBaseWeekStart || !calendarCurrentWeekStart) return false;
+      const prevStart = addDaysToDate(calendarCurrentWeekStart, -7);
+      return prevStart >= calendarBaseWeekStart;
+    }
+
+    function updateCalendarNavButtons() {
+      const prevBtn = document.getElementById("cal-prev-week");
+      if (!prevBtn) return;
+      const enabled = canGoPrevWeek();
+      prevBtn.disabled = !enabled;
+      prevBtn.classList.toggle("opacity-40", !enabled);
+      prevBtn.classList.toggle("cursor-not-allowed", !enabled);
+    }
+
+    async function loadCalendarDataIfNeeded() {
+      if (calendarDataLoaded) return;
+
+      calendarTodayDate = startOfDay(new Date());
+      calendarBaseWeekStart = getWeekStartMonday(calendarTodayDate);
+      calendarCurrentWeekStart = new Date(calendarBaseWeekStart);
+
+      const baseISO = formatISOFromDate(calendarBaseWeekStart);
+      const result = [];
+
+      try {
+        // Pendientes futuras (desde el lunes de la semana actual)
+        const qPend = query(
+          collection(db, "CitasProveedor"),
+          where("estatus", "==", "CitaPendiente")
+        );
+        const snapPend = await getDocs(qPend);
+        snapPend.forEach(docSnap => {
+          const d = docSnap.data() || {};
+          const fecha = d.fecha || "";
+          if (!fecha || fecha < baseISO) return;
+
+          result.push({
+            id: docSnap.id,
+            estatus: d.estatus || "CitaPendiente",
+            fecha,
+            hora: d.hora || "",
+            horaExtra: d.horaExtra || null,
+            linea: d.lineaTransporte || d.linea || "",
+            placas: d.placas || "",
+            tipoTransporte: d.tipoTransporte || "",
+            tipoVisita: d.tipoVisita || ""
+          });
+        });
+
+        // Confirmadas futuras (desde el lunes de la semana actual)
+        const qConf = query(
+          collection(db, "CitasProveedor"),
+          where("estatus", "==", "CitaConfirmada")
+        );
+        const snapConf = await getDocs(qConf);
+        snapConf.forEach(docSnap => {
+          const d = docSnap.data() || {};
+          const fecha = d.fecha || "";
+          if (!fecha || fecha < baseISO) return;
+
+          result.push({
+            id: docSnap.id,
+            estatus: d.estatus || "CitaConfirmada",
+            fecha,
+            hora: d.hora || "",
+            horaExtra: d.horaExtra || null,
+            linea: d.lineaTransporte || d.linea || "",
+            placas: d.placas || "",
+            tipoTransporte: d.tipoTransporte || "",
+            tipoVisita: d.tipoVisita || ""
+          });
+        });
+      } catch (err) {
+        console.error("Error cargando citas para calendario:", err);
+      }
+
+      calendarCitas = result;
+
+      // Indexar por hora y también por horaExtra
+      rebuildCalendarIndexFromArray();
+
+      calendarDataLoaded = true;
+    }
+
+    function renderCalendarWeek() {
+      const body = document.getElementById("calendar-body");
+      if (!body || !calendarCurrentWeekStart) return;
+
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        days.push(addDaysToDate(calendarCurrentWeekStart, i));
+      }
+
+      const weekLabelEl = document.getElementById("cal-week-label");
+      if (weekLabelEl) {
+        weekLabelEl.textContent = formatWeekLabel(days[0], days[6]);
+      }
+
+      const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+      const hours = generateTimeSlots24h();
+
+      let html = '<div class="overflow-x-auto"><table class="w-full text-[11px] sm:text-xs border-collapse">';
+      html += '<thead><tr>';
+      html += '<th class="border-b border-gray-200 p-2 text-left text-[10px] text-gray-400 sticky left-0 bg-white z-10">Hora</th>';
+
+      days.forEach((d, idx) => {
+        const label = `${dayNames[idx]} ${String(d.getDate()).padStart(2, "0")}`;
+        html += `<th class="border-b border-gray-200 p-2 text-left text-[11px] text-gray-500">${label}</th>`;
+      });
+      html += '</tr></thead><tbody>';
+
+      hours.forEach(h => {
+        html += '<tr>';
+        html += `<td class="border-t border-gray-100 align-top p-1 text-[10px] text-gray-400 sticky left-0 bg-white z-10">${h}</td>`;
+
+        days.forEach(d => {
+          const fechaISO = formatISOFromDate(d);
+          const key = `${fechaISO}|${h}`;
+          const citasSlot = calendarIndex[key] || [];
+
+          if (!citasSlot.length) {
+            html += '<td class="border-t border-gray-100 align-top p-1"></td>';
+          } else {
+            const itemsHtml = citasSlot.map(c => {
+              const baseClasses = "mb-1 px-2 py-1 rounded border text-[10px] sm:text-[11px] leading-tight";
+              const colorClasses =
+                (c.estatus === "CitaConfirmada")
+                  ? " bg-emerald-50 border-emerald-400 text-emerald-800"
+                  : " bg-yellow-50 border-yellow-400 text-yellow-800";
+              const label = sanitize(`${c.linea || "Sin línea"} • ${c.tipoVisita || ""}`);
+              return `<div class="${baseClasses}${colorClasses}">${label}</div>`;
+            }).join("");
+            html += `<td class="border-t border-gray-100 align-top p-1 align-middle">${itemsHtml}</td>`;
+          }
+        });
+
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+      body.innerHTML = html;
+
+      updateCalendarNavButtons();
+    }
+
+    function openCalendarModalUI() {
+      const modal = document.getElementById("calendar-modal");
+      if (!modal) return;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeCalendarModalUI() {
+      const modal = document.getElementById("calendar-modal");
+      if (!modal) return;
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (!enforceAdminAccess()) return;
+
+      setupSidebarNav();
+
+      const sidebar = document.getElementById("sidebar");
+      const mainContent = document.getElementById("main-content");
+      const hamburgerBtn = document.getElementById("hamburger-btn");
+
+      if (hamburgerBtn && sidebar && mainContent) {
+        hamburgerBtn.addEventListener("click", () => {
+          const isExpanded = sidebar.classList.contains("sidebar-expanded");
+
+          sidebar.classList.toggle("sidebar-expanded", !isExpanded);
+          sidebar.classList.toggle("sidebar-collapsed", isExpanded);
+
+          mainContent.classList.toggle("main-content-expanded", !isExpanded);
+          mainContent.classList.toggle("main-content-collapsed", isExpanded);
+        });
+      }
+
+      document.getElementById("search-input").addEventListener("input", applyFilters);
+
+      document.getElementById("clear-filters").addEventListener("click", () => {
+        document.getElementById("search-input").value = "";
+        applyFilters();
+      });
+
+      document.getElementById("logout-btn").addEventListener("click", () => {
+        sessionStorage.clear();
+        localStorage.removeItem("currentUser");
+        window.location.replace("login.html");
+      });
+
+      document.getElementById("cm-cancel-btn").addEventListener("click", closeCitaModal);
+      document.getElementById("cm-accept-btn").addEventListener("click", acceptCita);
+      document.getElementById("cm-delete-btn").addEventListener("click", deleteCita);
+
+      document.getElementById("cm-hora").addEventListener("change", () => {
+        if (!currentCita) return;
+        const nuevaHora = document.getElementById("cm-hora").value;
+        let nuevaHoraExtra = "";
+
+        if (currentCita.horaExtra) {
+          nuevaHoraExtra = addHoursToTimeStr(nuevaHora, 2) || "";
+        }
+
+        document.getElementById("cm-hora-extra").value = nuevaHoraExtra;
+      });
+
+      document.getElementById("cm-fecha").addEventListener("change", () => {
+        document.getElementById("cm-fecha-error").classList.add("hidden");
+        document.getElementById("cm-hora-error").classList.add("hidden");
+        if (currentCita) {
+          fillHoraOptionsForCurrent();
+        }
+      });
+
+      document.getElementById("citas-tbody").addEventListener("click", (e) => {
+        const btn = e.target.closest(".js-open-cita");
+        if (!btn) return;
+        const id = btn.getAttribute("data-id");
+        if (id) {
+          openCitaModal(id);
+        }
+      });
+
+      // Calendario: abrir modal
+      const calendarBtn = document.getElementById("calendar-btn");
+      if (calendarBtn) {
+        calendarBtn.addEventListener("click", async () => {
+          openCalendarModalUI();
+          const body = document.getElementById("calendar-body");
+          if (body) {
+            body.innerHTML = '<p class="text-xs text-gray-500">Cargando citas...</p>';
+          }
+          await loadCalendarDataIfNeeded();
+          renderCalendarWeek();
+        });
+      }
+
+      const calendarCloseBtn = document.getElementById("cal-close-btn");
+      if (calendarCloseBtn) {
+        calendarCloseBtn.addEventListener("click", () => {
+          closeCalendarModalUI();
+        });
+      }
+
+      const calendarPrevWeekBtn = document.getElementById("cal-prev-week");
+      if (calendarPrevWeekBtn) {
+        calendarPrevWeekBtn.addEventListener("click", () => {
+          if (!canGoPrevWeek()) return;
+          calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, -7);
+          renderCalendarWeek();
+        });
+      }
+
+      const calendarNextWeekBtn = document.getElementById("cal-next-week");
+      if (calendarNextWeekBtn) {
+        calendarNextWeekBtn.addEventListener("click", () => {
+          calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, 7);
+          renderCalendarWeek();
+        });
+      }
+
+      loadCitasPendientes();
+    });
+  </script>
 </body>
 
 </html>
