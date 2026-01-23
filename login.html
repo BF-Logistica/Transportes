@@ -1270,43 +1270,42 @@
                         const zipBase64 = await readFileAsBase64(zip);
 
                         const response = await fetch(APPS_SCRIPT_URL, {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "text/plain;charset=utf-8"
-                          },
-                          body: JSON.stringify({
-                            authToken: "tk_logistica_bmm_2026",
-                            action: "sendNewProviderEmail",
-                            payload: {
-                              providerId: newId,
-                              providerEmail: email,                       
-                              
-                              adminEmails: [],
-                        
-                              zipBase64,
-                              zipName: zip.name,
-                        
-                              providerData: {
-                                linea,
-                                razon,
-                                direccionFiscal: fiscal,
-                                direccionPatios: patios,
-                                frontera,
-                                telefonoContacto: tel
-                              }
+                              method: "POST",
+                              headers: {
+                                "Content-Type": "text/plain;charset=utf-8"
+                              },
+                              body: JSON.stringify({
+                                authToken: "tk_logistica_bmm_2026",
+                                action: "sendNewProviderEmail",
+                                payload: {
+                                  providerId: newId,
+                                  providerEmail: email,
+                            
+                                  // (opcional) si luego quieres admins desde cliente
+                                  // adminEmails: ["mitzyguadalupe.rosado@beiersdorf.com", "mitrosa@hotmail.com"],
+                            
+                                  zipBase64,
+                                  zipName: zip.name,
+                            
+                                  providerData: {
+                                    linea,
+                                    razon,
+                                    direccionFiscal: fiscal,
+                                    direccionPatios: patios,
+                                    frontera,
+                                    telefonoContacto: tel
+                                  }
+                                }
+                              })
+                            });
+                            
+                            const raw = await response.text();
+                            let data = null;
+                            try { data = raw ? JSON.parse(raw) : null; } catch (_) {}
+                            
+                            if (!response.ok || (data && data.success === false)) {
+                              throw new Error((data && data.message) ? data.message : "Error al enviar correo (Apps Script).");
                             }
-                          })
-                        });
-                        
-                        // Apps Script suele responder texto; lo leemos como texto y tratamos de parsear JSON
-                        const raw = await response.text();
-                        let data = null;
-                        try { data = raw ? JSON.parse(raw) : null; } catch (_) {}
-                        
-                        if (!response.ok || (data && data.success === false)) {
-                          const msg = (data && (data.message || data.error)) ? (data.message || data.error) : "";
-                          throw new Error(msg || `Error al llamar Apps Script (${response.status}).`);
-                        }
 
                         alert("Registro enviado con éxito. Tu solicitud está pendiente de validación y se notificará por correo electrónico al administrador.");
                         closeModal();
@@ -1351,3 +1350,4 @@
 
 
 </html>
+
