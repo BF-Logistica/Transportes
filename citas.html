@@ -247,6 +247,7 @@
                 </button>
             </header>
 
+            <!-- FILTROS -->
             <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
                 <div class="flex gap-4 flex-wrap items-center">
                     <div class="flex-1 min-w-[220px]">
@@ -259,9 +260,18 @@
                         class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
                         Limpiar filtros
                     </button>
+
+                    <!-- BOTÓN CALENDARIO SEMANAL -->
+                    <button id="calendar-btn" type="button"
+                        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
+                        title="Ver calendario semanal de citas">
+                        <img src="img/calendar.png" alt="Calendario" class="w-5 h-5">
+                        <span class="hidden sm:inline">Calendario</span>
+                    </button>
                 </div>
             </div>
 
+            <!-- TABLA PENDIENTES -->
             <div class="flex-1 p-4 sm:p-6 table-container">
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                     <div class="overflow-x-auto">
@@ -481,6 +491,56 @@
         </div>
     </div>
 
+    <!-- MODAL CALENDARIO SEMANAL -->
+    <div id="calendar-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-start gap-2">
+                    <img src="img/calendar.png" alt="Calendario" class="w-11 h-11" />
+                    <div class="flex flex-col">
+                        <h2 class="text-lg font-semibold text-gray-900">
+                            Calendario de citas
+                        </h2>
+                        <p class="text-xs text-gray-500">
+                            Vista semanal de citas futuras. Solo lectura.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <div class="flex items-center gap-3 text-xs">
+                        <span class="inline-flex items-center gap-1">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <span>Confirmada</span>
+                        </span>
+                        <span class="inline-flex items-center gap-1">
+                            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                            <span>Pendiente</span>
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2 justify-end">
+                        <span id="cal-week-label" class="text-sm font-medium text-gray-700"></span>
+                        <button id="cal-prev-week"
+                            class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">
+                            ◀
+                        </button>
+                        <button id="cal-next-week"
+                            class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">
+                            ▶
+                        </button>
+                        <button id="cal-close-btn"
+                            class="px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs sm:text-sm font-medium transition-colors">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CUERPO DEL CALENDARIO -->
+            <div id="calendar-body" class="p-4 flex-1 overflow-y-auto bg-white text-xs sm:text-sm">
+            </div>
+        </div>
+    </div>
+
     <!-- LÓGICA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -518,6 +578,14 @@
         let filteredCitas = [];
         let currentCita = null;
         let currentUser = null;
+
+        // ==== estado calendario semanal ====
+        let calendarCitas = [];
+        let calendarIndex = {};
+        let calendarDataLoaded = false;
+        let calendarTodayDate = null;
+        let calendarBaseWeekStart = null;
+        let calendarCurrentWeekStart = null;
 
         function sanitize(value) {
             if (value === null || value === undefined) return "";
@@ -1002,7 +1070,6 @@
                 };
                 await updateDoc(docRef, updatePayload);
 
-                // ===== FOLIO CON TRANSACCIÓN POR FECHA =====
                 const folio = await getNextFolioForDate(fecha);
 
                 const confirmRef = doc(collection(db, "CitasConfirmadas"));
@@ -1037,7 +1104,8 @@
                             notas: currentCita.notas,
                             frontera: currentCita.frontera,
                             recolectaCaja: currentCita.recolectaCaja
-                        }
+                        },
+                        attachmentPath: "docs/Indicaciones de ingreso a transportistas.pdf"
                     };
 
                     try {
@@ -1118,6 +1186,220 @@
             }
         }
 
+        // ====== helpers calendario semanal ======
+        function startOfDay(date) {
+            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        }
+
+        function getWeekStartMonday(date) {
+            const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const day = d.getDay(); // 0 dom ... 6 sáb
+            const diff = (day === 0 ? -6 : 1 - day); // lunes como inicio
+            d.setDate(d.getDate() + diff);
+            return d;
+        }
+
+        function addDaysToDate(base, days) {
+            const d = new Date(base.getTime());
+            d.setDate(d.getDate() + days);
+            return d;
+        }
+
+        function formatISOFromDate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, "0");
+            const d = String(date.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+
+        function formatWeekLabel(startDate, endDate) {
+            const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+            const d1 = startDate.getDate();
+            const d2 = endDate.getDate();
+            const m1 = meses[startDate.getMonth()];
+            const m2 = meses[endDate.getMonth()];
+            const y = startDate.getFullYear();
+            if (startDate.getMonth() === endDate.getMonth()) {
+                return `${d1}–${d2} ${m1} ${y}`;
+            }
+            return `${d1} ${m1} – ${d2} ${m2} ${y}`;
+        }
+
+        function canGoPrevWeek() {
+            if (!calendarBaseWeekStart || !calendarCurrentWeekStart) return false;
+            const prevStart = addDaysToDate(calendarCurrentWeekStart, -7);
+            return prevStart >= calendarBaseWeekStart;
+        }
+
+        function updateCalendarNavButtons() {
+            const prevBtn = document.getElementById("cal-prev-week");
+            if (!prevBtn) return;
+            const enabled = canGoPrevWeek();
+            prevBtn.disabled = !enabled;
+            prevBtn.classList.toggle("opacity-40", !enabled);
+            prevBtn.classList.toggle("cursor-not-allowed", !enabled);
+        }
+
+        async function loadCalendarDataIfNeeded() {
+            if (calendarDataLoaded) return;
+
+            calendarTodayDate = startOfDay(new Date());
+            calendarBaseWeekStart = getWeekStartMonday(calendarTodayDate);
+            calendarCurrentWeekStart = new Date(calendarBaseWeekStart);
+
+            const baseISO = formatISOFromDate(calendarBaseWeekStart);
+            const result = [];
+
+            try {
+                // Pendientes futuras (desde el lunes de la semana actual)
+                const qPend = query(
+                    collection(db, "CitasProveedor"),
+                    where("estatus", "==", "CitaPendiente")
+                );
+                const snapPend = await getDocs(qPend);
+                snapPend.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    const fecha = d.fecha || "";
+                    if (!fecha || fecha < baseISO) return;
+
+                    result.push({
+                        id: docSnap.id,
+                        estatus: d.estatus || "CitaPendiente",
+                        fecha,
+                        hora: d.hora || "",
+                        horaExtra: d.horaExtra || null,
+                        linea: d.lineaTransporte || d.linea || "",
+                        placas: d.placas || "",
+                        tipoTransporte: d.tipoTransporte || "",
+                        tipoVisita: d.tipoVisita || ""
+                    });
+                });
+
+                // Confirmadas futuras (desde el lunes de la semana actual)
+                const qConf = query(
+                    collection(db, "CitasProveedor"),
+                    where("estatus", "==", "CitaConfirmada")
+                );
+                const snapConf = await getDocs(qConf);
+                snapConf.forEach(docSnap => {
+                    const d = docSnap.data() || {};
+                    const fecha = d.fecha || "";
+                    if (!fecha || fecha < baseISO) return;
+
+                    result.push({
+                        id: docSnap.id,
+                        estatus: d.estatus || "CitaConfirmada",
+                        fecha,
+                        hora: d.hora || "",
+                        horaExtra: d.horaExtra || null,
+                        linea: d.lineaTransporte || d.linea || "",
+                        placas: d.placas || "",
+                        tipoTransporte: d.tipoTransporte || "",
+                        tipoVisita: d.tipoVisita || ""
+                    });
+                });
+            } catch (err) {
+                console.error("Error cargando citas para calendario:", err);
+            }
+
+            calendarCitas = result;
+
+            // 🔹 Indexar por hora y también por horaExtra para que se vea dos veces si ocupa dos slots
+            calendarIndex = {};
+            calendarCitas.forEach(c => {
+                if (!c.fecha) return;
+
+                const slots = [];
+                if (c.hora) slots.push(c.hora);
+                if (c.horaExtra) slots.push(c.horaExtra);
+
+                slots.forEach(h => {
+                    const key = `${c.fecha}|${h}`;
+                    if (!calendarIndex[key]) {
+                        calendarIndex[key] = [];
+                    }
+                    calendarIndex[key].push(c);
+                });
+            });
+
+            calendarDataLoaded = true;
+        }
+
+        function renderCalendarWeek() {
+            const body = document.getElementById("calendar-body");
+            if (!body || !calendarCurrentWeekStart) return;
+
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                days.push(addDaysToDate(calendarCurrentWeekStart, i));
+            }
+
+            const weekLabelEl = document.getElementById("cal-week-label");
+            if (weekLabelEl) {
+                weekLabelEl.textContent = formatWeekLabel(days[0], days[6]);
+            }
+
+            const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+            const hours = generateTimeSlots24h();
+
+            let html = '<div class="overflow-x-auto"><table class="w-full text-[11px] sm:text-xs border-collapse">';
+            html += '<thead><tr>';
+            html += '<th class="border-b border-gray-200 p-2 text-left text-[10px] text-gray-400 sticky left-0 bg-white z-10">Hora</th>';
+
+            days.forEach((d, idx) => {
+                const label = `${dayNames[idx]} ${String(d.getDate()).padStart(2, "0")}`;
+                html += `<th class="border-b border-gray-200 p-2 text-left text-[11px] text-gray-500">${label}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+
+            hours.forEach(h => {
+                html += '<tr>';
+                html += `<td class="border-t border-gray-100 align-top p-1 text-[10px] text-gray-400 sticky left-0 bg-white z-10">${h}</td>`;
+
+                days.forEach(d => {
+                    const fechaISO = formatISOFromDate(d);
+                    const key = `${fechaISO}|${h}`;
+                    const citasSlot = calendarIndex[key] || [];
+
+                    if (!citasSlot.length) {
+                        html += '<td class="border-t border-gray-100 align-top p-1"></td>';
+                    } else {
+                        const itemsHtml = citasSlot.map(c => {
+                            const baseClasses = "mb-1 px-2 py-1 rounded border text-[10px] sm:text-[11px] leading-tight";
+                            const colorClasses =
+                                (c.estatus === "CitaConfirmada")
+                                    ? " bg-emerald-50 border-emerald-400 text-emerald-800"
+                                    : " bg-yellow-50 border-yellow-400 text-yellow-800";
+                            const label = sanitize(`${c.linea || "Sin línea"} • ${c.tipoVisita || ""}`);
+                            return `<div class="${baseClasses}${colorClasses}">${label}</div>`;
+                        }).join("");
+                        html += `<td class="border-t border-gray-100 align-top p-1 align-middle">${itemsHtml}</td>`;
+                    }
+                });
+
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            body.innerHTML = html;
+
+            updateCalendarNavButtons();
+        }
+
+        function openCalendarModalUI() {
+            const modal = document.getElementById("calendar-modal");
+            if (!modal) return;
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeCalendarModalUI() {
+            const modal = document.getElementById("calendar-modal");
+            if (!modal) return;
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             if (!enforceAdminAccess()) return;
 
@@ -1185,10 +1467,47 @@
                 }
             });
 
+            // Calendario: abrir modal
+            const calendarBtn = document.getElementById("calendar-btn");
+            if (calendarBtn) {
+                calendarBtn.addEventListener("click", async () => {
+                    openCalendarModalUI();
+                    const body = document.getElementById("calendar-body");
+                    if (body) {
+                        body.innerHTML = '<p class="text-xs text-gray-500">Cargando citas...</p>';
+                    }
+                    await loadCalendarDataIfNeeded();
+                    renderCalendarWeek();
+                });
+            }
+
+            const calendarCloseBtn = document.getElementById("cal-close-btn");
+            if (calendarCloseBtn) {
+                calendarCloseBtn.addEventListener("click", () => {
+                    closeCalendarModalUI();
+                });
+            }
+
+            const calendarPrevWeekBtn = document.getElementById("cal-prev-week");
+            if (calendarPrevWeekBtn) {
+                calendarPrevWeekBtn.addEventListener("click", () => {
+                    if (!canGoPrevWeek()) return;
+                    calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, -7);
+                    renderCalendarWeek();
+                });
+            }
+
+            const calendarNextWeekBtn = document.getElementById("cal-next-week");
+            if (calendarNextWeekBtn) {
+                calendarNextWeekBtn.addEventListener("click", () => {
+                    calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, 7);
+                    renderCalendarWeek();
+                });
+            }
+
             loadCitasPendientes();
         });
     </script>
 </body>
 
 </html>
-
