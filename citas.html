@@ -1108,57 +1108,29 @@
                         attachmentPath: "docs/Indicaciones de ingreso a transportistas.pdf"
                     };
 
+                   // --- ENVÍO CORREO (Apps Script) - modo no-cors (no se puede leer response) ---
                     try {
-                            const res = await fetch(
-                                SEND_CITA_CONFIRM_EMAIL_URL + "?origin=" + encodeURIComponent(window.location.origin),
-                                {
-                                    method: "POST",
-                                    mode: "cors",
-                                    credentials: "omit",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({
-                                        action: "sendCitaConfirmacion",
-                                        authToken: MAIL_AUTH_TOKEN,
-                                        payload: payloadEmail
-                                    })
-                                }
-                            );
-                            
-                            // Apps Script a veces responde texto, no JSON
-                            let bodyText = "";
-                            let bodyJson = null;
-                            
-                            try {
-                                bodyText = await res.text();
-                                bodyJson = JSON.parse(bodyText);
-                            } catch (e) {
-                                console.warn("Respuesta no JSON:", bodyText);
-                            }
-                            
-                            if (!res.ok || (bodyJson && bodyJson.success === false)) {
-                                console.warn("Problema al enviar correo:", res.status, bodyJson || bodyText);
-                                alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
-                            } else {
-                                alert(
-                                    "Cita confirmada correctamente.\n\nSe envió el correo con folio y PDF al proveedor."
-                                );
-                            }
-
-                allCitas = allCitas.filter(c => c.id !== currentCita.id);
-                applyFilters();
-                closeCitaModal();
-
-            } catch (err) {
-                console.error("Error al confirmar cita:", err);
-                generalError.textContent = "Ocurrió un error al confirmar la cita. Intenta nuevamente.";
-                generalError.classList.remove("hidden");
-            } finally {
-                acceptBtn.disabled = false;
-                acceptBtn.innerHTML = originalHTML;
-            }
-        }
+                      await fetch(SEND_CITA_CONFIRM_EMAIL_URL, {
+                        method: "POST",
+                        mode: "no-cors",          // <- clave: evita broncas de CORS leyendo respuesta
+                        headers: {
+                          "Content-Type": "text/plain;charset=utf-8" // <- reduce preflight
+                        },
+                        body: JSON.stringify({
+                          action: "sendCitaConfirmacion",
+                          authToken: MAIL_AUTH_TOKEN,
+                          payload: payloadEmail
+                        })
+                      });
+                    
+                      // Si llegó aquí, el request salió del navegador.
+                      // No podemos saber el status real por CORS, pero normalmente sí se envía.
+                      alert("Cita confirmada correctamente.\n\nSe solicitó el envío de correo con folio y PDF al proveedor.");
+                    
+                    } catch (err) {
+                      console.error("Error de red al intentar enviar correo:", err);
+                      alert("La cita se confirmó, pero el navegador tuvo un problema de red al intentar enviar el correo.");
+                    }
 
         async function deleteCita() {
             if (!currentCita) return;
@@ -1515,4 +1487,5 @@
 </body>
 
 </html>
+
 
