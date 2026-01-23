@@ -371,8 +371,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const SEND_APPOINTMENT_EMAIL_URL =
-            "https://us-central1-logisticatransportesbmm.cloudfunctions.net/sendAppointmentNotification";
+        const APPS_SCRIPT_URL =
+          "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
+
 
         let currentUser = null;
         let currentProveedorDoc = null;
@@ -956,70 +957,42 @@
                 };
 
                 let correoOk = true;
-                
+
                 try {
-                  const res = await fetch(SEND_APPOINTMENT_EMAIL_URL, {
+                  const res = await fetch(APPS_SCRIPT_URL, {
                     method: "POST",
                     headers: {
-                      "Content-Type": "application/json",
-                      "Accept": "application/json"
+                      // Apps Script es más estable recibiendo JSON como text/plain
+                      "Content-Type": "text/plain;charset=utf-8"
                     },
-                    body: JSON.stringify(payloadEmail)
+                    body: JSON.stringify({
+                      authToken: "tk_logistica_bmm_2026",
+                      action: "sendAppointmentNotification",
+                      payload: payloadEmail
+                    })
                   });
                 
-                  // Antes asumías JSON sí o sí. Eso hoy te puede romper aunque "haya enviado".
-                  const raw = await res.text(); // <- siempre lee texto
-                  let body = null;
-                  try { body = raw ? JSON.parse(raw) : null; } catch (_) {}
+                  const raw = await res.text();
+                  let data = null;
+                  try { data = raw ? JSON.parse(raw) : null; } catch (_) {}
                 
-                  // Mantiene tu lógica original:
-                  // - si no es ok => fallo
-                  // - si body.success === false => fallo
-                  // - si no hay body (o no es JSON) pero res.ok => lo damos como ok (como “antes”)
-                  if (!res.ok || (body && body.success === false)) {
+                  // Regla de oro:
+                  // - Si HTTP falla => correoOk false
+                  // - Si respondió JSON con success:false => correoOk false
+                  // - Si no es JSON pero HTTP fue ok => lo damos por “ok” (no tronamos el flujo)
+                  if (!res.ok || (data && data.success === false)) {
                     correoOk = false;
-                    console.error("Error en función sendAppointmentNotification:", {
+                    console.error("Apps Script email error:", {
                       status: res.status,
                       raw,
-                      body
+                      data
                     });
                   }
                 
                 } catch (mailErr) {
                   correoOk = false;
-                  console.error("Error al llamar a sendAppointmentNotification:", mailErr);
+                  console.error("Error llamando Apps Script (sendAppointmentNotification):", mailErr);
                 }
-
-
-                if (correoOk) {
-                    alert("Cita registrada como pre-registro.\n\nEstatus: CitaPendiente.\nSe te notificará por correo cuando la cita sea aprobada.");
-                } else {
-                    alert("La cita se guardó correctamente, pero hubo un problema al enviar el correo de notificación.\nPor favor informa a logística si no recibes el correo.");
-                }
-
-                // reset
-                horaEl.value = "";
-                notasEl.value = "";
-                destinoEl.value = "";
-                choferEl.value = "";
-                placasEl.value = "";
-                facturaEl.value = "";
-                cajaEl.value = "";
-                selloEl.value = "";
-                recolectaEl.value = "";
-                cajaDejaEl.value = "";
-                cajaRecolectaEl.value = "";
-                document.getElementById("grupo-recolecta").classList.add("hidden");
-
-                await loadCitasProveedor();
-                await updateHourOptionsForDate(fecha);
-            } catch (err) {
-                console.error("Error guardando cita:", err);
-                setError("Ocurrió un error al guardar la cita. Intenta de nuevo.");
-            } finally {
-                setLoadingButton(btn, false);
-            }
-        }
 
         // ==========================
         //  CARGAR CITAS DEL PROVEEDOR
@@ -1122,5 +1095,6 @@
 </body>
 
 </html>
+
 
 
