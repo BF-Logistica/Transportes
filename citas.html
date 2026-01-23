@@ -1109,31 +1109,43 @@
                     };
 
                     try {
-                        const res = await fetch(SEND_CITA_CONFIRM_EMAIL_URL, {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({
-                                action: "sendCitaConfirmacion",
-                                authToken: MAIL_AUTH_TOKEN,
-                                payload: payloadEmail
-                            })
-                        });
-
-                        let body = null;
-                        try {
-                            body = await res.json();
-                        } catch (_) { }
-
-                        if (!res.ok || (body && body.success === false)) {
-                            console.warn("Problema al enviar correo de confirmación:", res.status, body);
-                            alert("La cita se confirmó, pero hubo un problema al enviar el correo. Revisa la función en Firebase.");
-                        } else {
-                            alert(
-                                "Cita confirmada correctamente.\n\nSe ha enviado un correo al proveedor con su folio y las indicaciones de ingreso."
+                            const res = await fetch(
+                                SEND_CITA_CONFIRM_EMAIL_URL + "?origin=" + encodeURIComponent(window.location.origin),
+                                {
+                                    method: "POST",
+                                    mode: "cors",
+                                    credentials: "omit",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        action: "sendCitaConfirmacion",
+                                        authToken: MAIL_AUTH_TOKEN,
+                                        payload: payloadEmail
+                                    })
+                                }
                             );
-                        }
+                            
+                            // Apps Script a veces responde texto, no JSON
+                            let bodyText = "";
+                            let bodyJson = null;
+                            
+                            try {
+                                bodyText = await res.text();
+                                bodyJson = JSON.parse(bodyText);
+                            } catch (e) {
+                                console.warn("Respuesta no JSON:", bodyText);
+                            }
+                            
+                            if (!res.ok || (bodyJson && bodyJson.success === false)) {
+                                console.warn("Problema al enviar correo:", res.status, bodyJson || bodyText);
+                                alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
+                            } else {
+                                alert(
+                                    "Cita confirmada correctamente.\n\nSe envió el correo con folio y PDF al proveedor."
+                                );
+                            }
+
                     } catch (mailErr) {
                         console.error("Error al llamar a la función de correo:", mailErr);
                         alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
@@ -1511,7 +1523,3 @@
 </body>
 
 </html>
-
-
-
-
