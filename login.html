@@ -846,9 +846,8 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const SEND_NEW_PROVIDER_EMAIL_URL =
-            "https://us-central1-logisticatransportesbmm.cloudfunctions.net/sendNewProviderEmail";
-
+        const APPS_SCRIPT_URL =
+              "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
 
         const ROUTES = {
             UsuarioAdmin: "menu.html",
@@ -1270,32 +1269,43 @@
                     try {
                         const zipBase64 = await readFileAsBase64(zip);
 
-                        const response = await fetch(SEND_NEW_PROVIDER_EMAIL_URL, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                providerId: newId,
-                                providerEmail: email,
-                                zipBase64,
-                                zipName: zip.name,
-                                providerData: {
-                                    linea,
-                                    razon,
-                                    direccionFiscal: fiscal,
-                                    direccionPatios: patios,
-                                    frontera,
-                                    telefonoContacto: tel
-                                }
-                            })
+                        const response = await fetch(APPS_SCRIPT_URL, {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "text/plain;charset=utf-8"
+                          },
+                          body: JSON.stringify({
+                            authToken: "tk_logistica_bmm_2026",
+                            action: "sendNewProviderEmail",
+                            payload: {
+                              providerId: newId,
+                              providerEmail: email,                       
+                              
+                              adminEmails: [],
+                        
+                              zipBase64,
+                              zipName: zip.name,
+                        
+                              providerData: {
+                                linea,
+                                razon,
+                                direccionFiscal: fiscal,
+                                direccionPatios: patios,
+                                frontera,
+                                telefonoContacto: tel
+                              }
+                            }
+                          })
                         });
-
-                        if (!response.ok) {
-                            let serverMsg = "";
-                            try {
-                                const data = await response.json();
-                                serverMsg = data.message || "";
-                            } catch (_) { }
-                            throw new Error(serverMsg || "Error al llamar a la función de correo.");
+                        
+                        // Apps Script suele responder texto; lo leemos como texto y tratamos de parsear JSON
+                        const raw = await response.text();
+                        let data = null;
+                        try { data = raw ? JSON.parse(raw) : null; } catch (_) {}
+                        
+                        if (!response.ok || (data && data.success === false)) {
+                          const msg = (data && (data.message || data.error)) ? (data.message || data.error) : "";
+                          throw new Error(msg || `Error al llamar Apps Script (${response.status}).`);
                         }
 
                         alert("Registro enviado con éxito. Tu solicitud está pendiente de validación y se notificará por correo electrónico al administrador.");
@@ -1338,5 +1348,6 @@
 
     </script>
 </body>
+
 
 </html>
