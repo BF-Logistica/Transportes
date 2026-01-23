@@ -655,36 +655,51 @@
         }
 
         function handleFechaChange() {
-            const fecha = document.getElementById("cf-fecha").value;
-            const domingoBox = document.getElementById("domingo-extra");
-            const helpEl = document.getElementById("cf-fecha-help");
-            const hoy = todayISO();
-
-            if (!fecha) {
-                domingoBox.classList.add("hidden");
-                helpEl.textContent = "Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.";
-                helpEl.classList.remove("text-gray-500");
-                helpEl.classList.add("text-red-600", "font-semibold");
-                setHoraEnabled(false, "Selecciona una fecha primero");
-                return;
-            }
-
-            const diff = daysDiff(hoy, fecha);
-            if (diff < MIN_DAYS_AHEAD) {
-                helpEl.textContent = "Debes seleccionar una fecha de visita con al menos 3 días de anticipación.";
-                helpEl.classList.remove("text-gray-500");
-                helpEl.classList.add("text-red-600", "font-semibold");
-                setHoraEnabled(false, "Fecha no válida (mínimo 3 días)");
-            } else {
-                helpEl.textContent = "Fecha válida: tu visita tiene al menos 3 días de anticipación.";
-                helpEl.classList.remove("text-red-600");
-                helpEl.classList.add("text-gray-500");
-            }
-
-            if (isSunday(fecha)) domingoBox.classList.remove("hidden");
-            else domingoBox.classList.add("hidden");
-
-            updateHourOptionsForDate(fecha);
+          const fecha = document.getElementById("cf-fecha").value;
+          const domingoBox = document.getElementById("domingo-extra");
+          const helpEl = document.getElementById("cf-fecha-help");
+          const hoy = todayISO();
+        
+          // ✅ RANGO PERMITIDO (3 días a 2 semanas)
+          const minISO = addDaysISO(hoy, MIN_DAYS_AHEAD);
+          const maxISO = addDaysISO(hoy, 13);
+        
+          if (!fecha) {
+            domingoBox.classList.add("hidden");
+            helpEl.textContent = "Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.";
+            helpEl.classList.remove("text-gray-500");
+            helpEl.classList.add("text-red-600", "font-semibold");
+            setHoraEnabled(false, "Selecciona una fecha primero");
+            return;
+          }
+        
+          // ✅ Si el usuario intenta salirse del rango permitido (aunque teclee la fecha)
+          if (fecha < minISO || fecha > maxISO) {
+            domingoBox.classList.add("hidden");
+            helpEl.textContent = `Solo puedes agendar entre ${minISO} y ${maxISO}.`;
+            helpEl.classList.remove("text-gray-500");
+            helpEl.classList.add("text-red-600", "font-semibold");
+            setHoraEnabled(false, "Fecha fuera de rango permitido");
+            return;
+          }
+        
+          // ... (aquí sigue tu lógica actual tal cual)
+          const diff = daysDiff(hoy, fecha);
+          if (diff < MIN_DAYS_AHEAD) {
+            helpEl.textContent = "Debes seleccionar una fecha de visita con al menos 3 días de anticipación.";
+            helpEl.classList.remove("text-gray-500");
+            helpEl.classList.add("text-red-600", "font-semibold");
+            setHoraEnabled(false, "Fecha no válida (mínimo 3 días)");
+          } else {
+            helpEl.textContent = "Fecha válida: tu visita tiene al menos 3 días de anticipación.";
+            helpEl.classList.remove("text-red-600");
+            helpEl.classList.add("text-gray-500");
+          }
+        
+          if (isSunday(fecha)) domingoBox.classList.remove("hidden");
+          else domingoBox.classList.add("hidden");
+        
+          updateHourOptionsForDate(fecha);
         }
 
         function handleRecolectaChange() {
@@ -1095,6 +1110,7 @@
 </body>
 
 </html>
+
 
 
 
