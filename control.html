@@ -14,6 +14,10 @@
     <script src="/_sdk/element_sdk.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- PDF libs (client-side) -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         :root {
             --bmm-blue: #0d1c84;
@@ -317,13 +321,22 @@
                         <input id="folio-input" type="text" inputmode="latin" placeholder="Folio (ej. BMM-19112501)"
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
                     </div>
+
                     <button id="add-folio-btn"
                         class="px-4 py-2 bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white rounded-lg font-semibold">
                         Agregar transporte
                     </button>
-                    <p class="text-xs text-gray-500">Busca en <span class="font-mono">CitasConfirmadas</span> por
-                        <code>folio</code>.
-                    </p>
+
+                    <!-- Botón Histórico (nuevo) -->
+                    <a href="historico.html"
+                        class="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
+                        title="Histórico" aria-label="Ir al Histórico">
+                        <!-- icon -->
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-3-6.7M21 3v6h-6" />
+                        </svg>
+                    </a>
                 </div>
             </section>
 
@@ -353,8 +366,9 @@
                     class="destop grow px-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Rampa</button>
                 <button data-accion="Patio"
                     class="destop grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
+                <!-- Cancel rojo (nuevo) -->
                 <button data-accion="Cancelar"
-                    class="destop grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Cancelar</button>
+                    class="destop grow px-5 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">Cancelar</button>
             </div>
         </div>
     </div>
@@ -369,8 +383,10 @@
             <div class="p-6 flex gap-3">
                 <button data-accion="Patio"
                     class="postlib grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
-                <button data-accion="Cerrar"
-                    class="postlib grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Cerrar</button>
+                <!-- Cerrar -> Disuasión (S) -->
+                <button data-accion="DisuasionS"
+                    class="postlib grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Disuasión
+                    (S)</button>
             </div>
         </div>
     </div>
@@ -416,6 +432,61 @@
         </div>
     </div>
 
+    <!-- MODAL CIERRE (Salida de Planta + PDF + Histórico) -->
+    <div id="modal-cierre" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-semibold">Cierre de transporte</h3>
+                    <p id="cierre-sub" class="text-sm text-gray-600">Registra la salida y genera el histórico.</p>
+                </div>
+                <button id="cierre-x" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
+            </div>
+            <div class="p-6 space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label for="cierre-operador" class="text-xs font-semibold text-gray-600">Usuario
+                            (obligatorio)</label>
+                        <input id="cierre-operador" type="text" placeholder="Nombre y Apellido"
+                            class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                    </div>
+                    <div>
+                        <label for="cierre-modo" class="text-xs font-semibold text-gray-600">Acción</label>
+                        <input id="cierre-modo" type="text" disabled
+                            class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700" />
+                    </div>
+                </div>
+                <div>
+                    <label for="cierre-comentario" class="text-xs font-semibold text-gray-600">Comentarios
+                        (obligatorio)</label>
+                    <textarea id="cierre-comentario" rows="3" placeholder="Ej. Unidad sale de planta sin novedad"
+                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
+                </div>
+                <p id="cierre-error" class="text-sm text-red-600 hidden">Completa usuario y comentarios.</p>
+                <div class="rounded-lg border bg-gray-50 p-3 text-sm text-gray-700">
+                    <div class="font-semibold mb-1">¿Qué hará el sistema?</div>
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>Guardará el histórico en Firestore (<span
+                                class="font-mono">ControlTransportesHistorico</span>).</li>
+                        <li>Generará PDF con logo, info, timeline y chat.</li>
+                        <li>Marcará el transporte como cerrado y lo quitará de “pendientes”.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="px-6 pb-6 flex flex-wrap gap-3 justify-end">
+                <button id="cierre-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button>
+                <button id="cierre-only"
+                    class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] font-semibold">
+                    Finalizar sin descargar
+                </button>
+                <button id="cierre-pdf"
+                    class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
+                    Finalizar y descargar PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL INFO -->
     <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden">
@@ -457,6 +528,13 @@
             const day = String(d.getDate()).padStart(2, "0");
             return `${y}-${m}-${day}`;
         };
+
+        const toLocal = (iso) => {
+            try { return iso ? new Date(iso).toLocaleString() : ""; }
+            catch { return ""; }
+        };
+
+        const safeStr = (v) => (v === null || v === undefined) ? "" : String(v);
 
         let currentUser = null;
 
@@ -651,7 +729,12 @@
                         patioS_fin: null,
                         disuasionS_inicio: null,
                         disuasionS_fin: null,
-                        salidaPlanta: null
+                        salidaPlanta: null,
+
+                        // NUEVO: control de salto (blindado)
+                        forceNextStep: null, // number (ej. 9)
+                        cancel_origen: null, // "DisuasionE" | "Rampa"
+                        cancel_ts: null
                     },
                     comentarios: []
                 });
@@ -712,9 +795,10 @@
 
         function setChip(folio, step, status, tsText, tagText) {
             const chip = $("#chip-" + folio + "-" + step);
+            if (!chip) return;
             chip.classList.remove("todo", "live", "done");
             chip.classList.add(status);
-            if (tsText) $("#ts-" + folio + "-" + step).textContent = tsText;
+            if (tsText !== undefined) $("#ts-" + folio + "-" + step).textContent = tsText || "";
             if (tagText !== undefined) $("#tag-" + folio + "-" + step).textContent = tagText || "";
         }
 
@@ -741,10 +825,11 @@
 
         const cards = new Map();
 
-        // Política de botones (con manejo especial para Disuasión E/S)
-        function applyButtonsPolicy(folio, data) {
-            const root = cards.get(folio).rootEl;
+        // ====== BLINDADO: cálculo de step actual ======
+        function computeFirstIncomplete(data) {
             const p = data.pasos || {};
+            const estado = (data.estado || "En Proceso");
+
             const stamps = [
                 p.llegada,
                 p.ingreso,
@@ -758,8 +843,30 @@
                 p.salidaPlanta
             ];
 
-            let firstIncomplete = stamps.findIndex(v => !v);
-            if (firstIncomplete === -1) firstIncomplete = stamps.length;
+            // Si hay forceNextStep y aún no sale de planta, esa manda
+            if (typeof p.forceNextStep === "number" && !p.salidaPlanta) {
+                return { firstIncomplete: p.forceNextStep, stamps, forced: true };
+            }
+
+            // Si está Cancelado y aún no registra salida, forzar a salida
+            if (estado === "Cancelado" && !p.salidaPlanta) {
+                return { firstIncomplete: 9, stamps, forced: true };
+            }
+
+            let idx = stamps.findIndex(v => !v);
+            if (idx === -1) idx = stamps.length;
+            return { firstIncomplete: idx, stamps, forced: false };
+        }
+
+        // Política de botones (con manejo especial para Disuasión E/S y cancelación)
+        function applyButtonsPolicy(folio, data) {
+            const card = cards.get(folio);
+            if (!card) return;
+            const root = card.rootEl;
+
+            const p = data.pasos || {};
+            const estado = (data.estado || "En Proceso");
+            const { firstIncomplete, stamps } = computeFirstIncomplete(data);
 
             // Oculta / deshabilita todos
             for (let i = 0; i <= 9; i++) {
@@ -770,7 +877,19 @@
                 });
             }
 
-            if (firstIncomplete >= stamps.length) return; // todo terminado
+            // Si todo terminado
+            if (firstIncomplete >= stamps.length) return;
+
+            // Si Cancelado y falta salida: SOLO step 9
+            if (estado === "Cancelado" && !p.salidaPlanta) {
+                const btns = $$(`.btn[data-f="${folio}"][data-step="9"]`, root);
+                btns.forEach(b => {
+                    b.classList.remove("hidden");
+                    b.disabled = false;
+                    b.textContent = "Finalizar (Cancelado)";
+                });
+                return;
+            }
 
             const currentStep = firstIncomplete;
             const btns = $$(`.btn[data-f="${folio}"][data-step="${currentStep}"]`, root);
@@ -814,20 +933,8 @@
 
         function syncUIFromData(folio, data) {
             const p = data.pasos || {};
-            const stamps = [
-                p.llegada,
-                p.ingreso,
-                (p.disuasionE_inicio && p.disuasionE_fin),
-                p.patioE_fin,
-                p.rampa_inicio,
-                p.finDescarga,
-                p.liberacion,
-                p.patioS_fin,
-                (p.disuasionS_inicio && p.disuasionS_fin),
-                p.salidaPlanta
-            ];
-            let firstIncomplete = stamps.findIndex(ts => !ts);
-            if (firstIncomplete === -1) firstIncomplete = stamps.length;
+            const estado = (data.estado || "En Proceso");
+            const { firstIncomplete, stamps } = computeFirstIncomplete(data);
 
             const stepTimes = [
                 p.llegada,
@@ -842,14 +949,10 @@
                 p.salidaPlanta
             ];
 
+            // Pintar chips:
             for (let i = 0; i <= 9; i++) {
                 if (stamps[i]) {
-                    setChip(
-                        folio,
-                        i,
-                        "done",
-                        new Date(stepTimes[i] || stamps[i]).toLocaleString()
-                    );
+                    setChip(folio, i, "done", toLocal(stepTimes[i] || stamps[i]));
                 } else if (i === firstIncomplete) {
                     setChip(folio, i, "live", "");
                 } else {
@@ -857,29 +960,49 @@
                 }
             }
 
+            // Tags especiales
             if (p.disuasionE_destino) {
                 setChip(
                     folio,
                     2,
-                    stamps[2] ? "done" : "live",
-                    p.disuasionE_fin ? new Date(p.disuasionE_fin).toLocaleString() : "",
+                    (stamps[2] ? "done" : (firstIncomplete === 2 ? "live" : "todo")),
+                    p.disuasionE_fin ? toLocal(p.disuasionE_fin) : "",
                     p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : "")
                 );
             }
             if (p.patio_rampa) $("#tag-" + folio + "-3").textContent = p.patio_rampa;
-            if (p.postLiberacionDestino) $("#tag-" + folio + "-6").textContent = "→ " + p.postLiberacionDestino;
+            if (p.postLiberacionDestino) $("#tag-" + folio + "-6").textContent = "→ " + (p.postLiberacionDestino === "DisuasionS" ? "Disuasión (S)" : p.postLiberacionDestino);
 
-            // Camión: sobre el paso "live". Si todo terminado, en el último.
-            let truckStep;
-            if (firstIncomplete === stamps.length) {
-                truckStep = stamps.length - 1;
-            } else {
-                truckStep = firstIncomplete;
+            // Si cancelaron en rampa, mostrar tag
+            if (p.rampa_cancel) {
+                $("#tag-" + folio + "-4").textContent = "Cancelado";
             }
+
+            // Camión:
+            let truckStep = (firstIncomplete >= stamps.length) ? (stamps.length - 1) : firstIncomplete;
             moveTruck(folio, truckStep);
 
-            $("#estado-" + folio).textContent = data.estado || "En Proceso";
+            $("#estado-" + folio).textContent = estado;
             applyButtonsPolicy(folio, data);
+        }
+
+        function removeCardIfClosed(folio, data) {
+            if (!data) return;
+            if (data.activo !== false) return;
+
+            const card = cards.get(folio);
+            if (!card) return;
+
+            // Unsubscribe
+            try { card.unsub && card.unsub(); } catch { }
+            try { card.chatUnsub && card.chatUnsub(); } catch { }
+
+            // Remove DOM
+            try { card.rootEl?.remove(); } catch { }
+            cards.delete(folio);
+
+            // Empty state
+            if (cards.size === 0) $("#empty-state").classList.remove("hidden");
         }
 
         function listenControlDoc(folio) {
@@ -887,7 +1010,17 @@
             return onSnapshot(dref, snap => {
                 if (!snap.exists()) return;
                 const data = snap.data();
-                cards.get(folio).data = data;
+                const card = cards.get(folio);
+                if (!card) return;
+
+                card.data = data;
+
+                // Si ya cerró: quita de pantalla
+                if (data.activo === false) {
+                    removeCardIfClosed(folio, data);
+                    return;
+                }
+
                 syncUIFromData(folio, data);
                 $("#empty-state").classList.add("hidden");
             });
@@ -903,11 +1036,24 @@
             const cref = collection(db, "ControlTransportes", folio, "Chat");
             return onSnapshot(query(cref), snap => {
                 const msgs = $("#chatMsgs-" + folio), badge = $("#chatBadge-" + folio); const list = [];
-                snap.forEach(d => list.push(d.data()));
+                snap.forEach(d => list.push({ id: d.id, ...d.data() }));
                 list.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
                 if (msgs) { msgs.innerHTML = list.map(renderMsg).join(""); msgs.scrollTop = msgs.scrollHeight; }
-                if (badge) { badge.textContent = list.length || 0; const open = !$("#chatBox-" + folio).classList.contains("hidden"); badge.classList.toggle("hidden", open || list.length === 0); }
+                if (badge) {
+                    badge.textContent = list.length || 0;
+                    const open = !$("#chatBox-" + folio).classList.contains("hidden");
+                    badge.classList.toggle("hidden", open || list.length === 0);
+                }
             });
+        }
+
+        async function getChatMessages(folio) {
+            const cref = collection(db, "ControlTransportes", folio, "Chat");
+            const snap = await getDocs(query(cref));
+            const list = [];
+            snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+            list.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+            return list;
         }
 
         async function sendChatMsg(folio) {
@@ -953,13 +1099,201 @@
             return { ok: true };
         }
 
+        // ===== PDF + HISTÓRICO =====
+        function buildInfoRows(cita, folio) {
+            return [
+                ["Folio", folio],
+                ["Línea", cita.linea || cita.lineaTransporte || "-"],
+                ["Placas", cita.placas || "-"],
+                ["Tipo transporte", cita.tipoTransporte || "-"],
+                ["Tipo visita", cita.tipoVisita || "-"],
+                ["Fecha", cita.fecha || "-"],
+                ["Hora", cita.hora || "-"],
+                ["Hora extra", cita.horaExtra || "-"],
+                ["Destino", cita.destino || "-"],
+                ["Proveedor", cita.usuarioProveedor || "-"]
+            ];
+        }
+
+        function pasoLabel(paso) {
+            const map = {
+                llegada: "Llegada",
+                ingreso: "Ingreso",
+                disuasionE_inicio: "Disuasión (E) - Inicio",
+                disuasionE_fin: "Disuasión (E) - Fin",
+                disuasionE_cancel: "Disuasión (E) - Cancelado",
+                patioE_fin: "Patio (E)",
+                rampa_inicio: "Rampa - Inicio",
+                rampa_cancel: "Rampa - Cancelado",
+                finDescarga: "Fin Descarga",
+                liberacion: "Liberación",
+                patioS_fin: "Patio (S)",
+                disuasionS_inicio: "Disuasión (S) - Inicio",
+                disuasionS_fin: "Disuasión (S) - Fin",
+                salidaPlanta: "Salida de Planta"
+            };
+            return map[paso] || paso;
+        }
+
+        function formatChatTime(m) {
+            if (m.createdAt?.seconds) return new Date(m.createdAt.seconds * 1000).toLocaleString();
+            if (typeof m.createdAt === "string") return toLocal(m.createdAt);
+            return "";
+        }
+
+        async function generatePDFAndDownload({ folio, controlData, chatMessages }) {
+            const { jsPDF } = window.jspdf || {};
+            if (!jsPDF) {
+                alert("No se pudo cargar jsPDF. Revisa conexión a internet.");
+                return;
+            }
+
+            const docPdf = new jsPDF({ unit: "pt", format: "a4" });
+            const pageW = docPdf.internal.pageSize.getWidth();
+            const margin = 40;
+
+            // Header
+            const logoPath = "img/bf_logo.png";
+            try {
+                const img = await fetch(logoPath);
+                const blob = await img.blob();
+                const reader = new FileReader();
+                const dataUrl = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); });
+                docPdf.addImage(dataUrl, "PNG", margin, 24, 140, 34);
+            } catch {
+                // si falla logo, no tiramos el PDF
+            }
+
+            docPdf.setFont("helvetica", "bold");
+            docPdf.setFontSize(16);
+            docPdf.text("Historial de Transporte", pageW / 2, 48, { align: "center" });
+
+            docPdf.setFont("helvetica", "normal");
+            docPdf.setFontSize(10);
+            docPdf.text(`Generado: ${new Date().toLocaleString()}`, pageW - margin, 48, { align: "right" });
+
+            let y = 80;
+
+            // Estado
+            docPdf.setFont("helvetica", "bold");
+            docPdf.setFontSize(12);
+            docPdf.text(`Folio: ${folio}`, margin, y);
+            docPdf.text(`Estado: ${controlData.estado || "-"}`, pageW - margin, y, { align: "right" });
+            y += 14;
+
+            // Info table
+            docPdf.setFontSize(11);
+            const cita = controlData.cita || {};
+            const infoRows = buildInfoRows(cita, folio);
+
+            docPdf.autoTable({
+                startY: y + 10,
+                head: [["Campo", "Valor"]],
+                body: infoRows,
+                styles: { fontSize: 9, cellPadding: 6 },
+                headStyles: { fillColor: [13, 28, 132] },
+                margin: { left: margin, right: margin }
+            });
+
+            y = docPdf.lastAutoTable.finalY + 18;
+
+            // Timeline/Comentarios (ordenados)
+            const comentarios = Array.isArray(controlData.comentarios) ? [...controlData.comentarios] : [];
+            comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
+
+            const timelineBody = comentarios.map(c => ([
+                pasoLabel(c.paso),
+                c.ts ? new Date(c.ts).toLocaleString() : "",
+                c.usuario || "",
+                c.comentario || ""
+            ]));
+
+            docPdf.setFont("helvetica", "bold");
+            docPdf.setFontSize(12);
+            docPdf.text("Timeline (estación / fecha-hora / usuario / comentario)", margin, y);
+            docPdf.setFont("helvetica", "normal");
+
+            docPdf.autoTable({
+                startY: y + 10,
+                head: [["Estación", "Fecha/Hora", "Usuario", "Comentario"]],
+                body: timelineBody.length ? timelineBody : [["-", "-", "-", "-"]],
+                styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+                headStyles: { fillColor: [16, 185, 129] },
+                columnStyles: {
+                    0: { cellWidth: 120 },
+                    1: { cellWidth: 120 },
+                    2: { cellWidth: 110 },
+                    3: { cellWidth: 180 }
+                },
+                margin: { left: margin, right: margin }
+            });
+
+            y = docPdf.lastAutoTable.finalY + 18;
+
+            // Chat
+            const chat = Array.isArray(chatMessages) ? chatMessages : [];
+            docPdf.setFont("helvetica", "bold");
+            docPdf.setFontSize(12);
+            docPdf.text("Chat", margin, y);
+            docPdf.setFont("helvetica", "normal");
+
+            const chatBody = chat.map(m => ([
+                m.userName || "",
+                formatChatTime(m),
+                m.text || ""
+            ]));
+
+            docPdf.autoTable({
+                startY: y + 10,
+                head: [["Usuario", "Fecha/Hora", "Mensaje"]],
+                body: chatBody.length ? chatBody : [["-", "-", "-"]],
+                styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+                headStyles: { fillColor: [59, 130, 246] },
+                columnStyles: {
+                    0: { cellWidth: 110 },
+                    1: { cellWidth: 130 },
+                    2: { cellWidth: 290 }
+                },
+                margin: { left: margin, right: margin }
+            });
+
+            docPdf.save(`Historial_${folio}.pdf`);
+        }
+
+        async function saveToHistorico({ folio, controlData, chatMessages, closedAtISO }) {
+            const dref = doc(db, "ControlTransportesHistorico", folio);
+
+            // Guardar un snapshot “congelado”
+            const payload = {
+                folio,
+                estado: controlData.estado || "Finalizado",
+                closedAt: serverTimestamp(),
+                closedAtISO,
+                closedDate: closedAtISO.slice(0, 10), // YYYY-MM-DD para filtrar por fecha
+                cita: controlData.cita || {},
+                pasos: controlData.pasos || {},
+                comentarios: controlData.comentarios || [],
+                chat: chatMessages || [],
+                createdAt: controlData.createdAt || null,
+                updatedAt: serverTimestamp()
+            };
+
+            await setDoc(dref, payload, { merge: true });
+        }
+
         // Modales
         const mDestino = $("#modal-destino"); let md_resolve = null;
-        $$(".destop", mDestino).forEach(b => b.addEventListener("click", () => { mDestino.classList.add("hidden"); mDestino.classList.remove("flex"); md_resolve && md_resolve(b.dataset.accion); md_resolve = null; }));
+        $$(".destop", mDestino).forEach(b => b.addEventListener("click", () => {
+            mDestino.classList.add("hidden"); mDestino.classList.remove("flex");
+            md_resolve && md_resolve(b.dataset.accion); md_resolve = null;
+        }));
         function openModalDestino() { mDestino.classList.remove("hidden"); mDestino.classList.add("flex"); return new Promise(res => md_resolve = res); }
 
         const mPost = $("#modal-postlib"); let mpost_resolve = null;
-        $$(".postlib", mPost).forEach(b => b.addEventListener("click", () => { mPost.classList.add("hidden"); mPost.classList.remove("flex"); mpost_resolve && mpost_resolve(b.dataset.accion); mpost_resolve = null; }));
+        $$(".postlib", mPost).forEach(b => b.addEventListener("click", () => {
+            mPost.classList.add("hidden"); mPost.classList.remove("flex");
+            mpost_resolve && mpost_resolve(b.dataset.accion); mpost_resolve = null;
+        }));
         function openModalPostLiberacion() { mPost.classList.remove("hidden"); mPost.classList.add("flex"); return new Promise(res => mpost_resolve = res); }
 
         const mRampa = $("#modal-rampa"), rampaGrid = $("#rampa-grid"); let mr_resolve = null;
@@ -984,14 +1318,13 @@
             mcComentario = $("#mc-comentario"),
             mcError = $("#mc-error");
 
-        let mcom_meta = null, mcom_resolve = null;
+        let mcom_resolve = null;
 
         $("#mc-cancel").onclick = () => {
             mCom.classList.add("hidden");
             mCom.classList.remove("flex");
             mcom_resolve && mcom_resolve({ ok: false });
             mcom_resolve = null;
-            mcom_meta = null;
         };
 
         $("#mc-ok").onclick = async () => {
@@ -1010,20 +1343,53 @@
             mCom.classList.remove("flex");
             mcom_resolve && mcom_resolve({ ok: true, data: out });
             mcom_resolve = null;
-            mcom_meta = null;
         };
 
-        function openModalComentario(title, meta) {
+        function openModalComentario(title) {
             mcTitle.textContent = title;
             mcOperador.value = currentUser?.nombre || "";
             mcComentario.value = "";
             mcError.classList.add("hidden");
-            mcom_meta = meta;
             mCom.classList.remove("hidden");
             mCom.classList.add("flex");
             return new Promise(res => mcom_resolve = res);
         }
 
+        // Modal cierre
+        const mCierre = $("#modal-cierre");
+        const cierreOperador = $("#cierre-operador");
+        const cierreComentario = $("#cierre-comentario");
+        const cierreError = $("#cierre-error");
+        const cierreModo = $("#cierre-modo");
+        const cierreSub = $("#cierre-sub");
+
+        let cierre_ctx = null;
+
+        function openModalCierre({ folio, estado }) {
+            cierreOperador.value = currentUser?.nombre || "";
+            cierreComentario.value = "";
+            cierreError.classList.add("hidden");
+
+            cierreModo.value = (estado === "Cancelado") ? "Cierre por CANCELACIÓN" : "Cierre normal";
+            cierreSub.textContent = (estado === "Cancelado")
+                ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar y guardar histórico."
+                : "Registra Salida de Planta y genera el histórico.";
+
+            cierre_ctx = { folio, estado };
+            mCierre.classList.remove("hidden");
+            mCierre.classList.add("flex");
+        }
+
+        function closeModalCierre() {
+            cierre_ctx = null;
+            mCierre.classList.add("hidden");
+            mCierre.classList.remove("flex");
+        }
+
+        $("#cierre-x").onclick = closeModalCierre;
+        $("#cierre-cancel").onclick = closeModalCierre;
+
+        // ===== UI =====
         function renderCardSkeleton(folio, cita) {
             const el = document.createElement("div");
             el.className = "mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden";
@@ -1084,7 +1450,18 @@
 
         function openInfo(data) {
             const grid = $("#info-grid");
-            const rows = [["Folio", data.folio], ["Línea", data.linea || data.lineaTransporte || "-"], ["Placas", data.placas || "-"], ["Tipo transporte", data.tipoTransporte || "-"], ["Tipo visita", data.tipoVisita || "-"], ["Fecha", data.fecha || "-"], ["Hora", data.hora || "-"], ["Hora extra", data.horaExtra || "-"], ["Destino", data.destino || "-"], ["Proveedor", data.usuarioProveedor || "-"]];
+            const rows = [
+                ["Folio", data.folio],
+                ["Línea", data.linea || data.lineaTransporte || "-"],
+                ["Placas", data.placas || "-"],
+                ["Tipo transporte", data.tipoTransporte || "-"],
+                ["Tipo visita", data.tipoVisita || "-"],
+                ["Fecha", data.fecha || "-"],
+                ["Hora", data.hora || "-"],
+                ["Hora extra", data.horaExtra || "-"],
+                ["Destino", data.destino || "-"],
+                ["Proveedor", data.usuarioProveedor || "-"]
+            ];
             grid.innerHTML = rows.map(([k, v]) => `<div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border"><span class="text-gray-600">${k}</span><span class="font-medium">${escapeHtml(v)}</span></div>`).join("");
             const modal = $("#modal-info"); modal.classList.remove("hidden"); modal.classList.add("flex");
             $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
@@ -1103,121 +1480,293 @@
                 act.disabled = true;
 
                 const cref = doc(db, "ControlTransportes", folio);
-                const snap = await getDoc(cref); const control = snap.data() || {}; const p = control.pasos || {};
-                const citaId = control.cita?.id; const comentariosPrev = control.comentarios || [];
+                const snap = await getDoc(cref);
+                const control = snap.data() || {};
+                const p = control.pasos || {};
+                const citaId = control.cita?.id;
+                const comentariosPrev = control.comentarios || [];
                 const appendComment = (arr, paso, data) => [...arr, { ...data, paso, ts: nowISO() }];
 
-                async function finishAndClose(newEstado) {
-                    await updateDoc(cref, {
-                        estado: newEstado,
-                        activo: false,
-                        updatedAt: serverTimestamp()
-                    });
-                    await setCitaFinalizada(citaId);
-                }
                 async function pedirComentario(titulo, paso, accion) {
-                    const res = await openModalComentario(titulo, { folio, paso });
+                    const res = await openModalComentario(titulo);
                     if (!res?.ok) { act.disabled = false; return null; }
                     const { usuario, comentario } = res.data;
                     await logBitacora(folio, { paso, accion, usuario, comentario, actorEmail: currentUser?.email || "" });
                     return res.data;
                 }
 
-                switch (step) {
-                    case 0: {
-                        const v = llegadaValidations(cita); if (!v.ok) { alert(v.msg); act.disabled = false; break; }
-                        const com = await pedirComentario("Registrar Llegada", "llegada", "registrar"); if (!com) break;
-                        if (!p.llegada) { await updateDoc(cref, { "pasos.llegada": nowISO(), comentarios: appendComment(comentariosPrev, "llegada", com), updatedAt: serverTimestamp() }); }
-                        break;
+                async function markCancelAndJump(origen, pasoKeyForComment) {
+                    // Pedir comentario obligatorio
+                    const com = await pedirComentario(
+                        origen === "DisuasionE" ? "Cancelar en Disuasión (E)" : "Cancelar en Rampa",
+                        pasoKeyForComment,
+                        "cancelar"
+                    );
+                    if (!com) return false;
+
+                    const ts = nowISO();
+                    const updates = {
+                        estado: "Cancelado",
+                        updatedAt: serverTimestamp(),
+                        "pasos.forceNextStep": 9,
+                        "pasos.cancel_origen": origen,
+                        "pasos.cancel_ts": ts,
+                        comentarios: appendComment(comentariosPrev, pasoKeyForComment, com),
+                    };
+
+                    if (origen === "DisuasionE") {
+                        updates["pasos.disuasionE_inicio"] = p.disuasionE_inicio || ts;
+                        updates["pasos.disuasionE_fin"] = ts;
+                        updates["pasos.disuasionE_destino"] = "Cancelado";
+                    } else {
+                        // Rampa cancel
+                        updates["pasos.rampa_cancel"] = ts;
                     }
-                    case 1: {
-                        const com = await pedirComentario("Registrar Ingreso", "ingreso", "registrar"); if (!com) break;
-                        if (!p.ingreso) { await updateDoc(cref, { "pasos.ingreso": nowISO(), comentarios: appendComment(comentariosPrev, "ingreso", com), updatedAt: serverTimestamp() }); }
-                        break;
+
+                    await updateDoc(cref, updates);
+                    return true;
+                }
+
+                async function finalizeAndClose({ downloadPdf }) {
+                    // Validación cierre
+                    const usuario = cierreOperador.value.trim();
+                    const comentario = cierreComentario.value.trim();
+                    if (!usuario || !comentario) {
+                        cierreError.classList.remove("hidden");
+                        return;
                     }
-                    case 2: {
-                        if (act.classList.contains("fin")) {
-                            const dest = await openModalDestino(); if (!dest) { act.disabled = false; break; }
-                            if (dest === "Cancelar") {
-                                const com = await pedirComentario("Cancelar en Disuasión (E)", "disuasionE_cancel", "cancelar"); if (!com) break;
-                                await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || nowISO(), "pasos.disuasionE_fin": nowISO(), "pasos.disuasionE_destino": "Cancelado", comentarios: appendComment(comentariosPrev, "disuasionE_cancel", com), updatedAt: serverTimestamp() });
-                                await finishAndClose("Cancelado");
-                            } else if (dest === "Rampa") {
-                                const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
-                                const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar"); if (!com) break;
-                                const ts = nowISO();
-                                await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || ts, "pasos.disuasionE_fin": ts, "pasos.disuasionE_destino": "Rampa", "pasos.disuasionE_rampa": rSel, "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, comentarios: appendComment(comentariosPrev, "disuasionE_fin", com), updatedAt: serverTimestamp() });
-                            } else { // Patio
-                                const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar"); if (!com) break;
-                                await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || nowISO(), "pasos.disuasionE_fin": nowISO(), "pasos.disuasionE_destino": "Patio", comentarios: appendComment(comentariosPrev, "disuasionE_fin", com), updatedAt: serverTimestamp() });
+                    cierreError.classList.add("hidden");
+
+                    const closedAtISO = nowISO();
+
+                    // Actualiza doc actual con salida + cierre
+                    const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
+                    const newComentarios = appendComment(comentariosPrev, "salidaPlanta", { usuario, comentario });
+
+                    await updateDoc(cref, {
+                        "pasos.salidaPlanta": closedAtISO,
+                        estado: estadoFinal,
+                        activo: false,
+                        "pasos.forceNextStep": null,
+                        updatedAt: serverTimestamp(),
+                        comentarios: newComentarios,
+                        closedAtISO
+                    });
+
+                    // Cita finalizada (hasta cierre, como pediste)
+                    await setCitaFinalizada(citaId);
+
+                    // Tomar snapshot ya final (releer para congelar)
+                    const freshSnap = await getDoc(cref);
+                    const freshData = freshSnap.data() || control;
+
+                    // Chat
+                    const chatMessages = await getChatMessages(folio);
+
+                    // Guardar histórico
+                    await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
+
+                    // PDF opcional
+                    if (downloadPdf) {
+                        await generatePDFAndDownload({ folio, controlData: freshData, chatMessages });
+                    }
+
+                    closeModalCierre();
+                }
+
+                try {
+                    switch (step) {
+                        case 0: {
+                            const v = llegadaValidations(cita);
+                            if (!v.ok) { alert(v.msg); act.disabled = false; break; }
+                            const com = await pedirComentario("Registrar Llegada", "llegada", "registrar"); if (!com) break;
+                            if (!p.llegada) {
+                                await updateDoc(cref, {
+                                    "pasos.llegada": nowISO(),
+                                    comentarios: appendComment(comentariosPrev, "llegada", com),
+                                    updatedAt: serverTimestamp()
+                                });
                             }
-                        } else {
-                            const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar"); if (!com) break;
-                            if (!p.disuasionE_inicio) { await updateDoc(cref, { "pasos.disuasionE_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionE_inicio", com), updatedAt: serverTimestamp() }); }
+                            break;
                         }
-                        break;
-                    }
-                    case 3: {
-                        const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
-                        const com = await pedirComentario(`Finalizar Patio (E) → ${rSel}`, "patioE_fin", "finalizar"); if (!com) break;
-                        const ts = nowISO();
-                        await updateDoc(cref, { "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, comentarios: appendComment(comentariosPrev, "patioE_fin", com), updatedAt: serverTimestamp() });
-                        break;
-                    }
-                    case 4: {
-                        if (act.classList.contains("cancel")) {
-                            const com = await pedirComentario("Cancelar en Rampa", "rampa_cancel", "cancelar"); if (!com) break;
-                            await updateDoc(cref, { "pasos.rampa_cancel": nowISO(), "pasos.disuasionS_inicio": p.disuasionS_inicio || nowISO(), comentarios: appendComment(comentariosPrev, "rampa_cancel", com), updatedAt: serverTimestamp() });
-                            await finishAndClose("Cancelado");
-                        } else {
-                            const com = await pedirComentario("Iniciar descarga en Rampa", "rampa_inicio", "iniciar"); if (!com) break;
-                            if (!p.rampa_inicio) { await updateDoc(cref, { "pasos.rampa_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "rampa_inicio", com), updatedAt: serverTimestamp() }); }
+                        case 1: {
+                            const com = await pedirComentario("Registrar Ingreso", "ingreso", "registrar"); if (!com) break;
+                            if (!p.ingreso) {
+                                await updateDoc(cref, {
+                                    "pasos.ingreso": nowISO(),
+                                    comentarios: appendComment(comentariosPrev, "ingreso", com),
+                                    updatedAt: serverTimestamp()
+                                });
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case 5: {
-                        const com = await pedirComentario("Registrar Fin de Descarga", "finDescarga", "registrar"); if (!com) break;
-                        if (!p.finDescarga) { await updateDoc(cref, { "pasos.finDescarga": nowISO(), comentarios: appendComment(comentariosPrev, "finDescarga", com), updatedAt: serverTimestamp() }); }
-                        break;
-                    }
-                    case 6: {
-                        const com = await pedirComentario("Registrar Liberación", "liberacion", "registrar"); if (!com) break;
-                        if (!p.liberacion) {
-                            await updateDoc(cref, { "pasos.liberacion": nowISO(), comentarios: appendComment(comentariosPrev, "liberacion", com), updatedAt: serverTimestamp() });
-                            const dest = await openModalPostLiberacion();
-                            if (dest === "Patio") { await updateDoc(cref, { "pasos.postLiberacionDestino": "Patio", updatedAt: serverTimestamp() }); }
+                        case 2: {
+                            // Si está Cancelado, bloquear cualquier cosa que no sea salida
+                            if (control.estado === "Cancelado") { act.disabled = false; break; }
+
+                            if (act.classList.contains("fin")) {
+                                const dest = await openModalDestino();
+                                if (!dest) { act.disabled = false; break; }
+
+                                if (dest === "Cancelar") {
+                                    // Cancelado + salto a salida (NO cerrar)
+                                    await markCancelAndJump("DisuasionE", "disuasionE_cancel");
+                                    break;
+                                }
+
+                                if (dest === "Rampa") {
+                                    const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
+                                    const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar"); if (!com) break;
+                                    const ts = nowISO();
+                                    await updateDoc(cref, {
+                                        "pasos.disuasionE_inicio": p.disuasionE_inicio || ts,
+                                        "pasos.disuasionE_fin": ts,
+                                        "pasos.disuasionE_destino": "Rampa",
+                                        "pasos.disuasionE_rampa": rSel,
+                                        "pasos.patioE_fin": ts,
+                                        "pasos.patio_rampa": rSel,
+                                        comentarios: appendComment(comentariosPrev, "disuasionE_fin", com),
+                                        updatedAt: serverTimestamp()
+                                    });
+                                } else { // Patio
+                                    const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar"); if (!com) break;
+                                    const ts = nowISO();
+                                    await updateDoc(cref, {
+                                        "pasos.disuasionE_inicio": p.disuasionE_inicio || ts,
+                                        "pasos.disuasionE_fin": ts,
+                                        "pasos.disuasionE_destino": "Patio",
+                                        comentarios: appendComment(comentariosPrev, "disuasionE_fin", com),
+                                        updatedAt: serverTimestamp()
+                                    });
+                                }
+                            } else {
+                                const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar"); if (!com) break;
+                                if (!p.disuasionE_inicio) {
+                                    await updateDoc(cref, {
+                                        "pasos.disuasionE_inicio": nowISO(),
+                                        comentarios: appendComment(comentariosPrev, "disuasionE_inicio", com),
+                                        updatedAt: serverTimestamp()
+                                    });
+                                }
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case 7: {
-                        const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar"); if (!com) break;
-                        if (!p.patioS_fin) { await updateDoc(cref, { "pasos.patioS_fin": nowISO(), comentarios: appendComment(comentariosPrev, "patioS_fin", com), updatedAt: serverTimestamp() }); }
-                        break;
-                    }
-                    case 8: {
-                        if (act.classList.contains("fin")) {
-                            const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar"); if (!com) break;
-                            if (!p.disuasionS_fin) { await updateDoc(cref, { "pasos.disuasionS_inicio": p.disuasionS_inicio || nowISO(), "pasos.disuasionS_fin": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionS_fin", com), updatedAt: serverTimestamp() }); }
-                        } else {
-                            const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar"); if (!com) break;
-                            if (!p.disuasionS_inicio) { await updateDoc(cref, { "pasos.disuasionS_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionS_inicio", com), updatedAt: serverTimestamp() }); }
-                        }
-                        break;
-                    }
-                    case 9: {
-                        const com = await pedirComentario("Registrar Salida de Planta", "salidaPlanta", "registrar"); if (!com) break;
-                        if (!p.salidaPlanta) {
+                        case 3: {
+                            if (control.estado === "Cancelado") { act.disabled = false; break; }
+                            const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
+                            const com = await pedirComentario(`Finalizar Patio (E) → ${rSel}`, "patioE_fin", "finalizar"); if (!com) break;
+                            const ts = nowISO();
                             await updateDoc(cref, {
-                                "pasos.salidaPlanta": nowISO(),
-                                "estado": "Finalizado",
-                                "activo": false,
-                                comentarios: appendComment(comentariosPrev, "salidaPlanta", com),
+                                "pasos.patioE_fin": ts,
+                                "pasos.patio_rampa": rSel,
+                                comentarios: appendComment(comentariosPrev, "patioE_fin", com),
                                 updatedAt: serverTimestamp()
                             });
-                            await setCitaFinalizada(citaId);
+                            break;
                         }
-                        break;
+                        case 4: {
+                            if (control.estado === "Cancelado") { act.disabled = false; break; }
+
+                            if (act.classList.contains("cancel")) {
+                                // Cancelado + salto a salida (NO cerrar)
+                                await markCancelAndJump("Rampa", "rampa_cancel");
+                            } else {
+                                const com = await pedirComentario("Iniciar descarga en Rampa", "rampa_inicio", "iniciar"); if (!com) break;
+                                if (!p.rampa_inicio) {
+                                    await updateDoc(cref, {
+                                        "pasos.rampa_inicio": nowISO(),
+                                        comentarios: appendComment(comentariosPrev, "rampa_inicio", com),
+                                        updatedAt: serverTimestamp()
+                                    });
+                                }
+                            }
+                            break;
+                        }
+                        case 5: {
+                            if (control.estado === "Cancelado") { act.disabled = false; break; }
+                            const com = await pedirComentario("Registrar Fin de Descarga", "finDescarga", "registrar"); if (!com) break;
+                            if (!p.finDescarga) {
+                                await updateDoc(cref, {
+                                    "pasos.finDescarga": nowISO(),
+                                    comentarios: appendComment(comentariosPrev, "finDescarga", com),
+                                    updatedAt: serverTimestamp()
+                                });
+                            }
+                            break;
+                        }
+                        case 6: {
+                            if (control.estado === "Cancelado") { act.disabled = false; break; }
+                            const com = await pedirComentario("Registrar Liberación", "liberacion", "registrar"); if (!com) break;
+                            if (!p.liberacion) {
+                                const ts = nowISO();
+                                await updateDoc(cref, {
+                                    "pasos.liberacion": ts,
+                                    comentarios: appendComment(comentariosPrev, "liberacion", com),
+                                    updatedAt: serverTimestamp()
+                                });
+
+                                const dest = await openModalPostLiberacion();
+                                if (dest === "Patio") {
+                                    await updateDoc(cref, { "pasos.postLiberacionDestino": "Patio", updatedAt: serverTimestamp() });
+                                } else if (dest === "DisuasionS") {
+                                    // salto Patio(S) -> Done con timestamp automático
+                                    const ts2 = nowISO();
+                                    await updateDoc(cref, {
+                                        "pasos.postLiberacionDestino": "DisuasionS",
+                                        "pasos.patioS_fin": ts2, // Done auto
+                                        updatedAt: serverTimestamp()
+                                    });
+                                }
+                            }
+                            break;
+                        }
+                        case 7: {
+                            if (control.estado === "Cancelado") { act.disabled = false; break; }
+                            const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar"); if (!com) break;
+                            if (!p.patioS_fin) {
+                                await updateDoc(cref, {
+                                    "pasos.patioS_fin": nowISO(),
+                                    comentarios: appendComment(comentariosPrev, "patioS_fin", com),
+                                    updatedAt: serverTimestamp()
+                                });
+                            }
+                            break;
+                        }
+                        case 8: {
+                            if (control.estado === "Cancelado") { act.disabled = false; break; }
+                            if (act.classList.contains("fin")) {
+                                const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar"); if (!com) break;
+                                if (!p.disuasionS_fin) {
+                                    const ts = nowISO();
+                                    await updateDoc(cref, {
+                                        "pasos.disuasionS_inicio": p.disuasionS_inicio || ts,
+                                        "pasos.disuasionS_fin": ts,
+                                        comentarios: appendComment(comentariosPrev, "disuasionS_fin", com),
+                                        updatedAt: serverTimestamp()
+                                    });
+                                }
+                            } else {
+                                const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar"); if (!com) break;
+                                if (!p.disuasionS_inicio) {
+                                    await updateDoc(cref, {
+                                        "pasos.disuasionS_inicio": nowISO(),
+                                        comentarios: appendComment(comentariosPrev, "disuasionS_inicio", com),
+                                        updatedAt: serverTimestamp()
+                                    });
+                                }
+                            }
+                            break;
+                        }
+                        case 9: {
+                            // Siempre abrir modal cierre (normal o cancelado)
+                            openModalCierre({ folio, estado: control.estado || "En Proceso" });
+                            act.disabled = false;
+                            break;
+                        }
                     }
+                } finally {
+                    // Rehabilitar si no fue step 9 (en step 9 se hace por modal)
+                    if (step !== 9) act.disabled = false;
                 }
             });
 
@@ -1227,9 +1776,100 @@
             });
         }
 
+        // botones modal cierre
+        $("#cierre-only").onclick = async () => {
+            if (!cierre_ctx) return;
+            const folio = cierre_ctx.folio;
+            const cref = doc(db, "ControlTransportes", folio);
+            const snap = await getDoc(cref);
+            const control = snap.data() || {};
+            const card = cards.get(folio);
+            if (!card) { closeModalCierre(); return; }
+            // Ejecuta cierre sin pdf
+            await (async () => {
+                // reutilizo finalizeAndClose interno pero aquí simple:
+                const usuario = cierreOperador.value.trim();
+                const comentario = cierreComentario.value.trim();
+                if (!usuario || !comentario) { cierreError.classList.remove("hidden"); return; }
+                cierreError.classList.add("hidden");
+
+                const closedAtISO = nowISO();
+                const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
+                const comentariosPrev = control.comentarios || [];
+                const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
+
+                await updateDoc(cref, {
+                    "pasos.salidaPlanta": closedAtISO,
+                    estado: estadoFinal,
+                    activo: false,
+                    "pasos.forceNextStep": null,
+                    updatedAt: serverTimestamp(),
+                    comentarios: newComentarios,
+                    closedAtISO
+                });
+
+                await setCitaFinalizada(control.cita?.id);
+
+                const freshSnap = await getDoc(cref);
+                const freshData = freshSnap.data() || control;
+
+                const chatMessages = await getChatMessages(folio);
+                await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
+
+                closeModalCierre();
+            })();
+        };
+
+        $("#cierre-pdf").onclick = async () => {
+            if (!cierre_ctx) return;
+            const folio = cierre_ctx.folio;
+            const cref = doc(db, "ControlTransportes", folio);
+            const snap = await getDoc(cref);
+            const control = snap.data() || {};
+            const card = cards.get(folio);
+            if (!card) { closeModalCierre(); return; }
+
+            await (async () => {
+                const usuario = cierreOperador.value.trim();
+                const comentario = cierreComentario.value.trim();
+                if (!usuario || !comentario) { cierreError.classList.remove("hidden"); return; }
+                cierreError.classList.add("hidden");
+
+                const closedAtISO = nowISO();
+                const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
+                const comentariosPrev = control.comentarios || [];
+                const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
+
+                await updateDoc(cref, {
+                    "pasos.salidaPlanta": closedAtISO,
+                    estado: estadoFinal,
+                    activo: false,
+                    "pasos.forceNextStep": null,
+                    updatedAt: serverTimestamp(),
+                    comentarios: newComentarios,
+                    closedAtISO
+                });
+
+                await setCitaFinalizada(control.cita?.id);
+
+                const freshSnap = await getDoc(cref);
+                const freshData = freshSnap.data() || control;
+
+                const chatMessages = await getChatMessages(folio);
+                await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
+
+                await generatePDFAndDownload({ folio, controlData: freshData, chatMessages });
+
+                closeModalCierre();
+            })();
+        };
+
         function toggleChat(folio, forceOpen = null) {
-            const box = $("#chatBox-" + folio); const open = (forceOpen === null) ? box.classList.contains("hidden") : forceOpen;
-            box.classList.toggle("hidden", !open); $("#chatBadge-" + folio)?.classList.add("hidden"); $("#chatInput-" + folio)?.focus();
+            const box = $("#chatBox-" + folio);
+            const open = (forceOpen === null) ? box.classList.contains("hidden") : forceOpen;
+            box.classList.toggle("hidden", !open);
+            $("#chatBadge-" + folio)?.classList.add("hidden");
+            $("#chatInput-" + folio)?.focus();
         }
 
         // --- Carga inicial: todos los controles ACTIVOS ---
@@ -1245,14 +1885,22 @@
             const snap = await getDocs(qRef);
             let count = 0;
             for (const d of snap.docs) {
-                const data = d.data(); const folio = d.id; if (cards.has(folio)) continue;
+                const data = d.data();
+                const folio = d.id;
+                if (cards.has(folio)) continue;
+
                 const cita = data.cita || {};
                 const cardEl = renderCardSkeleton(folio, cita);
                 cont.appendChild(cardEl);
+
                 const unsub = listenControlDoc(folio);
                 const chatUnsub = listenChat(folio);
+
                 cards.set(folio, { rootEl: cardEl, cita, unsub, chatUnsub, data });
                 attachCardHandlers(cardEl, folio, cita);
+
+                // sync inicial
+                syncUIFromData(folio, data);
                 count++;
             }
             if (count > 0) $("#empty-state").classList.add("hidden");
@@ -1280,13 +1928,18 @@
             // Si ya existía documento en ControlTransportes, lo dibujamos y escuchamos
             if (cita.__yaExiste) {
                 const docSnap = await getDoc(doc(db, "ControlTransportes", folio));
-                const data = docSnap.data(); const c = data.cita || {};
+                const data = docSnap.data();
+                const c = data.cita || {};
+
                 const cardEl = renderCardSkeleton(folio, c);
                 $("#cards-container").prepend(cardEl);
+
                 const unsub = listenControlDoc(folio);
                 const chatUnsub = listenChat(folio);
+
                 cards.set(folio, { rootEl: cardEl, cita: c, unsub, chatUnsub, data });
                 attachCardHandlers(cardEl, folio, c);
+                syncUIFromData(folio, data);
                 $("#empty-state").classList.add("hidden");
 
                 // limpiar input
@@ -1298,9 +1951,11 @@
             $("#empty-state").classList.add("hidden");
             const cardEl = renderCardSkeleton(folio, cita);
             $("#cards-container").prepend(cardEl);
+
             await ensureControlDoc(folio, cita);
             const unsub = listenControlDoc(folio);
             const chatUnsub = listenChat(folio);
+
             cards.set(folio, { rootEl: cardEl, cita, unsub, chatUnsub, data: null });
             attachCardHandlers(cardEl, folio, cita);
 
@@ -1322,12 +1977,9 @@
             }
 
             setupSidebarNav(); // 🔓 Aplica permisos de menú según rol
-
             await loadActiveControls();
         })();
     </script>
 </body>
 
-
 </html>
-
