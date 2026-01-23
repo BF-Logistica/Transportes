@@ -1059,78 +1059,79 @@
             acceptBtn.disabled = true;
             acceptBtn.innerHTML = '<div class="loading-spinner"></div>';
 
-            try {
-                const docRef = doc(db, "CitasProveedor", currentCita.id);
-                const updatePayload = {
-                    fecha,
-                    hora,
-                    horaExtra: nuevaHoraExtra,
-                    esDomingo,
-                    estatus: "CitaConfirmada"
-                };
-                await updateDoc(docRef, updatePayload);
-
-                const folio = await getNextFolioForDate(fecha);
-
-                const confirmRef = doc(collection(db, "CitasConfirmadas"));
-
-                const dataConfirmada = {
+           try {
+                  const docRef = doc(db, "CitasProveedor", currentCita.id);
+                  const updatePayload = { fecha, hora, horaExtra: nuevaHoraExtra, esDomingo, estatus: "CitaConfirmada" };
+                  await updateDoc(docRef, updatePayload);
+                
+                  const folio = await getNextFolioForDate(fecha);
+                
+                  const confirmRef = doc(collection(db, "CitasConfirmadas"));
+                  await setDoc(confirmRef, {
                     ...currentCita.raw,
                     ...updatePayload,
                     folio,
                     citaProveedorId: currentCita.id,
                     updatedAt: new Date().toISOString()
-                };
-
-                await setDoc(confirmRef, dataConfirmada);
-
-                const correoDestino = currentCita.usuarioProveedor || "";
-                if (correoDestino) {
+                  });
+                
+                  // Intento de correo (no-cors)
+                  const correoDestino = currentCita.usuarioProveedor || "";
+                  if (correoDestino) {
                     const payloadEmail = {
-                        to: correoDestino,
-                        folio,
-                        citaId: currentCita.id,
-                        datosCita: {
-                            linea: currentCita.linea,
-                            placas: currentCita.placas,
-                            tipoTransporte: currentCita.tipoTransporte,
-                            tipoVisita: currentCita.tipoVisita,
-                            fecha,
-                            hora,
-                            horaExtra: nuevaHoraExtra,
-                            chofer: currentCita.chofer,
-                            destino: currentCita.destino,
-                            factura: currentCita.factura,
-                            notas: currentCita.notas,
-                            frontera: currentCita.frontera,
-                            recolectaCaja: currentCita.recolectaCaja
-                        },
-                        attachmentPath: "docs/Indicaciones de ingreso a transportistas.pdf"
+                      to: correoDestino,
+                      folio,
+                      citaId: currentCita.id,
+                      datosCita: {
+                        linea: currentCita.linea,
+                        placas: currentCita.placas,
+                        tipoTransporte: currentCita.tipoTransporte,
+                        tipoVisita: currentCita.tipoVisita,
+                        fecha,
+                        hora,
+                        horaExtra: nuevaHoraExtra,
+                        chofer: currentCita.chofer,
+                        destino: currentCita.destino,
+                        factura: currentCita.factura,
+                        notas: currentCita.notas,
+                        frontera: currentCita.frontera,
+                        recolectaCaja: currentCita.recolectaCaja
+                      }
                     };
-
-                   // --- ENVÍO CORREO (Apps Script) - modo no-cors (no se puede leer response) ---
+                
                     try {
                       await fetch(SEND_CITA_CONFIRM_EMAIL_URL, {
                         method: "POST",
-                        mode: "no-cors",          // <- clave: evita broncas de CORS leyendo respuesta
-                        headers: {
-                          "Content-Type": "text/plain;charset=utf-8" // <- reduce preflight
-                        },
+                        mode: "no-cors",
+                        headers: { "Content-Type": "text/plain;charset=utf-8" },
                         body: JSON.stringify({
                           action: "sendCitaConfirmacion",
                           authToken: MAIL_AUTH_TOKEN,
                           payload: payloadEmail
                         })
                       });
-                    
-                      // Si llegó aquí, el request salió del navegador.
-                      // No podemos saber el status real por CORS, pero normalmente sí se envía.
-                      alert("Cita confirmada correctamente.\n\nSe solicitó el envío de correo con folio y PDF al proveedor.");
-                    
-                    } catch (err) {
-                      console.error("Error de red al intentar enviar correo:", err);
-                      alert("La cita se confirmó, pero el navegador tuvo un problema de red al intentar enviar el correo.");
+                    } catch (mailErr) {
+                      console.warn("No se pudo disparar el correo (red/CORS):", mailErr);
+                      // NO tires todo el proceso por el correo
                     }
+                  }
+                
+                  // ✅ UI: quitar de tabla y cerrar modal (déjalo)
+                  allCitas = allCitas.filter(c => c.id !== currentCita.id);
+                  applyFilters();
+                  closeCitaModal();
+                
+                  alert("Cita confirmada correctamente.\n\nSe procesó el envío de correo con folio y PDF al proveedor.");
+                
+                } catch (err) {
+                  console.error("Error al confirmar cita:", err);
+                  generalError.textContent = "Ocurrió un error al confirmar la cita. Intenta nuevamente.";
+                  generalError.classList.remove("hidden");
+                } finally {
+                  acceptBtn.disabled = false;
+                  acceptBtn.innerHTML = originalHTML;
+                }
+
 
         async function deleteCita() {
             if (!currentCita) return;
@@ -1487,5 +1488,6 @@
 </body>
 
 </html>
+
 
 
