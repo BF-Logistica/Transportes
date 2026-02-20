@@ -143,7 +143,6 @@
             border: 2px solid #e5e7eb
         }
 
-        /* Live en amarillo translúcido */
         .chip.live {
             background: rgba(250, 204, 21, .14);
             color: #92400e;
@@ -327,11 +326,9 @@
                         Agregar transporte
                     </button>
 
-                    <!-- Botón Histórico (nuevo) -->
                     <a href="historico.html"
                         class="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
                         title="Histórico" aria-label="Ir al Histórico">
-                        <!-- icon -->
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-3-6.7M21 3v6h-6" />
@@ -354,6 +351,47 @@
         </main>
     </div>
 
+    <!-- ✅ NUEVO MODAL: CONFIRMAR / CANCELAR CITA (GUARDIA) -->
+    <div id="modal-cita" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                    <h3 class="text-xl font-semibold">Validación de cita</h3>
+                    <p class="text-sm text-gray-600">Confirma si se dará de alta o se cancelará.</p>
+                </div>
+                <button id="mcita-x" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
+            </div>
+
+            <div class="p-6">
+                <div id="mcita-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+
+                <div id="mcita-cancel-wrap" class="mt-4 hidden">
+                    <label for="mcita-cancel-coment" class="text-xs font-semibold text-gray-600">
+                        Comentario de cancelación (obligatorio)
+                    </label>
+                    <textarea id="mcita-cancel-coment" rows="3" placeholder="Motivo por el cual se cancela la cita"
+                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
+                    <p id="mcita-cancel-err" class="mt-2 text-sm text-red-600 hidden">Escribe el comentario para cancelar.</p>
+                </div>
+            </div>
+
+            <div class="px-6 pb-6 flex flex-wrap gap-3 justify-end">
+                <button id="mcita-btn-aceptar"
+                    class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
+                    Aceptar (dar de alta)
+                </button>
+                <button id="mcita-btn-cancelar"
+                    class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
+                    Cancelar cita
+                </button>
+                <button id="mcita-btn-confirm-cancel"
+                    class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold hidden">
+                    Aceptar cancelación
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DESTINO -->
     <div id="modal-destino" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden">
@@ -366,7 +404,6 @@
                     class="destop grow px-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Rampa</button>
                 <button data-accion="Patio"
                     class="destop grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
-                <!-- Cancel rojo (nuevo) -->
                 <button data-accion="Cancelar"
                     class="destop grow px-5 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">Cancelar</button>
             </div>
@@ -383,7 +420,6 @@
             <div class="p-6 flex gap-3">
                 <button data-accion="Patio"
                     class="postlib grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
-                <!-- Cerrar -> Disuasión (S) -->
                 <button data-accion="DisuasionS"
                     class="postlib grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Disuasión
                     (S)</button>
@@ -432,7 +468,7 @@
         </div>
     </div>
 
-    <!-- MODAL CIERRE (Salida de Planta + PDF + Histórico) -->
+    <!-- MODAL CIERRE -->
     <div id="modal-cierre" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -466,10 +502,10 @@
                 <div class="rounded-lg border bg-gray-50 p-3 text-sm text-gray-700">
                     <div class="font-semibold mb-1">¿Qué hará el sistema?</div>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li>Guardará el histórico en Firestore (<span
-                                class="font-mono">ControlTransportesHistorico</span>).</li>
+                        <li>Guardará el histórico en Firestore (<span class="font-mono">ControlTransportesHistorico</span>).</li>
                         <li>Generará PDF con logo, info, timeline y chat.</li>
                         <li>Marcará el transporte como cerrado y lo quitará de “pendientes”.</li>
+                        <li><b>Guardará en Google Sheets</b> (Info + Timeline, sin chat).</li>
                     </ul>
                 </div>
             </div>
@@ -502,8 +538,11 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import {
             getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, addDoc,
-            onSnapshot, query, where, serverTimestamp, orderBy, Timestamp
+            onSnapshot, query, where, serverTimestamp, orderBy
         } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // ========= ✅ PON AQUÍ TU WEB APP DE APPS SCRIPT =========
+        const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
@@ -520,20 +559,6 @@
         const $$ = (q, root = document) => Array.from(root.querySelectorAll(q));
         const nowISO = () => new Date().toISOString();
         const escapeHtml = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
-        const parseHHmm = hhmm => { const [h, m] = (hhmm || "").split(":").map(Number); const d = new Date(); d.setHours(h || 0, m || 0, 0, 0); return d; };
-        const todayISO = () => {
-            const d = new Date();
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, "0");
-            const day = String(d.getDate()).padStart(2, "0");
-            return `${y}-${m}-${day}`;
-        };
-
-        const toLocal = (iso) => {
-            try { return iso ? new Date(iso).toLocaleString() : ""; }
-            catch { return ""; }
-        };
-
         const safeStr = (v) => (v === null || v === undefined) ? "" : String(v);
 
         let currentUser = null;
@@ -547,13 +572,10 @@
         }
 
         function guardAccess() {
-            // Permite pruebas locales
             if (location.protocol === "file:") return true;
 
             try {
-                const raw =
-                    sessionStorage.getItem("currentUser") ||
-                    localStorage.getItem("currentUser");
+                const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
                 currentUser = raw ? JSON.parse(raw) : null;
             } catch {
                 currentUser = null;
@@ -586,13 +608,9 @@
             return true;
         }
 
-        // ==== Helpers de rol y navegación lateral (mismo criterio que en estatus.html) ====
-
         function getCurrentUserFromStorage() {
             try {
-                const raw =
-                    sessionStorage.getItem("currentUser") ||
-                    localStorage.getItem("currentUser");
+                const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
                 return raw ? JSON.parse(raw) : null;
             } catch {
                 return null;
@@ -602,61 +620,39 @@
         function isAdminUser(user) {
             if (!user) return false;
             const normRol = normalizeRole(user.rol || user.role);
-            return (
-                normRol === "administrador" ||
-                user.roleKey === "UsuarioAdmin" ||
-                user.collection === "UsuarioAdmin"
-            );
+            return (normRol === "administrador" || user.roleKey === "UsuarioAdmin" || user.collection === "UsuarioAdmin");
         }
 
         function isCoordLogUser(user) {
             if (!user) return false;
             const normRol = normalizeRole(user.rol || user.role);
-            return (
-                normRol === "coordinadorlogistico" ||
-                user.roleKey === "UsuarioLogistico" ||
-                user.collection === "UsuarioLogistico"
-            );
+            return (normRol === "coordinadorlogistico" || user.roleKey === "UsuarioLogistico" || user.collection === "UsuarioLogistico");
         }
 
         function setupSidebarNav() {
             const isFile = location.protocol === "file:";
-
             const user = getCurrentUserFromStorage();
             const admin = isAdminUser(user);
             const coord = isCoordLogUser(user);
 
-            document
-                .querySelectorAll('nav a[data-page]')
-                .forEach(link => {
-                    const page = link.dataset.page;
-                    let enable = false;
+            document.querySelectorAll('nav a[data-page]').forEach(link => {
+                const page = link.dataset.page;
+                let enable = false;
 
-                    if (isFile) {
-                        // En entorno local (file://) deja todo activo para pruebas
-                        enable = true;
-                    } else if (admin) {
-                        // Admin puede ver todo
-                        enable = true;
-                    } else if (coord) {
-                        // Coordinador Logístico solo Control + Estatus
-                        if (page === "control.html" || page === "estatus.html") {
-                            enable = true;
-                        }
-                    } else {
-                        enable = false;
-                    }
+                if (isFile) enable = true;
+                else if (admin) enable = true;
+                else if (coord) enable = (page === "control.html" || page === "estatus.html");
 
-                    if (enable) {
-                        link.href = page;
-                        link.classList.remove("cursor-default", "opacity-80");
-                        link.classList.add("hover:bg-bmm-light");
-                    } else {
-                        link.removeAttribute("href");
-                        link.classList.add("cursor-default", "opacity-80");
-                        link.classList.remove("hover:bg-bmm-light");
-                    }
-                });
+                if (enable) {
+                    link.href = page;
+                    link.classList.remove("cursor-default", "opacity-80");
+                    link.classList.add("hover:bg-bmm-light");
+                } else {
+                    link.removeAttribute("href");
+                    link.classList.add("cursor-default", "opacity-80");
+                    link.classList.remove("hover:bg-bmm-light");
+                }
+            });
         }
 
         (function initLayout() {
@@ -678,15 +674,21 @@
         })();
 
         async function getCitaByFolio(folio) {
-            // Bloquea si ya existe control
+            // Si ya existe en ControlTransportes, lo regresamos
             const cDoc = await getDoc(doc(db, "ControlTransportes", folio));
             if (cDoc.exists()) { return { __yaExiste: true, ...cDoc.data() }; }
 
             const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio));
             const snap = await getDocs(qRef);
             if (snap.empty) return null;
-            const d = snap.docs[0]; const data = d.data();
-            if ((data.estatus || "") === "CitaFinalizada") return null;
+
+            const d = snap.docs[0];
+            const data = d.data();
+            const estatus = (data.estatus || "");
+
+            // Si ya fue finalizada o cancelada, no permitir
+            if (estatus === "CitaFinalizada" || estatus === "CitaCancelada") return null;
+
             return { id: d.id, ...data };
         }
 
@@ -731,10 +733,11 @@
                         disuasionS_fin: null,
                         salidaPlanta: null,
 
-                        // NUEVO: control de salto (blindado)
-                        forceNextStep: null, // number (ej. 9)
-                        cancel_origen: null, // "DisuasionE" | "Rampa"
-                        cancel_ts: null
+                        forceNextStep: null,
+                        cancel_origen: null,
+                        cancel_ts: null,
+
+                        rampa_enter_ts: null
                     },
                     comentarios: []
                 });
@@ -754,6 +757,21 @@
             }
         }
 
+        // ✅ NUEVO: Cancelar cita (para que ya no pase)
+        async function cancelCita({ citaId, folio, comentarioCancel }) {
+            if (!citaId) return;
+            await updateDoc(doc(db, "CitasConfirmadas", citaId), {
+                estatus: "CitaCancelada",
+                canceladoAt: serverTimestamp(),
+                canceladoAtISO: nowISO(),
+                canceladoPor: currentUser?.nombre || "",
+                canceladoPorEmail: currentUser?.email || "",
+                canceladoComentario: comentarioCancel || "",
+                updatedAt: serverTimestamp()
+            });
+            console.log("Cita cancelada:", folio);
+        }
+
         async function logBitacora(folio, entry) {
             try {
                 await addDoc(collection(db, "ControlTransportes", folio, "Bitacora"), {
@@ -765,6 +783,198 @@
             }
         }
 
+        // ========= ✅ GOOGLE SHEETS LOG =========
+        async function sendToGoogleSheets(payload) {
+            if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
+                console.warn("GOOGLE_SHEET_WEBAPP_URL no configurada.");
+                return { ok: false, skipped: true };
+            }
+
+            try {
+                const res = await fetch(GOOGLE_SHEET_WEBAPP_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) throw new Error(data?.error || "Error en WebApp");
+                return data;
+            } catch (e) {
+                console.warn("Error enviando a Google Sheets:", e);
+                return { ok: false, error: String(e) };
+            }
+        }
+
+        // Para el PDF guardamos chat, pero para Google Sheets NO.
+        function buildInfoRows(cita, folio) {
+            return [
+                ["Folio", folio],
+                ["Línea", cita.linea || cita.lineaTransporte || "-"],
+                ["Placas", cita.placas || "-"],
+                ["Tipo transporte", cita.tipoTransporte || "-"],
+                ["Tipo visita", cita.tipoVisita || "-"],
+                ["Fecha", cita.fecha || "-"],
+                ["Hora", cita.hora || "-"],
+                ["Hora extra", cita.horaExtra || "-"],
+                ["Destino", cita.destino || "-"],
+                ["Proveedor", cita.usuarioProveedor || "-"]
+            ];
+        }
+
+        function pasoLabel(paso) {
+            const map = {
+                llegada: "Llegada",
+                ingreso: "Ingreso",
+                disuasionE_inicio: "Disuasión (E) - Inicio",
+                disuasionE_fin: "Disuasión (E) - Fin",
+                disuasionE_cancel: "Disuasión (E) - Cancelado",
+                patioE_fin: "Patio (E)",
+                rampa_inicio: "Rampa - Inicio",
+                rampa_cancel: "Rampa - Cancelado",
+                finDescarga: "Fin Descarga",
+                liberacion: "Liberación",
+                patioS_fin: "Patio (S)",
+                disuasionS_inicio: "Disuasión (S) - Inicio",
+                disuasionS_fin: "Disuasión (S) - Fin",
+                salidaPlanta: "Salida de Planta"
+            };
+            return map[paso] || paso;
+        }
+
+        async function generatePDFAndDownload({ folio, controlData, chatMessages }) {
+            const { jsPDF } = window.jspdf || {};
+            if (!jsPDF) {
+                alert("No se pudo cargar jsPDF. Revisa conexión a internet.");
+                return;
+            }
+
+            const docPdf = new jsPDF({ unit: "pt", format: "a4" });
+            const pageW = docPdf.internal.pageSize.getWidth();
+            const margin = 40;
+
+            const logoPath = "img/logo_bf.png";
+            try {
+                const img = await fetch(logoPath);
+                const blob = await img.blob();
+                const reader = new FileReader();
+                const dataUrl = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); });
+                docPdf.addImage(dataUrl, "PNG", margin, 24, 140, 34);
+            } catch { }
+
+            docPdf.setFont("helvetica", "bold");
+            docPdf.setFontSize(16);
+            docPdf.text("Historial de Transporte", pageW / 2, 48, { align: "center" });
+
+            docPdf.setFont("helvetica", "normal");
+            docPdf.setFontSize(10);
+            docPdf.text(`Generado: ${new Date().toLocaleString()}`, pageW - margin, 48, { align: "right" });
+
+            let y = 80;
+
+            docPdf.setFont("helvetica", "bold");
+            docPdf.setFontSize(12);
+            docPdf.text(`Folio: ${folio}`, margin, y);
+            docPdf.text(`Estado: ${controlData.estado || "-"}`, pageW - margin, y, { align: "right" });
+            y += 14;
+
+            docPdf.setFontSize(11);
+            const cita = controlData.cita || {};
+            const infoRows = buildInfoRows(cita, folio);
+
+            docPdf.autoTable({
+                startY: y + 10,
+                head: [["Campo", "Valor"]],
+                body: infoRows,
+                styles: { fontSize: 9, cellPadding: 6 },
+                headStyles: { fillColor: [13, 28, 132] },
+                margin: { left: margin, right: margin }
+            });
+
+            y = docPdf.lastAutoTable.finalY + 18;
+
+            const comentarios = Array.isArray(controlData.comentarios) ? [...controlData.comentarios] : [];
+            comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
+
+            const timelineBody = comentarios.map(c => ([
+                pasoLabel(c.paso),
+                c.ts ? new Date(c.ts).toLocaleString() : "",
+                c.usuario || "",
+                c.comentario || ""
+            ]));
+
+            docPdf.setFont("helvetica", "bold");
+            docPdf.setFontSize(12);
+            docPdf.text("Timeline (estación / fecha-hora / usuario / comentario)", margin, y);
+            docPdf.setFont("helvetica", "normal");
+
+            docPdf.autoTable({
+                startY: y + 10,
+                head: [["Estación", "Fecha/Hora", "Usuario", "Comentario"]],
+                body: timelineBody.length ? timelineBody : [["-", "-", "-", "-"]],
+                styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+                headStyles: { fillColor: [16, 185, 129] },
+                columnStyles: {
+                    0: { cellWidth: 120 },
+                    1: { cellWidth: 120 },
+                    2: { cellWidth: 110 },
+                    3: { cellWidth: 180 }
+                },
+                margin: { left: margin, right: margin }
+            });
+
+            y = docPdf.lastAutoTable.finalY + 18;
+
+            // Chat (solo en PDF)
+            const chat = Array.isArray(chatMessages) ? chatMessages : [];
+            docPdf.setFont("helvetica", "bold");
+            docPdf.setFontSize(12);
+            docPdf.text("Chat", margin, y);
+            docPdf.setFont("helvetica", "normal");
+
+            const chatBody = chat.map(m => ([
+                m.userName || "",
+                (m.createdAt?.seconds ? new Date(m.createdAt.seconds * 1000).toLocaleString() : ""),
+                m.text || ""
+            ]));
+
+            docPdf.autoTable({
+                startY: y + 10,
+                head: [["Usuario", "Fecha/Hora", "Mensaje"]],
+                body: chatBody.length ? chatBody : [["-", "-", "-"]],
+                styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+                headStyles: { fillColor: [59, 130, 246] },
+                columnStyles: {
+                    0: { cellWidth: 110 },
+                    1: { cellWidth: 130 },
+                    2: { cellWidth: 290 }
+                },
+                margin: { left: margin, right: margin }
+            });
+
+            docPdf.save(`Historial_${folio}.pdf`);
+        }
+
+        async function saveToHistorico({ folio, controlData, chatMessages, closedAtISO }) {
+            const dref = doc(db, "ControlTransportesHistorico", folio);
+
+            const payload = {
+                folio,
+                estado: controlData.estado || "Finalizado",
+                closedAt: serverTimestamp(),
+                closedAtISO,
+                closedDate: closedAtISO.slice(0, 10),
+                cita: controlData.cita || {},
+                pasos: controlData.pasos || {},
+                comentarios: controlData.comentarios || [],
+                chat: chatMessages || [],
+                createdAt: controlData.createdAt || null,
+                updatedAt: serverTimestamp()
+            };
+
+            await setDoc(dref, payload, { merge: true });
+        }
+
+        // ========= UI / timeline =========
         function iconForStep(i) {
             const icons = [
                 "img/ico_llegada.png",
@@ -843,12 +1053,10 @@
                 p.salidaPlanta
             ];
 
-            // Si hay forceNextStep y aún no sale de planta, esa manda
             if (typeof p.forceNextStep === "number" && !p.salidaPlanta) {
                 return { firstIncomplete: p.forceNextStep, stamps, forced: true };
             }
 
-            // Si está Cancelado y aún no registra salida, forzar a salida
             if (estado === "Cancelado" && !p.salidaPlanta) {
                 return { firstIncomplete: 9, stamps, forced: true };
             }
@@ -858,7 +1066,11 @@
             return { firstIncomplete: idx, stamps, forced: false };
         }
 
-        // Política de botones (con manejo especial para Disuasión E/S y cancelación)
+        function toLocal(iso) {
+            try { return iso ? new Date(iso).toLocaleString() : ""; }
+            catch { return ""; }
+        }
+
         function applyButtonsPolicy(folio, data) {
             const card = cards.get(folio);
             if (!card) return;
@@ -868,7 +1080,6 @@
             const estado = (data.estado || "En Proceso");
             const { firstIncomplete, stamps } = computeFirstIncomplete(data);
 
-            // Oculta / deshabilita todos
             for (let i = 0; i <= 9; i++) {
                 const btns = $$(`.btn[data-f="${folio}"][data-step="${i}"]`, root);
                 btns.forEach(b => {
@@ -877,10 +1088,8 @@
                 });
             }
 
-            // Si todo terminado
             if (firstIncomplete >= stamps.length) return;
 
-            // Si Cancelado y falta salida: SOLO step 9
             if (estado === "Cancelado" && !p.salidaPlanta) {
                 const btns = $$(`.btn[data-f="${folio}"][data-step="9"]`, root);
                 btns.forEach(b => {
@@ -895,35 +1104,22 @@
             const btns = $$(`.btn[data-f="${folio}"][data-step="${currentStep}"]`, root);
 
             if (currentStep === 2) {
-                // Disuasión (E)
                 const started = !!p.disuasionE_inicio;
                 const finished = !!p.disuasionE_fin;
                 btns.forEach(b => {
                     const isFin = b.classList.contains("fin");
-                    if (!started && !finished && !isFin) {
-                        b.classList.remove("hidden");
-                        b.disabled = false;
-                    } else if (started && !finished && isFin) {
-                        b.classList.remove("hidden");
-                        b.disabled = false;
-                    }
+                    if (!started && !finished && !isFin) { b.classList.remove("hidden"); b.disabled = false; }
+                    else if (started && !finished && isFin) { b.classList.remove("hidden"); b.disabled = false; }
                 });
             } else if (currentStep === 8) {
-                // Disuasión (S)
                 const started = !!p.disuasionS_inicio;
                 const finished = !!p.disuasionS_fin;
                 btns.forEach(b => {
                     const isFin = b.classList.contains("fin");
-                    if (!started && !finished && !isFin) {
-                        b.classList.remove("hidden");
-                        b.disabled = false;
-                    } else if (started && !finished && isFin) {
-                        b.classList.remove("hidden");
-                        b.disabled = false;
-                    }
+                    if (!started && !finished && !isFin) { b.classList.remove("hidden"); b.disabled = false; }
+                    else if (started && !finished && isFin) { b.classList.remove("hidden"); b.disabled = false; }
                 });
             } else {
-                // Resto de pasos: todos los botones del step activo
                 btns.forEach(b => {
                     b.classList.remove("hidden");
                     b.disabled = false;
@@ -949,7 +1145,6 @@
                 p.salidaPlanta
             ];
 
-            // Pintar chips:
             for (let i = 0; i <= 9; i++) {
                 if (stamps[i]) {
                     setChip(folio, i, "done", toLocal(stepTimes[i] || stamps[i]));
@@ -960,7 +1155,6 @@
                 }
             }
 
-            // Tags especiales
             if (p.disuasionE_destino) {
                 setChip(
                     folio,
@@ -972,17 +1166,13 @@
             }
             if (p.patio_rampa) $("#tag-" + folio + "-3").textContent = p.patio_rampa;
             if (p.postLiberacionDestino) $("#tag-" + folio + "-6").textContent = "→ " + (p.postLiberacionDestino === "DisuasionS" ? "Disuasión (S)" : p.postLiberacionDestino);
+            if (p.rampa_cancel) $("#tag-" + folio + "-4").textContent = "Cancelado";
 
-            // Si cancelaron en rampa, mostrar tag
-            if (p.rampa_cancel) {
-                $("#tag-" + folio + "-4").textContent = "Cancelado";
-            }
-
-            // Camión:
             let truckStep = (firstIncomplete >= stamps.length) ? (stamps.length - 1) : firstIncomplete;
             moveTruck(folio, truckStep);
 
             $("#estado-" + folio).textContent = estado;
+
             applyButtonsPolicy(folio, data);
         }
 
@@ -993,15 +1183,12 @@
             const card = cards.get(folio);
             if (!card) return;
 
-            // Unsubscribe
             try { card.unsub && card.unsub(); } catch { }
             try { card.chatUnsub && card.chatUnsub(); } catch { }
 
-            // Remove DOM
             try { card.rootEl?.remove(); } catch { }
             cards.delete(folio);
 
-            // Empty state
             if (cards.size === 0) $("#empty-state").classList.remove("hidden");
         }
 
@@ -1015,7 +1202,6 @@
 
                 card.data = data;
 
-                // Si ya cerró: quita de pantalla
                 if (data.activo === false) {
                     removeCardIfClosed(folio, data);
                     return;
@@ -1035,7 +1221,8 @@
         function listenChat(folio) {
             const cref = collection(db, "ControlTransportes", folio, "Chat");
             return onSnapshot(query(cref), snap => {
-                const msgs = $("#chatMsgs-" + folio), badge = $("#chatBadge-" + folio); const list = [];
+                const msgs = $("#chatMsgs-" + folio), badge = $("#chatBadge-" + folio);
+                const list = [];
                 snap.forEach(d => list.push({ id: d.id, ...d.data() }));
                 list.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
                 if (msgs) { msgs.innerHTML = list.map(renderMsg).join(""); msgs.scrollTop = msgs.scrollHeight; }
@@ -1057,231 +1244,19 @@
         }
 
         async function sendChatMsg(folio) {
-            const inp = $("#chatInput-" + folio); const txt = inp?.value.trim(); if (!txt) return; inp.value = "";
-            await addDoc(collection(db, "ControlTransportes", folio, "Chat"), { text: txt, userName: currentUser?.nombre || "Coord", userEmail: currentUser?.email || "", createdAt: serverTimestamp() });
-        }
-
-        // 🔹 Validación de ventana para llegada / alta
-        function llegadaValidations(cita) {
-            const fechaCita = (cita.fecha || "");
-            const hoy = todayISO();
-            const h0 = parseHHmm(cita.hora || "00:00");
-            const now = new Date();
-
-            // Si no es hoy, no se permite
-            if (fechaCita !== hoy) {
-                return {
-                    ok: false,
-                    msg: `La cita es para ${fechaCita} a las ${cita.hora}${cita.horaExtra ? ` (ventana +2h)` : ``}.`
-                };
-            }
-
-            const diffMin = Math.round((now - h0) / 60000); // positivo = tarde, negativo = temprano
-
-            // Muy tarde: más de 15 minutos
-            if (diffMin > 15) {
-                return {
-                    ok: false,
-                    msg: `Tolerancia de 15 minutos expirada. Atraso: ${diffMin} min. Comunícate con el guardia en turno.`
-                };
-            }
-
-            // Muy temprano: más de 30 minutos antes
-            if (diffMin < -30) {
-                const faltan = Math.abs(diffMin);
-                return {
-                    ok: false,
-                    msg: `La cita es hoy a las ${cita.hora}. Solo puedes agregar el transporte 30 minutos antes como máximo. Aún faltan ${faltan} minuto${faltan === 1 ? "" : "s"}.`
-                };
-            }
-
-            // Dentro de la ventana: [-30, +15]
-            return { ok: true };
-        }
-
-        // ===== PDF + HISTÓRICO =====
-        function buildInfoRows(cita, folio) {
-            return [
-                ["Folio", folio],
-                ["Línea", cita.linea || cita.lineaTransporte || "-"],
-                ["Placas", cita.placas || "-"],
-                ["Tipo transporte", cita.tipoTransporte || "-"],
-                ["Tipo visita", cita.tipoVisita || "-"],
-                ["Fecha", cita.fecha || "-"],
-                ["Hora", cita.hora || "-"],
-                ["Hora extra", cita.horaExtra || "-"],
-                ["Destino", cita.destino || "-"],
-                ["Proveedor", cita.usuarioProveedor || "-"]
-            ];
-        }
-
-        function pasoLabel(paso) {
-            const map = {
-                llegada: "Llegada",
-                ingreso: "Ingreso",
-                disuasionE_inicio: "Disuasión (E) - Inicio",
-                disuasionE_fin: "Disuasión (E) - Fin",
-                disuasionE_cancel: "Disuasión (E) - Cancelado",
-                patioE_fin: "Patio (E)",
-                rampa_inicio: "Rampa - Inicio",
-                rampa_cancel: "Rampa - Cancelado",
-                finDescarga: "Fin Descarga",
-                liberacion: "Liberación",
-                patioS_fin: "Patio (S)",
-                disuasionS_inicio: "Disuasión (S) - Inicio",
-                disuasionS_fin: "Disuasión (S) - Fin",
-                salidaPlanta: "Salida de Planta"
-            };
-            return map[paso] || paso;
-        }
-
-        function formatChatTime(m) {
-            if (m.createdAt?.seconds) return new Date(m.createdAt.seconds * 1000).toLocaleString();
-            if (typeof m.createdAt === "string") return toLocal(m.createdAt);
-            return "";
-        }
-
-        async function generatePDFAndDownload({ folio, controlData, chatMessages }) {
-            const { jsPDF } = window.jspdf || {};
-            if (!jsPDF) {
-                alert("No se pudo cargar jsPDF. Revisa conexión a internet.");
-                return;
-            }
-
-            const docPdf = new jsPDF({ unit: "pt", format: "a4" });
-            const pageW = docPdf.internal.pageSize.getWidth();
-            const margin = 40;
-
-            // Header
-            const logoPath = "img/logo_bf.png";
-            try {
-                const img = await fetch(logoPath);
-                const blob = await img.blob();
-                const reader = new FileReader();
-                const dataUrl = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); });
-                docPdf.addImage(dataUrl, "PNG", margin, 24, 140, 34);
-            } catch {
-                // si falla logo, no tiramos el PDF
-            }
-
-            docPdf.setFont("helvetica", "bold");
-            docPdf.setFontSize(16);
-            docPdf.text("Historial de Transporte", pageW / 2, 48, { align: "center" });
-
-            docPdf.setFont("helvetica", "normal");
-            docPdf.setFontSize(10);
-            docPdf.text(`Generado: ${new Date().toLocaleString()}`, pageW - margin, 48, { align: "right" });
-
-            let y = 80;
-
-            // Estado
-            docPdf.setFont("helvetica", "bold");
-            docPdf.setFontSize(12);
-            docPdf.text(`Folio: ${folio}`, margin, y);
-            docPdf.text(`Estado: ${controlData.estado || "-"}`, pageW - margin, y, { align: "right" });
-            y += 14;
-
-            // Info table
-            docPdf.setFontSize(11);
-            const cita = controlData.cita || {};
-            const infoRows = buildInfoRows(cita, folio);
-
-            docPdf.autoTable({
-                startY: y + 10,
-                head: [["Campo", "Valor"]],
-                body: infoRows,
-                styles: { fontSize: 9, cellPadding: 6 },
-                headStyles: { fillColor: [13, 28, 132] },
-                margin: { left: margin, right: margin }
+            const inp = $("#chatInput-" + folio);
+            const txt = inp?.value.trim();
+            if (!txt) return;
+            inp.value = "";
+            await addDoc(collection(db, "ControlTransportes", folio, "Chat"), {
+                text: txt,
+                userName: currentUser?.nombre || "Coord",
+                userEmail: currentUser?.email || "",
+                createdAt: serverTimestamp()
             });
-
-            y = docPdf.lastAutoTable.finalY + 18;
-
-            // Timeline/Comentarios (ordenados)
-            const comentarios = Array.isArray(controlData.comentarios) ? [...controlData.comentarios] : [];
-            comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
-
-            const timelineBody = comentarios.map(c => ([
-                pasoLabel(c.paso),
-                c.ts ? new Date(c.ts).toLocaleString() : "",
-                c.usuario || "",
-                c.comentario || ""
-            ]));
-
-            docPdf.setFont("helvetica", "bold");
-            docPdf.setFontSize(12);
-            docPdf.text("Timeline (estación / fecha-hora / usuario / comentario)", margin, y);
-            docPdf.setFont("helvetica", "normal");
-
-            docPdf.autoTable({
-                startY: y + 10,
-                head: [["Estación", "Fecha/Hora", "Usuario", "Comentario"]],
-                body: timelineBody.length ? timelineBody : [["-", "-", "-", "-"]],
-                styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
-                headStyles: { fillColor: [16, 185, 129] },
-                columnStyles: {
-                    0: { cellWidth: 120 },
-                    1: { cellWidth: 120 },
-                    2: { cellWidth: 110 },
-                    3: { cellWidth: 180 }
-                },
-                margin: { left: margin, right: margin }
-            });
-
-            y = docPdf.lastAutoTable.finalY + 18;
-
-            // Chat
-            const chat = Array.isArray(chatMessages) ? chatMessages : [];
-            docPdf.setFont("helvetica", "bold");
-            docPdf.setFontSize(12);
-            docPdf.text("Chat", margin, y);
-            docPdf.setFont("helvetica", "normal");
-
-            const chatBody = chat.map(m => ([
-                m.userName || "",
-                formatChatTime(m),
-                m.text || ""
-            ]));
-
-            docPdf.autoTable({
-                startY: y + 10,
-                head: [["Usuario", "Fecha/Hora", "Mensaje"]],
-                body: chatBody.length ? chatBody : [["-", "-", "-"]],
-                styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
-                headStyles: { fillColor: [59, 130, 246] },
-                columnStyles: {
-                    0: { cellWidth: 110 },
-                    1: { cellWidth: 130 },
-                    2: { cellWidth: 290 }
-                },
-                margin: { left: margin, right: margin }
-            });
-
-            docPdf.save(`Historial_${folio}.pdf`);
         }
 
-        async function saveToHistorico({ folio, controlData, chatMessages, closedAtISO }) {
-            const dref = doc(db, "ControlTransportesHistorico", folio);
-
-            // Guardar un snapshot “congelado”
-            const payload = {
-                folio,
-                estado: controlData.estado || "Finalizado",
-                closedAt: serverTimestamp(),
-                closedAtISO,
-                closedDate: closedAtISO.slice(0, 10), // YYYY-MM-DD para filtrar por fecha
-                cita: controlData.cita || {},
-                pasos: controlData.pasos || {},
-                comentarios: controlData.comentarios || [],
-                chat: chatMessages || [],
-                createdAt: controlData.createdAt || null,
-                updatedAt: serverTimestamp()
-            };
-
-            await setDoc(dref, payload, { merge: true });
-        }
-
-        // Modales
+        // ===== MODAL DESTINO =====
         const mDestino = $("#modal-destino"); let md_resolve = null;
         $$(".destop", mDestino).forEach(b => b.addEventListener("click", () => {
             mDestino.classList.add("hidden"); mDestino.classList.remove("flex");
@@ -1289,6 +1264,7 @@
         }));
         function openModalDestino() { mDestino.classList.remove("hidden"); mDestino.classList.add("flex"); return new Promise(res => md_resolve = res); }
 
+        // ===== MODAL POST =====
         const mPost = $("#modal-postlib"); let mpost_resolve = null;
         $$(".postlib", mPost).forEach(b => b.addEventListener("click", () => {
             mPost.classList.add("hidden"); mPost.classList.remove("flex");
@@ -1296,6 +1272,7 @@
         }));
         function openModalPostLiberacion() { mPost.classList.remove("hidden"); mPost.classList.add("flex"); return new Promise(res => mpost_resolve = res); }
 
+        // ===== MODAL RAMPA =====
         const mRampa = $("#modal-rampa"), rampaGrid = $("#rampa-grid"); let mr_resolve = null;
         $("#rampa-cancel").onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve(null); mr_resolve = null; };
         function openModalRampa() {
@@ -1311,7 +1288,7 @@
             return new Promise(res => mr_resolve = res);
         }
 
-        // Modal comentarios (sin foto)
+        // ===== MODAL COMENTARIOS =====
         const mCom = $("#modal-com"),
             mcTitle = $("#mc-title"),
             mcOperador = $("#mc-operador"),
@@ -1355,14 +1332,13 @@
             return new Promise(res => mcom_resolve = res);
         }
 
-        // Modal cierre
+        // ===== MODAL CIERRE =====
         const mCierre = $("#modal-cierre");
         const cierreOperador = $("#cierre-operador");
         const cierreComentario = $("#cierre-comentario");
         const cierreError = $("#cierre-error");
         const cierreModo = $("#cierre-modo");
         const cierreSub = $("#cierre-sub");
-
         let cierre_ctx = null;
 
         function openModalCierre({ folio, estado }) {
@@ -1388,6 +1364,115 @@
 
         $("#cierre-x").onclick = closeModalCierre;
         $("#cierre-cancel").onclick = closeModalCierre;
+
+        // ===== MODAL INFO =====
+        function openInfo(data) {
+            const grid = $("#info-grid");
+            const rows = [
+                ["Folio", data.folio],
+                ["Línea", data.linea || data.lineaTransporte || "-"],
+                ["Placas", data.placas || "-"],
+                ["Tipo transporte", data.tipoTransporte || "-"],
+                ["Tipo visita", data.tipoVisita || "-"],
+                ["Fecha", data.fecha || "-"],
+                ["Hora", data.hora || "-"],
+                ["Hora extra", data.horaExtra || "-"],
+                ["Destino", data.destino || "-"],
+                ["Proveedor", data.usuarioProveedor || "-"]
+            ];
+            grid.innerHTML = rows.map(([k, v]) => `<div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border"><span class="text-gray-600">${k}</span><span class="font-medium">${escapeHtml(v)}</span></div>`).join("");
+            const modal = $("#modal-info"); modal.classList.remove("hidden"); modal.classList.add("flex");
+            $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
+        }
+
+        // ====== ✅ NUEVO MODAL CITA (GUARDIA DECIDE) ======
+        const mCita = $("#modal-cita");
+        const mcitaGrid = $("#mcita-grid");
+        const mcitaX = $("#mcita-x");
+        const mcitaBtnAceptar = $("#mcita-btn-aceptar");
+        const mcitaBtnCancelar = $("#mcita-btn-cancelar");
+        const mcitaBtnConfirmCancel = $("#mcita-btn-confirm-cancel");
+        const mcitaCancelWrap = $("#mcita-cancel-wrap");
+        const mcitaCancelComent = $("#mcita-cancel-coment");
+        const mcitaCancelErr = $("#mcita-cancel-err");
+
+        let mcita_ctx = null; // { folio, cita, onAccept, onCancel }
+
+        function renderCitaGrid(folio, cita) {
+            const rows = [
+                ["Folio", folio],
+                ["Fecha", cita.fecha || "-"],
+                ["Hora", cita.hora || "-"],
+                ["Hora extra", cita.horaExtra || "-"],
+                ["Línea", cita.lineaTransporte || cita.linea || "-"],
+                ["Placas", cita.placas || "-"],
+                ["Tipo transporte", cita.tipoTransporte || "-"],
+                ["Tipo visita", cita.tipoVisita || "-"],
+                ["Destino", cita.destino || "-"],
+                ["Proveedor", cita.usuarioProveedor || "-"],
+            ];
+            mcitaGrid.innerHTML = rows.map(([k, v]) => `
+                <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border">
+                    <span class="text-gray-600">${k}</span>
+                    <span class="font-medium">${escapeHtml(v)}</span>
+                </div>
+            `).join("");
+        }
+
+        function openModalCitaDecision({ folio, cita }) {
+            renderCitaGrid(folio, cita);
+
+            mcitaCancelWrap.classList.add("hidden");
+            mcitaBtnConfirmCancel.classList.add("hidden");
+            mcitaBtnCancelar.classList.remove("hidden");
+            mcitaBtnAceptar.classList.remove("hidden");
+            mcitaCancelComent.value = "";
+            mcitaCancelErr.classList.add("hidden");
+
+            mCita.classList.remove("hidden");
+            mCita.classList.add("flex");
+
+            return new Promise((resolve) => {
+                mcita_ctx = { folio, cita, resolve };
+            });
+        }
+
+        function closeModalCita() {
+            mcita_ctx = null;
+            mCita.classList.add("hidden");
+            mCita.classList.remove("flex");
+        }
+
+        mcitaX.onclick = () => {
+            // cerrar = no hacer nada
+            if (mcita_ctx?.resolve) mcita_ctx.resolve({ action: "close" });
+            closeModalCita();
+        };
+
+        mcitaBtnAceptar.onclick = () => {
+            mcita_ctx?.resolve && mcita_ctx.resolve({ action: "accept" });
+            closeModalCita();
+        };
+
+        mcitaBtnCancelar.onclick = () => {
+            // mostrar campo comentario y botón aceptar cancelación
+            mcitaCancelWrap.classList.remove("hidden");
+            mcitaBtnConfirmCancel.classList.remove("hidden");
+            mcitaBtnCancelar.classList.add("hidden");
+            mcitaBtnAceptar.classList.add("hidden");
+            mcitaCancelComent.focus();
+        };
+
+        mcitaBtnConfirmCancel.onclick = () => {
+            const comment = mcitaCancelComent.value.trim();
+            if (!comment) {
+                mcitaCancelErr.classList.remove("hidden");
+                return;
+            }
+            mcitaCancelErr.classList.add("hidden");
+            mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment });
+            closeModalCita();
+        };
 
         // ===== UI =====
         function renderCardSkeleton(folio, cita) {
@@ -1448,34 +1533,30 @@
             return el;
         }
 
-        function openInfo(data) {
-            const grid = $("#info-grid");
-            const rows = [
-                ["Folio", data.folio],
-                ["Línea", data.linea || data.lineaTransporte || "-"],
-                ["Placas", data.placas || "-"],
-                ["Tipo transporte", data.tipoTransporte || "-"],
-                ["Tipo visita", data.tipoVisita || "-"],
-                ["Fecha", data.fecha || "-"],
-                ["Hora", data.hora || "-"],
-                ["Hora extra", data.horaExtra || "-"],
-                ["Destino", data.destino || "-"],
-                ["Proveedor", data.usuarioProveedor || "-"]
-            ];
-            grid.innerHTML = rows.map(([k, v]) => `<div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border"><span class="text-gray-600">${k}</span><span class="font-medium">${escapeHtml(v)}</span></div>`).join("");
-            const modal = $("#modal-info"); modal.classList.remove("hidden"); modal.classList.add("flex");
-            $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
+        function toggleChat(folio, forceOpen = null) {
+            const box = $("#chatBox-" + folio);
+            const open = (forceOpen === null) ? box.classList.contains("hidden") : forceOpen;
+            box.classList.toggle("hidden", !open);
+            $("#chatBadge-" + folio)?.classList.add("hidden");
+            $("#chatInput-" + folio)?.focus();
         }
 
         function attachCardHandlers(cardEl, folio, cita) {
             cardEl.querySelector(`[data-info="${folio}"]`).onclick = () => openInfo({ folio, ...cita });
 
             cardEl.addEventListener("click", async (e) => {
-                const btnChat = e.target.closest("[data-chat]"); if (btnChat) { toggleChat(folio, true); return; }
-                const btnChatSend = e.target.closest("[data-chat-send]"); if (btnChatSend) { await sendChatMsg(folio); return; }
-                const btnChatClose = e.target.closest("[data-chat-close]"); if (btnChatClose) { toggleChat(folio, false); return; }
+                const btnChat = e.target.closest("[data-chat]");
+                if (btnChat) { toggleChat(folio, true); return; }
 
-                const act = e.target.closest(".btn"); if (!act) return;
+                const btnChatSend = e.target.closest("[data-chat-send]");
+                if (btnChatSend) { await sendChatMsg(folio); return; }
+
+                const btnChatClose = e.target.closest("[data-chat-close]");
+                if (btnChatClose) { toggleChat(folio, false); return; }
+
+                const act = e.target.closest(".btn");
+                if (!act) return;
+
                 const step = Number(act.dataset.step);
                 act.disabled = true;
 
@@ -1483,7 +1564,6 @@
                 const snap = await getDoc(cref);
                 const control = snap.data() || {};
                 const p = control.pasos || {};
-                const citaId = control.cita?.id;
                 const comentariosPrev = control.comentarios || [];
                 const appendComment = (arr, paso, data) => [...arr, { ...data, paso, ts: nowISO() }];
 
@@ -1496,7 +1576,6 @@
                 }
 
                 async function markCancelAndJump(origen, pasoKeyForComment) {
-                    // Pedir comentario obligatorio
                     const com = await pedirComentario(
                         origen === "DisuasionE" ? "Cancelar en Disuasión (E)" : "Cancelar en Rampa",
                         pasoKeyForComment,
@@ -1519,7 +1598,6 @@
                         updates["pasos.disuasionE_fin"] = ts;
                         updates["pasos.disuasionE_destino"] = "Cancelado";
                     } else {
-                        // Rampa cancel
                         updates["pasos.rampa_cancel"] = ts;
                     }
 
@@ -1527,59 +1605,11 @@
                     return true;
                 }
 
-                async function finalizeAndClose({ downloadPdf }) {
-                    // Validación cierre
-                    const usuario = cierreOperador.value.trim();
-                    const comentario = cierreComentario.value.trim();
-                    if (!usuario || !comentario) {
-                        cierreError.classList.remove("hidden");
-                        return;
-                    }
-                    cierreError.classList.add("hidden");
-
-                    const closedAtISO = nowISO();
-
-                    // Actualiza doc actual con salida + cierre
-                    const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
-                    const newComentarios = appendComment(comentariosPrev, "salidaPlanta", { usuario, comentario });
-
-                    await updateDoc(cref, {
-                        "pasos.salidaPlanta": closedAtISO,
-                        estado: estadoFinal,
-                        activo: false,
-                        "pasos.forceNextStep": null,
-                        updatedAt: serverTimestamp(),
-                        comentarios: newComentarios,
-                        closedAtISO
-                    });
-
-                    // Cita finalizada (hasta cierre, como pediste)
-                    await setCitaFinalizada(citaId);
-
-                    // Tomar snapshot ya final (releer para congelar)
-                    const freshSnap = await getDoc(cref);
-                    const freshData = freshSnap.data() || control;
-
-                    // Chat
-                    const chatMessages = await getChatMessages(folio);
-
-                    // Guardar histórico
-                    await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
-
-                    // PDF opcional
-                    if (downloadPdf) {
-                        await generatePDFAndDownload({ folio, controlData: freshData, chatMessages });
-                    }
-
-                    closeModalCierre();
-                }
-
                 try {
                     switch (step) {
                         case 0: {
-                            const v = llegadaValidations(cita);
-                            if (!v.ok) { alert(v.msg); act.disabled = false; break; }
-                            const com = await pedirComentario("Registrar Llegada", "llegada", "registrar"); if (!com) break;
+                            const com = await pedirComentario("Registrar Llegada", "llegada", "registrar");
+                            if (!com) break;
                             if (!p.llegada) {
                                 await updateDoc(cref, {
                                     "pasos.llegada": nowISO(),
@@ -1590,7 +1620,8 @@
                             break;
                         }
                         case 1: {
-                            const com = await pedirComentario("Registrar Ingreso", "ingreso", "registrar"); if (!com) break;
+                            const com = await pedirComentario("Registrar Ingreso", "ingreso", "registrar");
+                            if (!com) break;
                             if (!p.ingreso) {
                                 await updateDoc(cref, {
                                     "pasos.ingreso": nowISO(),
@@ -1601,7 +1632,6 @@
                             break;
                         }
                         case 2: {
-                            // Si está Cancelado, bloquear cualquier cosa que no sea salida
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
 
                             if (act.classList.contains("fin")) {
@@ -1609,14 +1639,17 @@
                                 if (!dest) { act.disabled = false; break; }
 
                                 if (dest === "Cancelar") {
-                                    // Cancelado + salto a salida (NO cerrar)
                                     await markCancelAndJump("DisuasionE", "disuasionE_cancel");
                                     break;
                                 }
 
                                 if (dest === "Rampa") {
-                                    const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
-                                    const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar"); if (!com) break;
+                                    const rSel = await openModalRampa();
+                                    if (!rSel) { act.disabled = false; break; }
+
+                                    const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar");
+                                    if (!com) break;
+
                                     const ts = nowISO();
                                     await updateDoc(cref, {
                                         "pasos.disuasionE_inicio": p.disuasionE_inicio || ts,
@@ -1625,11 +1658,14 @@
                                         "pasos.disuasionE_rampa": rSel,
                                         "pasos.patioE_fin": ts,
                                         "pasos.patio_rampa": rSel,
+                                        "pasos.rampa_enter_ts": p.rampa_enter_ts || ts,
                                         comentarios: appendComment(comentariosPrev, "disuasionE_fin", com),
                                         updatedAt: serverTimestamp()
                                     });
-                                } else { // Patio
-                                    const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar"); if (!com) break;
+                                } else {
+                                    const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar");
+                                    if (!com) break;
+
                                     const ts = nowISO();
                                     await updateDoc(cref, {
                                         "pasos.disuasionE_inicio": p.disuasionE_inicio || ts,
@@ -1640,7 +1676,8 @@
                                     });
                                 }
                             } else {
-                                const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar"); if (!com) break;
+                                const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar");
+                                if (!com) break;
                                 if (!p.disuasionE_inicio) {
                                     await updateDoc(cref, {
                                         "pasos.disuasionE_inicio": nowISO(),
@@ -1659,6 +1696,7 @@
                             await updateDoc(cref, {
                                 "pasos.patioE_fin": ts,
                                 "pasos.patio_rampa": rSel,
+                                "pasos.rampa_enter_ts": p.rampa_enter_ts || ts,
                                 comentarios: appendComment(comentariosPrev, "patioE_fin", com),
                                 updatedAt: serverTimestamp()
                             });
@@ -1668,7 +1706,6 @@
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
 
                             if (act.classList.contains("cancel")) {
-                                // Cancelado + salto a salida (NO cerrar)
                                 await markCancelAndJump("Rampa", "rampa_cancel");
                             } else {
                                 const com = await pedirComentario("Iniciar descarga en Rampa", "rampa_inicio", "iniciar"); if (!com) break;
@@ -1709,11 +1746,10 @@
                                 if (dest === "Patio") {
                                     await updateDoc(cref, { "pasos.postLiberacionDestino": "Patio", updatedAt: serverTimestamp() });
                                 } else if (dest === "DisuasionS") {
-                                    // salto Patio(S) -> Done con timestamp automático
                                     const ts2 = nowISO();
                                     await updateDoc(cref, {
                                         "pasos.postLiberacionDestino": "DisuasionS",
-                                        "pasos.patioS_fin": ts2, // Done auto
+                                        "pasos.patioS_fin": ts2,
                                         updatedAt: serverTimestamp()
                                     });
                                 }
@@ -1758,14 +1794,12 @@
                             break;
                         }
                         case 9: {
-                            // Siempre abrir modal cierre (normal o cancelado)
                             openModalCierre({ folio, estado: control.estado || "En Proceso" });
                             act.disabled = false;
                             break;
                         }
                     }
                 } finally {
-                    // Rehabilitar si no fue step 9 (en step 9 se hace por modal)
                     if (step !== 9) act.disabled = false;
                 }
             });
@@ -1776,7 +1810,47 @@
             });
         }
 
-        // botones modal cierre
+        // ====== BOTONES CIERRE (AHORA TAMBIÉN A GOOGLE SHEETS SIN CHAT) ======
+
+        async function buildSheetsPayload({ actionType, folio, freshData, closedAtISO }) {
+            const cita = freshData.cita || {};
+            const comentarios = Array.isArray(freshData.comentarios) ? [...freshData.comentarios] : [];
+            comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
+
+            return {
+                type: "CONTROL_CIERRE",
+                actionType, // "FinalizarSinDescargar" | "FinalizarYDescargarPDF"
+                folio,
+                closedAtISO,
+                estado: freshData.estado || "",
+                usuarioAccion: currentUser?.nombre || "",
+                usuarioAccionEmail: currentUser?.email || "",
+
+                // Info transporte
+                cita: {
+                    id: cita.id || "",
+                    linea: cita.linea || "",
+                    placas: cita.placas || "",
+                    tipoTransporte: cita.tipoTransporte || "",
+                    tipoVisita: cita.tipoVisita || "",
+                    fecha: cita.fecha || "",
+                    hora: cita.hora || "",
+                    horaExtra: cita.horaExtra || "",
+                    destino: cita.destino || "",
+                    usuarioProveedor: cita.usuarioProveedor || ""
+                },
+
+                // Timeline (comentarios)
+                timeline: comentarios.map(c => ({
+                    paso: c.paso || "",
+                    pasoLabel: pasoLabel(c.paso || ""),
+                    ts: c.ts || "",
+                    usuario: c.usuario || "",
+                    comentario: c.comentario || ""
+                }))
+            };
+        }
+
         $("#cierre-only").onclick = async () => {
             if (!cierre_ctx) return;
             const folio = cierre_ctx.folio;
@@ -1785,39 +1859,40 @@
             const control = snap.data() || {};
             const card = cards.get(folio);
             if (!card) { closeModalCierre(); return; }
-            // Ejecuta cierre sin pdf
-            await (async () => {
-                // reutilizo finalizeAndClose interno pero aquí simple:
-                const usuario = cierreOperador.value.trim();
-                const comentario = cierreComentario.value.trim();
-                if (!usuario || !comentario) { cierreError.classList.remove("hidden"); return; }
-                cierreError.classList.add("hidden");
 
-                const closedAtISO = nowISO();
-                const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
-                const comentariosPrev = control.comentarios || [];
-                const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
+            const usuario = cierreOperador.value.trim();
+            const comentario = cierreComentario.value.trim();
+            if (!usuario || !comentario) { cierreError.classList.remove("hidden"); return; }
+            cierreError.classList.add("hidden");
 
-                await updateDoc(cref, {
-                    "pasos.salidaPlanta": closedAtISO,
-                    estado: estadoFinal,
-                    activo: false,
-                    "pasos.forceNextStep": null,
-                    updatedAt: serverTimestamp(),
-                    comentarios: newComentarios,
-                    closedAtISO
-                });
+            const closedAtISO = nowISO();
+            const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
+            const comentariosPrev = control.comentarios || [];
+            const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
 
-                await setCitaFinalizada(control.cita?.id);
+            await updateDoc(cref, {
+                "pasos.salidaPlanta": closedAtISO,
+                estado: estadoFinal,
+                activo: false,
+                "pasos.forceNextStep": null,
+                updatedAt: serverTimestamp(),
+                comentarios: newComentarios,
+                closedAtISO
+            });
 
-                const freshSnap = await getDoc(cref);
-                const freshData = freshSnap.data() || control;
+            await setCitaFinalizada(control.cita?.id);
 
-                const chatMessages = await getChatMessages(folio);
-                await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
+            const freshSnap = await getDoc(cref);
+            const freshData = freshSnap.data() || control;
 
-                closeModalCierre();
-            })();
+            const chatMessages = await getChatMessages(folio);
+            await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
+
+            // ✅ Enviar a Google Sheets (SIN CHAT)
+            const payload = await buildSheetsPayload({ actionType: "FinalizarSinDescargar", folio, freshData, closedAtISO });
+            await sendToGoogleSheets(payload);
+
+            closeModalCierre();
         };
 
         $("#cierre-pdf").onclick = async () => {
@@ -1829,50 +1904,44 @@
             const card = cards.get(folio);
             if (!card) { closeModalCierre(); return; }
 
-            await (async () => {
-                const usuario = cierreOperador.value.trim();
-                const comentario = cierreComentario.value.trim();
-                if (!usuario || !comentario) { cierreError.classList.remove("hidden"); return; }
-                cierreError.classList.add("hidden");
+            const usuario = cierreOperador.value.trim();
+            const comentario = cierreComentario.value.trim();
+            if (!usuario || !comentario) { cierreError.classList.remove("hidden"); return; }
+            cierreError.classList.add("hidden");
 
-                const closedAtISO = nowISO();
-                const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
-                const comentariosPrev = control.comentarios || [];
-                const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
+            const closedAtISO = nowISO();
+            const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
+            const comentariosPrev = control.comentarios || [];
+            const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
 
-                await updateDoc(cref, {
-                    "pasos.salidaPlanta": closedAtISO,
-                    estado: estadoFinal,
-                    activo: false,
-                    "pasos.forceNextStep": null,
-                    updatedAt: serverTimestamp(),
-                    comentarios: newComentarios,
-                    closedAtISO
-                });
+            await updateDoc(cref, {
+                "pasos.salidaPlanta": closedAtISO,
+                estado: estadoFinal,
+                activo: false,
+                "pasos.forceNextStep": null,
+                updatedAt: serverTimestamp(),
+                comentarios: newComentarios,
+                closedAtISO
+            });
 
-                await setCitaFinalizada(control.cita?.id);
+            await setCitaFinalizada(control.cita?.id);
 
-                const freshSnap = await getDoc(cref);
-                const freshData = freshSnap.data() || control;
+            const freshSnap = await getDoc(cref);
+            const freshData = freshSnap.data() || control;
 
-                const chatMessages = await getChatMessages(folio);
-                await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
+            const chatMessages = await getChatMessages(folio);
+            await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
 
-                await generatePDFAndDownload({ folio, controlData: freshData, chatMessages });
+            // ✅ Enviar a Google Sheets (SIN CHAT)
+            const payload = await buildSheetsPayload({ actionType: "FinalizarYDescargarPDF", folio, freshData, closedAtISO });
+            await sendToGoogleSheets(payload);
 
-                closeModalCierre();
-            })();
+            await generatePDFAndDownload({ folio, controlData: freshData, chatMessages });
+
+            closeModalCierre();
         };
 
-        function toggleChat(folio, forceOpen = null) {
-            const box = $("#chatBox-" + folio);
-            const open = (forceOpen === null) ? box.classList.contains("hidden") : forceOpen;
-            box.classList.toggle("hidden", !open);
-            $("#chatBadge-" + folio)?.classList.add("hidden");
-            $("#chatInput-" + folio)?.focus();
-        }
-
-        // --- Carga inicial: todos los controles ACTIVOS ---
+        // ===== Carga inicial =====
         async function loadActiveControls() {
             const cont = $("#cards-container");
 
@@ -1899,33 +1968,24 @@
                 cards.set(folio, { rootEl: cardEl, cita, unsub, chatUnsub, data });
                 attachCardHandlers(cardEl, folio, cita);
 
-                // sync inicial
                 syncUIFromData(folio, data);
                 count++;
             }
             if (count > 0) $("#empty-state").classList.add("hidden");
         }
 
-        // Alta por folio (con anti-duplicado)
+        // ===== Alta por folio (AHORA CON MODAL DE ACEPTAR/CANCELAR) =====
         $("#add-folio-btn").onclick = async () => {
             const folioInput = $("#folio-input");
             const folio = folioInput.value.trim().toUpperCase();
+
             if (!/^BMM-\d{8}$/.test(folio)) { alert("Folio inválido. Formato: BMM-19112501."); return; }
             if (cards.has(folio)) { alert("Este folio ya está en pantalla."); return; }
 
             const cita = await getCitaByFolio(folio);
-            if (!cita) { alert("No se encontró una cita activa con ese folio o ya fue finalizada."); return; }
+            if (!cita) { alert("No se encontró una cita activa con ese folio o ya fue finalizada/cancelada."); return; }
 
-            // 🔹 Si es una cita nueva (no existe ControlTransportes), validar ventana de tiempo
-            if (!cita.__yaExiste) {
-                const v = llegadaValidations(cita);
-                if (!v.ok) {
-                    alert(v.msg);
-                    return; // no agregamos tarjeta
-                }
-            }
-
-            // Si ya existía documento en ControlTransportes, lo dibujamos y escuchamos
+            // Si ya existía documento ControlTransportes, lo dibujamos directo
             if (cita.__yaExiste) {
                 const docSnap = await getDoc(doc(db, "ControlTransportes", folio));
                 const data = docSnap.data();
@@ -1942,26 +2002,65 @@
                 syncUIFromData(folio, data);
                 $("#empty-state").classList.add("hidden");
 
-                // limpiar input
                 folioInput.value = "";
                 folioInput.focus();
                 return;
             }
 
-            $("#empty-state").classList.add("hidden");
-            const cardEl = renderCardSkeleton(folio, cita);
-            $("#cards-container").prepend(cardEl);
+            // ✅ NUEVO: Modal guardia decide
+            const decision = await openModalCitaDecision({ folio, cita });
 
-            await ensureControlDoc(folio, cita);
-            const unsub = listenControlDoc(folio);
-            const chatUnsub = listenChat(folio);
+            if (decision.action === "accept") {
+                $("#empty-state").classList.add("hidden");
 
-            cards.set(folio, { rootEl: cardEl, cita, unsub, chatUnsub, data: null });
-            attachCardHandlers(cardEl, folio, cita);
+                const cardEl = renderCardSkeleton(folio, cita);
+                $("#cards-container").prepend(cardEl);
 
-            // limpiar input
-            folioInput.value = "";
-            folioInput.focus();
+                await ensureControlDoc(folio, cita);
+                const unsub = listenControlDoc(folio);
+                const chatUnsub = listenChat(folio);
+
+                cards.set(folio, { rootEl: cardEl, cita, unsub, chatUnsub, data: null });
+                attachCardHandlers(cardEl, folio, cita);
+
+                folioInput.value = "";
+                folioInput.focus();
+                return;
+            }
+
+            if (decision.action === "cancel") {
+                // cancelar cita en Firestore
+                await cancelCita({ citaId: cita.id, folio, comentarioCancel: decision.comment });
+
+                // opcional: registra en Google Sheets la cancelación (sin timeline)
+                await sendToGoogleSheets({
+                    type: "CITA_CANCELADA",
+                    folio,
+                    citaId: cita.id || "",
+                    canceladoAtISO: nowISO(),
+                    canceladoPor: currentUser?.nombre || "",
+                    canceladoPorEmail: currentUser?.email || "",
+                    canceladoComentario: decision.comment || "",
+                    cita: {
+                        linea: cita.lineaTransporte || cita.linea || "",
+                        placas: cita.placas || "",
+                        tipoTransporte: cita.tipoTransporte || "",
+                        tipoVisita: cita.tipoVisita || "",
+                        fecha: cita.fecha || "",
+                        hora: cita.hora || "",
+                        horaExtra: cita.horaExtra || "",
+                        destino: cita.destino || "",
+                        usuarioProveedor: cita.usuarioProveedor || ""
+                    }
+                });
+
+                folioInput.value = "";
+                folioInput.focus();
+                alert("Cita cancelada. Este folio ya no pasará.");
+                return;
+            }
+
+            // close: no action
         };
 
         (async function init() {
@@ -1976,11 +2075,10 @@
                 currentUser = {};
             }
 
-            setupSidebarNav(); // 🔓 Aplica permisos de menú según rol
+            setupSidebarNav();
             await loadActiveControls();
         })();
     </script>
 </body>
 
 </html>
-
