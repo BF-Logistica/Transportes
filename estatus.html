@@ -267,9 +267,8 @@
         <aside id="sidebar"
             class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
             <div class="p-4 flex items-center justify-between border-b border-gray-200">
-                <!-- FIX: antes estaba hidden SIEMPRE -->
-                <div class="flex items-center gap-3" id="sidebar-title-wrapper">
-                    <img src="img/icon-192.png" alt="Logo" class="w-10 h-10 rounded-lg bg-white p-1" />
+                
+                <div class="flex items-center gap-3" id="sidebar-title-wrapper">                    
                     <span class="menu-text font-semibold" id="app-title-sidebar">Control Transportes</span>
                 </div>
                 <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
@@ -326,7 +325,7 @@
                     <li>
                         <!-- current page -->
                         <a data-page="estatus.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-white/15 ring-1 ring-white/15">
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
                             <span class="nav-icon-wrapper">
                                 <img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" />
                             </span>
@@ -961,3 +960,4 @@
 </body>
 
 </html>
+
