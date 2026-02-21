@@ -2,694 +2,778 @@
 <html lang="es">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Seguimiento</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seguimiento</title>
 
-    <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="img/icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="img/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="img/icon-512.png" sizes="512x512">
 
-    <script src="/_sdk/data_sdk.js"></script>
-    <script src="/_sdk/element_sdk.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <style>
-        :root {
-            --bmm-blue: #0d1c84;
-            --bmm-blue-light: #1b2c9f;
-            --text-main: #0f172a;
-            --surface: #f3f4f6;
-            --live-yellow: #eab308;
-            --live-green: #22c55e;
-        }
+  <style>
+    :root {
+      --bmm-blue: #0d1c84;
+      --bmm-blue-light: #1b2c9f;
+      --text-main: #0f172a;
+      --surface: #f3f4f6;
+      --live-yellow: #eab308;
+      --live-green: #22c55e;
+    }
 
-        html,
-        body {
-            height: 100%;
-        }
+    html,
+    body {
+      height: 100%;
+    }
 
-        body {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: var(--text-main);
-            background-color: var(--surface);
-        }
+    body {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-main);
+      background-color: var(--surface);
+    }
 
-        /* =========================================================
-           FIX: clases "bmm" que estabas usando sin existir en Tailwind
-           ========================================================= */
-        .bg-bmm-60 {
-            background: rgba(13, 28, 132, 0.60);
-        }
+    
+    .bg-bmm-60 {
+      background: rgba(13, 28, 132, 0.60);
+    }
 
-        .hover-bg-bmm-light:hover {
-            background: var(--bmm-blue-light);
-        }
+    .hover-bg-bmm-light:hover {
+      background: var(--bmm-blue-light);
+    }
 
-        .bg-bmm-solid {
-            background: var(--bmm-blue);
-        }
+    .bg-bmm-solid {
+      background: var(--bmm-blue);
+    }
 
-        .text-bmm {
-            color: var(--bmm-blue);
-        }
+    .text-bmm {
+      color: var(--bmm-blue);
+    }
 
-        .focus-ring-bmm:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(13, 28, 132, .35);
-        }
+    .focus-ring-bmm:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(13, 28, 132, .35);
+    }
 
-        .sidebar-collapsed {
-            width: 80px;
-        }
+    .sidebar-collapsed {
+      width: 80px;
+    }
 
-        .sidebar-expanded {
-            width: 250px;
-        }
+    .sidebar-expanded {
+      width: 250px;
+    }
 
-        .main-content-collapsed {
-            margin-left: 80px;
-        }
+    .main-content-collapsed {
+      margin-left: 80px;
+    }
 
-        .main-content-expanded {
-            margin-left: 250px;
-        }
+    .main-content-expanded {
+      margin-left: 250px;
+    }
 
-        .menu-text {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-            white-space: nowrap;
-            transition: opacity .3s, width .3s;
-        }
+    .menu-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: opacity .3s, width .3s;
+    }
 
-        .sidebar-expanded .menu-text {
-            opacity: 1;
-            width: auto;
-        }
+    .sidebar-expanded .menu-text {
+      opacity: 1;
+      width: auto;
+    }
 
-        .sidebar-collapsed .menu-text {
-            display: none;
-        }
+    .sidebar-collapsed .menu-text {
+      display: none;
+    }
 
-        .sidebar-collapsed nav a {
-            justify-content: center;
-            padding-left: 0;
-            padding-right: 0;
-        }
+    .sidebar-collapsed nav a {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
 
-        .nav-icon {
-            width: 32px;
-            height: 32px;
-            flex-shrink: 0;
-            object-fit: contain;
-            display: block;
-        }
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      object-fit: contain;
+      display: block;
+    }
 
-        .sidebar-collapsed .nav-icon {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto;
-        }
+    .sidebar-collapsed .nav-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+    }
 
-        .timeline {
-            height: 10px;
-            background: #e5e7eb;
-            border-radius: 999px;
-            position: relative;
-            overflow: hidden;
-        }
+    .timeline {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden;
+    }
 
-        .timeline-done {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, #22c55e, #16a34a);
-            width: 0;
-            border-radius: 999px;
-            transition: width .35s ease;
-        }
+    .timeline-done {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      width: 0;
+      border-radius: 999px;
+      transition: width .35s ease;
+    }
 
-        .timeline-current {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 8px;
-            transform: translateX(-50%);
-            background: var(--live-yellow);
-            box-shadow: 0 0 0 3px rgba(250, 204, 21, .35);
-            border-radius: 999px;
-            transition: left .35s ease;
-        }
+    .timeline-current {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 8px;
+      transform: translateX(-50%);
+      background: var(--live-yellow);
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, .35);
+      border-radius: 999px;
+      transition: left .35s ease;
+    }
 
-        .truck {
-            position: absolute;
-            top: -48px;
-            left: 0;
-            transform: translateX(-50%);
-            transition: left .35s ease;
-        }
+    .truck {
+      position: absolute;
+      top: -48px;
+      left: 0;
+      transform: translateX(-50%);
+      transition: left .35s ease;
+    }
 
-        #btn-prev {
-            transform: translateX(-15px);
-        }
+    #btn-prev {
+      transform: translateX(-15px);
+    }
 
-        #btn-next {
-            transform: translateX(15px);
-        }
+    #btn-next {
+      transform: translateX(15px);
+    }
 
-        .chip {
-            width: 100px;
-            height: 100px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 18px rgba(2, 6, 23, .08);
-        }
+    .chip {
+      width: 100px;
+      height: 100px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(2, 6, 23, .08);
+    }
 
-        .chip img {
-            width: 56px;
-            height: 56px;
-        }
+    .chip img {
+      width: 56px;
+      height: 56px;
+    }
 
-        .chip.done {
-            background: #10b981;
-            color: #fff;
-        }
+    .chip.done {
+      background: #10b981;
+      color: #fff;
+    }
 
-        .chip.todo {
-            background: #fff;
-            color: #64748b;
-            border: 2px solid #e5e7eb;
-        }
+    .chip.todo {
+      background: #fff;
+      color: #64748b;
+      border: 2px solid #e5e7eb;
+    }
 
-        .chip.live {
-            background: rgba(250, 204, 21, .14);
-            color: #92400e;
-            border: 2px solid rgba(250, 204, 21, .55);
-            box-shadow: 0 4px 14px rgba(250, 204, 21, .25);
-        }
+    .chip.live {
+      background: rgba(250, 204, 21, .14);
+      color: #92400e;
+      border: 2px solid rgba(250, 204, 21, .55);
+      box-shadow: 0 4px 14px rgba(250, 204, 21, .25);
+    }
 
-        @view-transition {
-            navigation: auto;
-        }
+    @view-transition {
+      navigation: auto;
+    }
 
-        @media (max-width: 768px) {
-            .sidebar-expanded {
-                width: 210px;
-            }
+    @media (max-width: 768px) {
+      .sidebar-expanded {
+        width: 210px;
+      }
 
-            .main-content-expanded {
-                margin-left: 210px;
-            }
+      .main-content-expanded {
+        margin-left: 210px;
+      }
 
-            header h1 {
-                font-size: 1.15rem;
-            }
-        }
+      header h1 {
+        font-size: 1.15rem;
+      }
+    }
 
-        .carousel-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 38px;
-            height: 38px;
-            border-radius: 999px;
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(15, 23, 42, .12);
-            transition: background .15s ease, transform .15s ease;
-            user-select: none;
-        }
+    .carousel-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 38px;
+      height: 38px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, .12);
+      transition: background .15s ease, transform .15s ease;
+      user-select: none;
+    }
 
-        .carousel-arrow:hover {
-            background: #f9fafb;
-            transform: translateY(-50%) scale(1.03);
-        }
+    .carousel-arrow:hover {
+      background: #f9fafb;
+      transform: translateY(-50%) scale(1.03);
+    }
 
-        .carousel-arrow[disabled] {
-            opacity: .35;
-            cursor: default;
-            box-shadow: none;
-        }
+    .carousel-arrow[disabled] {
+      opacity: .35;
+      cursor: default;
+      box-shadow: none;
+    }
 
-        .carousel-arrow-left {
-            left: -8px;
-        }
+    .carousel-arrow-left {
+      left: -8px;
+    }
 
-        .carousel-arrow-right {
-            right: -8px;
-        }
+    .carousel-arrow-right {
+      right: -8px;
+    }
 
-        @media (max-width: 1024px) {
-            .carousel-arrow-left {
-                left: 4px;
-            }
+    @media (max-width: 1024px) {
+      .carousel-arrow-left {
+        left: 4px;
+      }
 
-            .carousel-arrow-right {
-                right: 4px;
-            }
-        }
-    </style>
+      .carousel-arrow-right {
+        right: 4px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div id="app" class="h-full flex">
-        <!-- SIDEBAR -->
-        <aside id="sidebar"
-            class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
-            <div class="p-4 flex items-center justify-between border-b border-gray-200">
-                
-                <div class="flex items-center gap-3" id="sidebar-title-wrapper">                    
-                    <span class="menu-text font-semibold" id="app-title-sidebar">Control Transportes</span>
-                </div>
-                <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
-                    class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>
+  <div id="app" class="h-full flex">
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+      class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+      <div class="p-4 flex items-center justify-between border-b border-gray-200">
+
+        <div class="flex items-center gap-3" id="sidebar-title-wrapper">
+          <span class="menu-text font-semibold" id="app-title-sidebar">Control Transportes</span>
+        </div>
+        <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
+          class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      <nav class="flex-1 p-4 overflow-y-auto" aria-label="Navegación principal">
+        <ul class="space-y-2">
+          <li>
+            <a data-page="menu.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
+              <span class="nav-icon-wrapper">
+                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
+              </span>
+              <span class="menu-text">Solicitudes</span>
+            </a>
+          </li>
+
+          <li>
+            <a data-page="usuarios.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
+              <span class="nav-icon-wrapper">
+                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
+              </span>
+              <span class="menu-text">Usuarios</span>
+            </a>
+          </li>
+
+          <li>
+            <a data-page="citas.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
+              <span class="nav-icon-wrapper">
+                <img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" />
+              </span>
+              <span class="menu-text">Control de Citas</span>
+            </a>
+          </li>
+
+          <li>
+            <a data-page="control.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
+              <span class="nav-icon-wrapper">
+                <img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" />
+              </span>
+              <span class="menu-text">Control Transportes</span>
+            </a>
+          </li>
+
+          <li>
+            <!-- current page -->
+            <a data-page="estatus.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
+              <span class="nav-icon-wrapper">
+                <img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" />
+              </span>
+              <span class="menu-text font-semibold">Seguimiento en Vivo</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main id="main-content" class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
+      <header class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+        <div class="flex items-center gap-3 min-w-0">
+          <img src="img/bf_logo.png" alt="Beiersdorf" class="h-8 w-auto flex-shrink-0" />
+          <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">Seguimiento en Vivo</h1>
+        </div>
+        <button id="logout-btn"
+          class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Cerrar sesión</span>
+        </button>
+      </header>
+
+      <!-- Encabezado LIVE -->
+      <section class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <img src="img/ico_live.png" alt="Live" class="w-12 h-12 rounded-full" />
+            <div>
+              <p class="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                Seguimiento en tiempo real
+                <span
+                  class="inline-flex items-center gap-1 text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                  <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                  LIVE
+                </span>
+              </p>
+              <p class="text-xs text-gray-500">Visualiza los transportes ya registrados desde la pantalla de Control.</p>
             </div>
+          </div>
+          <div class="text-right text-xs text-gray-500">
+            <div>Actualizado: <span id="last-update">—</span></div>
+            <div id="carousel-position-label" class="mt-0.5">Transporte 0 de 0</div>
+          </div>
+        </div>
+      </section>
 
-            <nav class="flex-1 p-4 overflow-y-auto" aria-label="Navegación principal">
-                <ul class="space-y-2">
-                    <li>
-                        <a data-page="menu.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Solicitudes</span>
-                        </a>
-                    </li>
+      <!-- KPIs simples -->
+      <section class="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
+            <div class="text-xs text-gray-500">Transportes activos</div>
+            <div id="kpi-total" class="text-2xl font-semibold mt-1">0</div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
+            <div class="text-xs text-gray-500">En Proceso</div>
+            <div id="kpi-enproceso" class="text-2xl font-semibold mt-1">0</div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
+            <div class="text-xs text-gray-500">Cancelados</div>
+            <div id="kpi-cancelados" class="text-2xl font-semibold mt-1">0</div>
+          </div>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
+            <div class="text-xs text-gray-500">Último folio mostrado</div>
+            <div id="kpi-folio" class="text-sm font-semibold mt-1 truncate">—</div>
+          </div>
+        </div>
+      </section>
 
-                    <li>
-                        <a data-page="usuarios.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Usuarios</span>
-                        </a>
-                    </li>
+      <!-- Carrusel de tarjetas -->
+      <section class="flex-1 overflow-auto p-4 sm:p-6">
+        <div id="carousel-wrapper" class="relative max-w-6xl mx-auto w-full">
+          <button id="btn-prev" class="carousel-arrow carousel-arrow-left" aria-label="Anterior" disabled>
+            ‹
+          </button>
 
-                    <li>
-                        <a data-page="citas.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Control de Citas</span>
-                        </a>
-                    </li>
+          <div id="cards-container" class="w-full">
+            <div id="empty-state"
+              class="h-[55vh] rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-500">
+              <div class="text-center">
+                <img src="img/camion.png" class="w-12 h-12 opacity-40 mx-auto mb-2" alt="Camión" />
+                <p class="text-lg font-medium">No hay transportes activos en seguimiento</p>
+                <p class="text-sm">Cuando se registre un transporte en Control, aparecerá aquí en LIVE.</p>
+              </div>
+            </div>
+          </div>
 
-                    <li>
-                        <a data-page="control.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Control Transportes</span>
-                        </a>
-                    </li>
+          <button id="btn-next" class="carousel-arrow carousel-arrow-right" aria-label="Siguiente" disabled>
+            ›
+          </button>
+        </div>
 
-                    <li>
-                        <!-- current page -->
-                        <a data-page="estatus.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" />
-                            </span>
-                            <span class="menu-text font-semibold">Seguimiento en Vivo</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
+        <p class="mt-3 text-center text-xs text-gray-500">
+          El carrusel avanza automáticamente cada 30 segundos. Usa las flechas para cambiar de transporte.
+        </p>
+      </section>
+    </main>
+  </div>
 
-        <!-- MAIN -->
-        <main id="main-content"
-            class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
-            <header
-                class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
-                <div class="flex items-center gap-3 min-w-0">
-                    <img src="img/bf_logo.png" alt="Beiersdorf" class="h-8 w-auto flex-shrink-0" />
-                    <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">Seguimiento en Vivo</h1>
-                </div>
-                <button id="logout-btn"
-                    class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    <span>Cerrar sesión</span>
-                </button>
-            </header>
+  <script type="module">
+    /* IMPORTS SIEMPRE ARRIBA */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      onSnapshot,
+      query,
+      where,
+      orderBy
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-            <!-- Encabezado LIVE -->
-            <section class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
-                <div class="flex flex-wrap items-center justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                        <img src="img/ico_live.png" alt="Live" class="w-12 h-12 rounded-full" />
-                        <div>
-                            <p class="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                                Seguimiento en tiempo real
-                                <span
-                                    class="inline-flex items-center gap-1 text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
-                                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                    LIVE
-                                </span>
-                            </p>
-                            <p class="text-xs text-gray-500">Visualiza los transportes ya registrados desde la pantalla
-                                de Control.</p>
-                        </div>
-                    </div>
-                    <div class="text-right text-xs text-gray-500">
-                        <div>Actualizado: <span id="last-update">—</span></div>
-                        <div id="carousel-position-label" class="mt-0.5">Transporte 0 de 0</div>
-                    </div>
-                </div>
-            </section>
+    /* FIREBASE */
+    const firebaseConfig = {
+      apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
+      authDomain: "logisticatransportesbmm.firebaseapp.com",
+      projectId: "logisticatransportesbmm",
+      storageBucket: "logisticatransportesbmm.firebasestorage.app",
+      messagingSenderId: "1096949784709",
+      appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-            <!-- KPIs simples -->
-            <section class="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
-                        <div class="text-xs text-gray-500">Transportes activos</div>
-                        <div id="kpi-total" class="text-2xl font-semibold mt-1">0</div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
-                        <div class="text-xs text-gray-500">En Proceso</div>
-                        <div id="kpi-enproceso" class="text-2xl font-semibold mt-1">0</div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
-                        <div class="text-xs text-gray-500">Cancelados</div>
-                        <div id="kpi-cancelados" class="text-2xl font-semibold mt-1">0</div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
-                        <div class="text-xs text-gray-500">Último folio mostrado</div>
-                        <div id="kpi-folio" class="text-sm font-semibold mt-1 truncate">—</div>
-                    </div>
-                </div>
-            </section>
+    /* HELPERS GENERALES */
+    const $ = (q, root = document) => root.querySelector(q);
+    const escapeHtml = s =>
+      String(s).replace(/[&<>"]/g, m => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;"
+      }[m]));
 
-            <!-- Carrusel de tarjetas -->
-            <section class="flex-1 overflow-auto p-4 sm:p-6">
-                <div id="carousel-wrapper" class="relative max-w-6xl mx-auto w-full">
-                    <button id="btn-prev" class="carousel-arrow carousel-arrow-left" aria-label="Anterior" disabled>
-                        ‹
-                    </button>
+    // Firestore Timestamp-safe -> Date
+    function toDateSafe(v) {
+      if (!v) return null;
+      if (v instanceof Date) return v;
+      if (typeof v === "string" || typeof v === "number") {
+        const d = new Date(v);
+        return isNaN(d.getTime()) ? null : d;
+      }
+      // Firestore Timestamp
+      if (typeof v === "object" && typeof v.toDate === "function") return v.toDate();
+      // {seconds, nanoseconds}
+      if (typeof v === "object" && typeof v.seconds === "number") return new Date(v.seconds * 1000);
+      return null;
+    }
 
-                    <div id="cards-container" class="w-full">
-                        <div id="empty-state"
-                            class="h-[55vh] rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-500">
-                            <div class="text-center">
-                                <img src="img/camion.png" class="w-12 h-12 opacity-40 mx-auto mb-2" alt="Camión" />
-                                <p class="text-lg font-medium">No hay transportes activos en seguimiento</p>
-                                <p class="text-sm">Cuando se registre un transporte en Control, aparecerá aquí en LIVE.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+    let currentUser = null;
 
-                    <button id="btn-next" class="carousel-arrow carousel-arrow-right" aria-label="Siguiente" disabled>
-                        ›
-                    </button>
-                </div>
+    function normalizeRole(str) {
+      return (str || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "");
+    }
 
-                <p class="mt-3 text-center text-xs text-gray-500">
-                    El carrusel avanza automáticamente cada 30 segundos. Usa las flechas para cambiar de transporte.
-                </p>
-            </section>
-        </main>
-    </div>
+    function getCurrentUserFromStorage() {
+      try {
+        const raw =
+          sessionStorage.getItem("currentUser") ||
+          localStorage.getItem("currentUser");
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
 
-    <script type="module">
-        /* IMPORTS SIEMPRE ARRIBA */
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import {
-            getFirestore,
-            collection,
-            onSnapshot,
-            query,
-            where,
-            orderBy
-        } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    function isAdminUser(user) {
+      if (!user) return false;
+      const normRol = normalizeRole(user.rol || user.role);
+      return (
+        normRol === "administrador" ||
+        user.roleKey === "UsuarioAdmin" ||
+        user.collection === "UsuarioAdmin"
+      );
+    }
 
-        /* FIREBASE */
-        const firebaseConfig = {
-            apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
-            authDomain: "logisticatransportesbmm.firebaseapp.com",
-            projectId: "logisticatransportesbmm",
-            storageBucket: "logisticatransportesbmm.firebasestorage.app",
-            messagingSenderId: "1096949784709",
-            appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    function isCoordLogUser(user) {
+      if (!user) return false;
+      const normRol = normalizeRole(user.rol || user.role);
+      return (
+        normRol === "coordinadorlogistico" ||
+        user.roleKey === "UsuarioLogistico" ||
+        user.collection === "UsuarioLogistico"
+      );
+    }
 
-        /* HELPERS GENERALES */
-        const $ = (q, root = document) => root.querySelector(q);
-        const escapeHtml = s =>
-            String(s).replace(/[&<>"]/g, m => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                '"': "&quot;"
-            }[m]));
+    /* NAV LATERAL: permisos por rol */
+    function setupSidebarNav() {
+      const isFile = location.protocol === "file:";
 
-        let currentUser = null;
+      const user = getCurrentUserFromStorage();
+      const isAdmin = isAdminUser(user);
+      const isCoord = isCoordLogUser(user);
 
-        function normalizeRole(str) {
-            return (str || "")
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/\s+/g, "");
-        }
+      document
+        .querySelectorAll('nav a[data-page]')
+        .forEach(link => {
+          const page = link.dataset.page;
+          let enable = false;
 
-        function getCurrentUserFromStorage() {
-            try {
-                const raw =
-                    sessionStorage.getItem("currentUser") ||
-                    localStorage.getItem("currentUser");
-                return raw ? JSON.parse(raw) : null;
-            } catch {
-                return null;
+          if (isFile) {
+            enable = true;
+          } else if (isAdmin) {
+            enable = true;
+          } else if (isCoord) {
+            if (page === "control.html" || page === "estatus.html") {
+              enable = true;
             }
-        }
+          } else {
+            enable = false;
+          }
 
-        function isAdminUser(user) {
-            if (!user) return false;
-            const normRol = normalizeRole(user.rol || user.role);
-            return (
-                normRol === "administrador" ||
-                user.roleKey === "UsuarioAdmin" ||
-                user.collection === "UsuarioAdmin"
-            );
-        }
-
-        function isCoordLogUser(user) {
-            if (!user) return false;
-            const normRol = normalizeRole(user.rol || user.role);
-            return (
-                normRol === "coordinadorlogistico" ||
-                user.roleKey === "UsuarioLogistico" ||
-                user.collection === "UsuarioLogistico"
-            );
-        }
-
-        /* NAV LATERAL: permisos por rol */
-        function setupSidebarNav() {
-            const isFile = location.protocol === "file:";
-
-            const user = getCurrentUserFromStorage();
-            const isAdmin = isAdminUser(user);
-            const isCoord = isCoordLogUser(user);
-
-            document
-                .querySelectorAll('nav a[data-page]')
-                .forEach(link => {
-                    const page = link.dataset.page;
-                    let enable = false;
-
-                    if (isFile) {
-                        enable = true;
-                    } else if (isAdmin) {
-                        enable = true;
-                    } else if (isCoord) {
-                        if (page === "control.html" || page === "estatus.html") {
-                            enable = true;
-                        }
-                    } else {
-                        enable = false;
-                    }
-
-                    if (enable) {
-                        link.href = page;
-                        link.classList.remove("cursor-default", "opacity-80");
-                        // FIX: antes agregabas una clase tailwind que no existía
-                        link.classList.add("hover-bg-bmm-light");
-                        // y mantenemos el fondo bmm “60” en los que no son current
-                        if (!page.includes("estatus.html")) {
-                            link.classList.add("bg-bmm-60");
-                        }
-                    } else {
-                        link.removeAttribute("href");
-                        link.classList.add("cursor-default", "opacity-80");
-                        link.classList.remove("hover-bg-bmm-light");
-                    }
-                });
-        }
-
-        /* GUARDAR ACCESO A LA PÁGINA */
-        function guardAccess() {
-            if (location.protocol === "file:") return true;
-
-            try {
-                const raw =
-                    sessionStorage.getItem("currentUser") ||
-                    localStorage.getItem("currentUser");
-                currentUser = raw ? JSON.parse(raw) : null;
-            } catch {
-                currentUser = null;
+          if (enable) {
+            link.href = page;
+            link.classList.remove("cursor-default", "opacity-80");
+            link.classList.add("hover-bg-bmm-light");
+            if (!page.includes("estatus.html")) {
+              link.classList.add("bg-bmm-60");
             }
+          } else {
+            link.removeAttribute("href");
+            link.classList.add("cursor-default", "opacity-80");
+            link.classList.remove("hover-bg-bmm-light");
+          }
+        });
+    }
 
-            if (!currentUser) {
-                alert("Debes iniciar sesión.");
-                location.replace("login.html");
-                return false;
-            }
+    /* GUARDAR ACCESO A LA PÁGINA */
+    function guardAccess() {
+      if (location.protocol === "file:") return true;
 
-            const normRol = normalizeRole(currentUser.rol || currentUser.role);
+      try {
+        const raw =
+          sessionStorage.getItem("currentUser") ||
+          localStorage.getItem("currentUser");
+        currentUser = raw ? JSON.parse(raw) : null;
+      } catch {
+        currentUser = null;
+      }
 
-            const isCoordinadorLogistico =
-                normRol === "coordinadorlogistico" ||
-                currentUser.roleKey === "UsuarioLogistico" ||
-                currentUser.collection === "UsuarioLogistico";
+      if (!currentUser) {
+        alert("Debes iniciar sesión.");
+        location.replace("login.html");
+        return false;
+      }
 
-            const isAdmin =
-                normRol === "administrador" ||
-                currentUser.roleKey === "UsuarioAdmin" ||
-                currentUser.collection === "UsuarioAdmin";
+      const normRol = normalizeRole(currentUser.rol || currentUser.role);
 
-            if (!isCoordinadorLogistico && !isAdmin) {
-                alert("Acceso restringido a Coordinador Logístico o Administrador.");
-                location.replace("login.html");
-                return false;
-            }
+      const isCoordinadorLogistico =
+        normRol === "coordinadorlogistico" ||
+        currentUser.roleKey === "UsuarioLogistico" ||
+        currentUser.collection === "UsuarioLogistico";
 
-            return true;
-        }
+      const isAdmin =
+        normRol === "administrador" ||
+        currentUser.roleKey === "UsuarioAdmin" ||
+        currentUser.collection === "UsuarioAdmin";
 
-        /* LAYOUT (sidebar / logout) */
-        (function initLayout() {
-            const sidebar = $("#sidebar"),
-                main = $("#main-content"),
-                btn = $("#hamburger-btn");
+      if (!isCoordinadorLogistico && !isAdmin) {
+        alert("Acceso restringido a Coordinador Logístico o Administrador.");
+        location.replace("login.html");
+        return false;
+      }
 
-            if (btn && sidebar && main) {
-                btn.addEventListener("click", () => {
-                    const isExpanded = sidebar.classList.contains("sidebar-expanded");
-                    sidebar.classList.toggle("sidebar-expanded", !isExpanded);
-                    sidebar.classList.toggle("sidebar-collapsed", isExpanded);
-                    main.classList.toggle("main-content-expanded", !isExpanded);
-                    main.classList.toggle("main-content-collapsed", isExpanded);
-                });
-            }
+      return true;
+    }
 
-            $("#logout-btn").addEventListener("click", () => {
-                sessionStorage.clear();
-                localStorage.removeItem("currentUser");
-                location.replace("login.html");
-            });
-        })();
+    /* LAYOUT (sidebar / logout) */
+    (function initLayout() {
+      const sidebar = $("#sidebar"),
+        main = $("#main-content"),
+        btn = $("#hamburger-btn");
 
-        /* RELOJ EN CABECERA */
-        function startClock() {
-            const el = $("#last-update");
-            if (!el) return;
-            const update = () => {
-                const now = new Date();
-                el.textContent = now.toLocaleString();
-            };
-            update();
-            setInterval(update, 1000);
-        }
+      if (btn && sidebar && main) {
+        btn.addEventListener("click", () => {
+          const isExpanded = sidebar.classList.contains("sidebar-expanded");
+          sidebar.classList.toggle("sidebar-expanded", !isExpanded);
+          sidebar.classList.toggle("sidebar-collapsed", isExpanded);
+          main.classList.toggle("main-content-expanded", !isExpanded);
+          main.classList.toggle("main-content-collapsed", isExpanded);
+        });
+      }
 
-        /* FUNCIONES DE PROGRESO */
-        function iconForStep(i) {
-            const icons = [
-                "img/ico_llegada.png",
-                "img/ico_ingreso.png",
-                "img/ico_parking.png",
-                "img/ico_patio.png",
-                "img/ico_rampa.png",
-                "img/ico_fdescarga.png",
-                "img/ico_party.png",
-                "img/ico_patio_out.png",
-                "img/ico_parking_out.png",
-                "img/ico_exit.png"
-            ];
-            return icons[i] || "img/camion.png";
-        }
+      $("#logout-btn").addEventListener("click", () => {
+        sessionStorage.clear();
+        localStorage.removeItem("currentUser");
+        location.replace("login.html");
+      });
+    })();
 
-        function stepPercent(i) {
-            return [4, 14, 24, 34, 44, 54, 64, 74, 84, 96][i] || 0;
-        }
+    /* RELOJ EN CABECERA */
+    function startClock() {
+      const el = $("#last-update");
+      if (!el) return;
+      const update = () => {
+        const now = new Date();
+        el.textContent = now.toLocaleString();
+      };
+      update();
+      setInterval(update, 1000);
+    }
 
-        function truckIconFor(t) {
-            t = (t || "").toLowerCase();
-            if (t.includes("cargadescarga")) return "img/truck_cyd.png";
-            if (t.includes("descarga")) return "img/truck_descarga.png";
-            if (t.includes("carga")) return "img/truck_carga.png";
-            return "img/camion.png";
-        }
+    /* FUNCIONES DE PROGRESO */
+    function iconForStep(i) {
+      const icons = [
+        "img/ico_llegada.png",
+        "img/ico_ingreso.png",
+        "img/ico_parking.png",
+        "img/ico_patio.png",
+        "img/ico_rampa.png",
+        "img/ico_fdescarga.png",
+        "img/ico_party.png",
+        "img/ico_patio_out.png",
+        "img/ico_parking_out.png",
+        "img/ico_exit.png"
+      ];
+      return icons[i] || "img/camion.png";
+    }
 
-        function setChip(folio, step, status, tsText, tagText) {
-            const chip = $("#chip-" + folio + "-" + step);
-            if (!chip) return;
-            chip.classList.remove("todo", "live", "done");
-            chip.classList.add(status);
+    function stepPercent(i) {
+      return [4, 14, 24, 34, 44, 54, 64, 74, 84, 96][i] || 0;
+    }
 
-            const tsEl = $("#ts-" + folio + "-" + step);
-            if (tsEl && tsText) tsEl.textContent = tsText;
+    function truckIconFor(t) {
+      t = (t || "").toLowerCase();
+      if (t.includes("cargadescarga")) return "img/truck_cyd.png";
+      if (t.includes("descarga")) return "img/truck_descarga.png";
+      if (t.includes("carga")) return "img/truck_carga.png";
+      return "img/camion.png";
+    }
 
-            const tagEl = $("#tag-" + folio + "-" + step);
-            if (tagEl && tagText !== undefined) tagEl.textContent = tagText || "";
-        }
+    function setChip(folio, step, status, tsText, tagText) {
+      const chip = $("#chip-" + folio + "-" + step);
+      if (!chip) return;
+      chip.classList.remove("todo", "live", "done");
+      chip.classList.add(status);
 
-        function moveTruckAndBar(folio, step) {
-            const percent = stepPercent(step);
-            const doneBar = $("#bar-done-" + folio);
-            const currentMarker = $("#bar-current-" + folio);
-            const truck = $("#truck-" + folio);
-            if (doneBar) doneBar.style.width = percent + "%";
-            if (currentMarker) currentMarker.style.left = percent + "%";
-            if (truck) truck.style.left = percent + "%";
-        }
+      const tsEl = $("#ts-" + folio + "-" + step);
+      if (tsEl && tsText) tsEl.textContent = tsText;
 
-        /* ESTADO DE TARJETAS / CARRUSEL */
-        const cards = new Map();
-        let order = [];
-        let currentIndex = 0;
-        let autoTimer = null;
+      const tagEl = $("#tag-" + folio + "-" + step);
+      if (tagEl && tagText !== undefined) tagEl.textContent = tagText || "";
+    }
 
-        function renderCardSkeleton(folio, cita) {
-            const el = document.createElement("div");
-            el.className = "transport-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden";
-            el.dataset.folio = folio;
+    function moveTruckAndBar(folio, step) {
+      const percent = stepPercent(step);
+      const doneBar = $("#bar-done-" + folio);
+      const currentMarker = $("#bar-current-" + folio);
+      const truck = $("#truck-" + folio);
+      if (doneBar) doneBar.style.width = percent + "%";
+      if (currentMarker) currentMarker.style.left = percent + "%";
+      if (truck) truck.style.left = percent + "%";
+    }
 
-            el.innerHTML = `
+    /* =========================================================
+       CRONÓMETRO (inicia en RAMPA y termina al finalizar LIBERACIÓN)
+       - start: p.rampa_inicio
+       - stop:  p.liberacion (cuando existe)
+       - 45 min: amarillo
+       - 90 min: rojo
+       ========================================================= */
+    const rampTimers = new Map(); // folio -> intervalId
+
+    function msToHMS(ms) {
+      const total = Math.max(0, Math.floor(ms / 1000));
+      const h = String(Math.floor(total / 3600)).padStart(2, "0");
+      const m = String(Math.floor((total % 3600) / 60)).padStart(2, "0");
+      const s = String(total % 60).padStart(2, "0");
+      return `${h}:${m}:${s}`;
+    }
+
+    function setTimerStyle(el, elapsedMs) {
+      // reset classes (tailwind)
+      el.classList.remove(
+        "bg-gray-100", "text-gray-700",
+        "bg-yellow-100", "text-yellow-800",
+        "bg-red-100", "text-red-700"
+      );
+
+      const min45 = 45 * 60 * 1000;
+      const min90 = 90 * 60 * 1000;
+
+      if (elapsedMs >= min90) {
+        el.classList.add("bg-red-100", "text-red-700");
+      } else if (elapsedMs >= min45) {
+        el.classList.add("bg-yellow-100", "text-yellow-800");
+      } else {
+        el.classList.add("bg-gray-100", "text-gray-700");
+      }
+    }
+
+    function stopRampTimer(folio) {
+      const id = rampTimers.get(folio);
+      if (id) clearInterval(id);
+      rampTimers.delete(folio);
+    }
+
+    function startOrUpdateRampTimer(folio, startDate, endDateOrNull) {
+      const el = document.getElementById(`timer-${folio}`);
+      if (!el) return;
+
+      stopRampTimer(folio);
+
+      // Si no hay rampa, no mostramos nada útil
+      if (!startDate) {
+        el.textContent = "⏱ Rampa: —";
+        el.className = "inline-flex items-center gap-1 text-xs font-semibold bg-gray-100 text-gray-700 px-3 py-1 rounded-full";
+        return;
+      }
+
+      // Si ya existe liberación => timer terminado (congelado)
+      if (endDateOrNull) {
+        const elapsed = endDateOrNull.getTime() - startDate.getTime();
+        el.textContent = `⏱ Rampa→Liberación: ${msToHMS(elapsed)}`;
+        el.className = "inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full";
+        setTimerStyle(el, elapsed);
+        return;
+      }
+
+      // En vivo: corre cada 1s desde rampa_inicio
+      const tick = () => {
+        const now = Date.now();
+        const elapsed = now - startDate.getTime();
+        el.textContent = `⏱ Rampa→Liberación: ${msToHMS(elapsed)}`;
+        el.className = "inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full";
+        setTimerStyle(el, elapsed);
+      };
+
+      tick();
+      const intervalId = setInterval(tick, 1000);
+      rampTimers.set(folio, intervalId);
+    }
+
+    /* ESTADO DE TARJETAS / CARRUSEL */
+    const cards = new Map();
+    let order = [];
+    let currentIndex = 0;
+    let autoTimer = null;
+
+    function renderCardSkeleton(folio, cita) {
+      const el = document.createElement("div");
+      el.className = "transport-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden";
+      el.dataset.folio = folio;
+
+      el.innerHTML = `
         <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100">
           <div class="flex items-center gap-3">
             <img src="${truckIconFor(cita.tipoVisita)}" class="w-7 h-7" alt="Tipo de visita">
@@ -704,16 +788,24 @@
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-2">
+
+          <div class="flex items-center gap-2 flex-wrap justify-end">
             <span class="inline-flex items-center gap-1 text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
               <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               LIVE
             </span>
+
             <span class="inline-flex items-center gap-1 text-xs font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
               <span id="estado-${folio}">En Proceso</span>
             </span>
+
+            <!-- ✅ CRONÓMETRO RAMPA→LIBERACIÓN -->
+            <span id="timer-${folio}" class="inline-flex items-center gap-1 text-xs font-semibold bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+              ⏱ Rampa→Liberación: —
+            </span>
           </div>
         </div>
+
         <div class="px-6 py-6">
           <div class="relative mb-6">
             <div class="timeline" aria-label="Progreso del transporte">
@@ -722,19 +814,20 @@
             </div>
             <img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso">
           </div>
+
           <div class="grid grid-cols-5 lg:grid-cols-10 gap-5">
             ${[
-                    "Llegada",
-                    "Ingreso",
-                    "Disuasión (E)",
-                    "Patio (E)",
-                    "Rampa",
-                    "Fin Descarga",
-                    "Liberación",
-                    "Patio (S)",
-                    "Disuasión (S)",
-                    "Salida de Planta"
-                ].map((t, i) => `
+          "Llegada",
+          "Ingreso",
+          "Disuasión (E)",
+          "Patio (E)",
+          "Rampa",
+          "Fin Descarga",
+          "Liberación",
+          "Patio (S)",
+          "Disuasión (S)",
+          "Salida de Planta"
+        ].map((t, i) => `
               <div class="text-center">
                 <div id="chip-${folio}-${i}" class="chip todo mx-auto">
                   <img src="${iconForStep(i)}" class="w-14 h-14" alt="${t}">
@@ -745,219 +838,228 @@
               </div>
             `).join("")}
           </div>
-        </div>`;
-            return el;
+        </div>
+      `;
+      return el;
+    }
+
+    function syncUIFromData(folio, data) {
+      const p = data.pasos || {};
+
+      const stamps = [
+        p.llegada,
+        p.ingreso,
+        (p.disuasionE_inicio && p.disuasionE_fin),
+        p.patioE_fin,
+        p.rampa_inicio,
+        p.finDescarga,
+        p.liberacion,
+        p.patioS_fin,
+        (p.disuasionS_inicio && p.disuasionS_fin),
+        p.salidaPlanta
+      ];
+
+      let firstIncomplete = stamps.findIndex(ts => !ts);
+      if (firstIncomplete === -1) firstIncomplete = stamps.length;
+
+      const stepTimes = [
+        p.llegada,
+        p.ingreso,
+        p.disuasionE_inicio,
+        p.patioE_fin,
+        p.rampa_inicio,
+        p.finDescarga,
+        p.liberacion,
+        p.patioS_fin,
+        p.disuasionS_inicio,
+        p.salidaPlanta
+      ];
+
+      for (let i = 0; i <= 9; i++) {
+        if (stamps[i]) {
+          const d = toDateSafe(stepTimes[i] || stamps[i]);
+          setChip(folio, i, "done", d ? d.toLocaleString() : "");
+        } else if (i === firstIncomplete) {
+          setChip(folio, i, "live", "");
+        } else {
+          setChip(folio, i, "todo", "");
         }
+      }
 
-        function syncUIFromData(folio, data) {
-            const p = data.pasos || {};
-            const stamps = [
-                p.llegada,
-                p.ingreso,
-                (p.disuasionE_inicio && p.disuasionE_fin),
-                p.patioE_fin,
-                p.rampa_inicio,
-                p.finDescarga,
-                p.liberacion,
-                p.patioS_fin,
-                (p.disuasionS_inicio && p.disuasionS_fin),
-                p.salidaPlanta
-            ];
-            let firstIncomplete = stamps.findIndex(ts => !ts);
-            if (firstIncomplete === -1) firstIncomplete = stamps.length;
+      if (p.disuasionE_destino) {
+        const fin = toDateSafe(p.disuasionE_fin);
+        setChip(
+          folio,
+          2,
+          stamps[2] ? "done" : "live",
+          fin ? fin.toLocaleString() : "",
+          p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : "")
+        );
+      }
 
-            const stepTimes = [
-                p.llegada,
-                p.ingreso,
-                p.disuasionE_inicio,
-                p.patioE_fin,
-                p.rampa_inicio,
-                p.finDescarga,
-                p.liberacion,
-                p.patioS_fin,
-                p.disuasionS_inicio,
-                p.salidaPlanta
-            ];
+      if (p.patio_rampa) {
+        const tag = $("#tag-" + folio + "-3");
+        if (tag) tag.textContent = p.patio_rampa;
+      }
 
-            for (let i = 0; i <= 9; i++) {
-                if (stamps[i]) {
-                    setChip(
-                        folio,
-                        i,
-                        "done",
-                        new Date(stepTimes[i] || stamps[i]).toLocaleString()
-                    );
-                } else if (i === firstIncomplete) {
-                    setChip(folio, i, "live", "");
-                } else {
-                    setChip(folio, i, "todo", "");
-                }
-            }
+      if (p.postLiberacionDestino) {
+        const tag = $("#tag-" + folio + "-6");
+        if (tag) tag.textContent = "→ " + p.postLiberacionDestino;
+      }
 
-            if (p.disuasionE_destino) {
-                setChip(
-                    folio,
-                    2,
-                    stamps[2] ? "done" : "live",
-                    p.disuasionE_fin ? new Date(p.disuasionE_fin).toLocaleString() : "",
-                    p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : "")
-                );
-            }
-            if (p.patio_rampa) {
-                const tag = $("#tag-" + folio + "-3");
-                if (tag) tag.textContent = p.patio_rampa;
-            }
-            if (p.postLiberacionDestino) {
-                const tag = $("#tag-" + folio + "-6");
-                if (tag) tag.textContent = "→ " + p.postLiberacionDestino;
-            }
+      let truckStep;
+      if (firstIncomplete === stamps.length) {
+        truckStep = stamps.length - 1;
+      } else {
+        truckStep = firstIncomplete;
+      }
+      moveTruckAndBar(folio, truckStep);
 
-            let truckStep;
-            if (firstIncomplete === stamps.length) {
-                truckStep = stamps.length - 1;
-            } else {
-                truckStep = firstIncomplete;
-            }
-            moveTruckAndBar(folio, truckStep);
+      const estEl = $("#estado-" + folio);
+      if (estEl) estEl.textContent = data.estado || "En Proceso";
 
-            const estEl = $("#estado-" + folio);
-            if (estEl) estEl.textContent = data.estado || "En Proceso";
-        }
+      // ✅ TIMER: inicia en RAMPA y termina cuando existe LIBERACIÓN
+      // - mientras no exista liberación: corre en vivo
+      const rampaStart = toDateSafe(p.rampa_inicio);
+      const liberacionEnd = toDateSafe(p.liberacion);
+      startOrUpdateRampTimer(folio, rampaStart, liberacionEnd);
+    }
 
-        function updateKpis() {
-            const total = order.length;
-            let enProceso = 0;
-            let cancelados = 0;
+    function updateKpis() {
+      const total = order.length;
+      let enProceso = 0;
+      let cancelados = 0;
 
-            for (const folio of order) {
-                const data = cards.get(folio)?.data || {};
-                const estado = (data.estado || "En Proceso").toLowerCase();
-                if (estado === "cancelado") cancelados++;
-                else enProceso++;
-            }
+      for (const folio of order) {
+        const data = cards.get(folio)?.data || {};
+        const estado = (data.estado || "En Proceso").toLowerCase();
+        if (estado === "cancelado") cancelados++;
+        else enProceso++;
+      }
 
-            $("#kpi-total").textContent = total;
-            $("#kpi-enproceso").textContent = enProceso;
-            $("#kpi-cancelados").textContent = cancelados;
+      $("#kpi-total").textContent = total;
+      $("#kpi-enproceso").textContent = enProceso;
+      $("#kpi-cancelados").textContent = cancelados;
 
-            const folioActual = order[currentIndex] || "—";
-            $("#kpi-folio").textContent = folioActual;
-        }
+      const folioActual = order[currentIndex] || "—";
+      $("#kpi-folio").textContent = folioActual;
+    }
 
-        function showSlide(index) {
-            if (order.length === 0) {
-                currentIndex = 0;
-                return;
-            }
-            if (index < 0) index = order.length - 1;
-            if (index >= order.length) index = 0;
-            currentIndex = index;
+    function showSlide(index) {
+      if (order.length === 0) {
+        currentIndex = 0;
+        return;
+      }
+      if (index < 0) index = order.length - 1;
+      if (index >= order.length) index = 0;
+      currentIndex = index;
 
-            const activeFolio = order[currentIndex];
-            for (const [folio, info] of cards.entries()) {
-                info.rootEl.classList.toggle("hidden", folio !== activeFolio);
-            }
+      const activeFolio = order[currentIndex];
+      for (const [folio, info] of cards.entries()) {
+        info.rootEl.classList.toggle("hidden", folio !== activeFolio);
+      }
 
-            $("#carousel-position-label").textContent =
-                "Transporte " + (currentIndex + 1) + " de " + order.length;
+      $("#carousel-position-label").textContent =
+        "Transporte " + (currentIndex + 1) + " de " + order.length;
 
-            $("#btn-prev").disabled = order.length <= 1;
-            $("#btn-next").disabled = order.length <= 1;
+      $("#btn-prev").disabled = order.length <= 1;
+      $("#btn-next").disabled = order.length <= 1;
 
-            updateKpis();
-        }
+      updateKpis();
+    }
 
-        function resetAutoAdvance() {
-            if (autoTimer) clearInterval(autoTimer);
-            if (order.length === 0) return;
-            autoTimer = setInterval(() => {
-                if (order.length > 0) showSlide(currentIndex + 1);
-            }, 30000);
-        }
+    function resetAutoAdvance() {
+      if (autoTimer) clearInterval(autoTimer);
+      if (order.length === 0) return;
+      autoTimer = setInterval(() => {
+        if (order.length > 0) showSlide(currentIndex + 1);
+      }, 30000);
+    }
 
-        function subscribeLiveControls() {
-            const cont = $("#cards-container");
-            const emptyState = $("#empty-state");
+    function subscribeLiveControls() {
+      const cont = $("#cards-container");
+      const emptyState = $("#empty-state");
 
-            const qRef = query(
-                collection(db, "ControlTransportes"),
-                where("activo", "==", true),
-                orderBy("createdAt", "desc")
-            );
+      const qRef = query(
+        collection(db, "ControlTransportes"),
+        where("activo", "==", true),
+        orderBy("createdAt", "desc")
+      );
 
-            onSnapshot(qRef, snap => {
-                const seenFolios = new Set();
-                order = [];
+      onSnapshot(qRef, snap => {
+        const seenFolios = new Set();
+        order = [];
 
-                snap.forEach(d => {
-                    const folio = d.id;
-                    const data = d.data();
-                    seenFolios.add(folio);
-                    order.push(folio);
+        snap.forEach(d => {
+          const folio = d.id;
+          const data = d.data();
+          seenFolios.add(folio);
+          order.push(folio);
 
-                    if (!cards.has(folio)) {
-                        const cita = data.cita || {};
-                        const cardEl = renderCardSkeleton(folio, cita);
-                        cont.appendChild(cardEl);
-                        cards.set(folio, { rootEl: cardEl, cita, data });
-                    } else {
-                        cards.get(folio).data = data;
-                    }
-                    syncUIFromData(folio, data);
-                });
+          if (!cards.has(folio)) {
+            const cita = data.cita || {};
+            const cardEl = renderCardSkeleton(folio, cita);
+            cont.appendChild(cardEl);
+            cards.set(folio, { rootEl: cardEl, cita, data });
+          } else {
+            cards.get(folio).data = data;
+          }
 
-                for (const [folio, info] of Array.from(cards.entries())) {
-                    if (!seenFolios.has(folio)) {
-                        info.rootEl.remove();
-                        cards.delete(folio);
-                    }
-                }
-
-                if (order.length === 0) {
-                    emptyState.classList.remove("hidden");
-                    $("#btn-prev").disabled = true;
-                    $("#btn-next").disabled = true;
-                    $("#carousel-position-label").textContent = "Transporte 0 de 0";
-                    $("#kpi-folio").textContent = "—";
-                    updateKpis();
-                } else {
-                    emptyState.classList.add("hidden");
-                    if (currentIndex >= order.length) currentIndex = 0;
-                    showSlide(currentIndex);
-                }
-
-                resetAutoAdvance();
-            }, (err) => {
-                console.error("onSnapshot error:", err);
-                alert("Error al suscribirse en vivo. Revisa índices de Firestore (createdAt + activo) o permisos.");
-            });
-        }
-
-        /* BOTONES DEL CARRUSEL */
-        $("#btn-prev").addEventListener("click", () => {
-            if (order.length === 0) return;
-            showSlide(currentIndex - 1);
-            resetAutoAdvance();
+          syncUIFromData(folio, data);
         });
 
-        $("#btn-next").addEventListener("click", () => {
-            if (order.length === 0) return;
-            showSlide(currentIndex + 1);
-            resetAutoAdvance();
-        });
+        for (const [folio, info] of Array.from(cards.entries())) {
+          if (!seenFolios.has(folio)) {
+            // limpia timer al borrar tarjeta
+            stopRampTimer(folio);
+            info.rootEl.remove();
+            cards.delete(folio);
+          }
+        }
 
-        /* INIT GENERAL */
-        (async function init() {
-            if (!guardAccess()) return;
+        if (order.length === 0) {
+          emptyState.classList.remove("hidden");
+          $("#btn-prev").disabled = true;
+          $("#btn-next").disabled = true;
+          $("#carousel-position-label").textContent = "Transporte 0 de 0";
+          $("#kpi-folio").textContent = "—";
+          updateKpis();
+        } else {
+          emptyState.classList.add("hidden");
+          if (currentIndex >= order.length) currentIndex = 0;
+          showSlide(currentIndex);
+        }
 
-            if (!currentUser) currentUser = getCurrentUserFromStorage();
+        resetAutoAdvance();
+      }, (err) => {
+        console.error("onSnapshot error:", err);
+        alert("Error al suscribirse en vivo. Revisa índices de Firestore (createdAt + activo) o permisos.");
+      });
+    }
 
-            setupSidebarNav();
-            startClock();
-            subscribeLiveControls();
-        })();
-    </script>
+    /* BOTONES DEL CARRUSEL */
+    $("#btn-prev").addEventListener("click", () => {
+      if (order.length === 0) return;
+      showSlide(currentIndex - 1);
+      resetAutoAdvance();
+    });
+
+    $("#btn-next").addEventListener("click", () => {
+      if (order.length === 0) return;
+      showSlide(currentIndex + 1);
+      resetAutoAdvance();
+    });
+
+    /* INIT GENERAL */
+    (async function init() {
+      if (!guardAccess()) return;
+      if (!currentUser) currentUser = getCurrentUserFromStorage();
+
+      setupSidebarNav();
+      startClock();
+      subscribeLiveControls();
+    })();
+  </script>
 </body>
 
 </html>
-
