@@ -39,6 +39,30 @@
             background-color: var(--surface);
         }
 
+        /* =========================================================
+           FIX: clases "bmm" que estabas usando sin existir en Tailwind
+           ========================================================= */
+        .bg-bmm-60 {
+            background: rgba(13, 28, 132, 0.60);
+        }
+
+        .hover-bg-bmm-light:hover {
+            background: var(--bmm-blue-light);
+        }
+
+        .bg-bmm-solid {
+            background: var(--bmm-blue);
+        }
+
+        .text-bmm {
+            color: var(--bmm-blue);
+        }
+
+        .focus-ring-bmm:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(13, 28, 132, .35);
+        }
+
         .sidebar-collapsed {
             width: 80px;
         }
@@ -203,6 +227,7 @@
             cursor: pointer;
             box-shadow: 0 4px 10px rgba(15, 23, 42, .12);
             transition: background .15s ease, transform .15s ease;
+            user-select: none;
         }
 
         .carousel-arrow:hover {
@@ -242,9 +267,10 @@
         <aside id="sidebar"
             class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
             <div class="p-4 flex items-center justify-between border-b border-gray-200">
-                <div class="hidden" id="sidebar-title-wrapper">
-                    <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
-                    <span class="menu-text" id="app-title-sidebar"></span>
+                <!-- FIX: antes estaba hidden SIEMPRE -->
+                <div class="flex items-center gap-3" id="sidebar-title-wrapper">
+                    <img src="img/icon-192.png" alt="Logo" class="w-10 h-10 rounded-lg bg-white p-1" />
+                    <span class="menu-text font-semibold" id="app-title-sidebar">Control Transportes</span>
                 </div>
                 <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
                     class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
@@ -254,11 +280,12 @@
                     </svg>
                 </button>
             </div>
+
             <nav class="flex-1 p-4 overflow-y-auto" aria-label="Navegación principal">
                 <ul class="space-y-2">
                     <li>
                         <a data-page="menu.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
                             <span class="nav-icon-wrapper">
                                 <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
                             </span>
@@ -268,7 +295,7 @@
 
                     <li>
                         <a data-page="usuarios.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
                             <span class="nav-icon-wrapper">
                                 <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
                             </span>
@@ -278,7 +305,7 @@
 
                     <li>
                         <a data-page="citas.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
                             <span class="nav-icon-wrapper">
                                 <img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" />
                             </span>
@@ -288,7 +315,7 @@
 
                     <li>
                         <a data-page="control.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
                             <span class="nav-icon-wrapper">
                                 <img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" />
                             </span>
@@ -297,17 +324,17 @@
                     </li>
 
                     <li>
+                        <!-- current page -->
                         <a data-page="estatus.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+                            class="flex items-center gap-3 p-3 rounded-lg bg-white/15 ring-1 ring-white/15">
                             <span class="nav-icon-wrapper">
                                 <img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" />
                             </span>
-                            <span class="menu-text">Seguimiento en Vivo</span>
+                            <span class="menu-text font-semibold">Seguimiento en Vivo</span>
                         </a>
                     </li>
                 </ul>
             </nav>
-
         </aside>
 
         <!-- MAIN -->
@@ -333,7 +360,6 @@
             <section class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
                 <div class="flex flex-wrap items-center justify-between gap-3">
                     <div class="flex items-center gap-3">
-                        <!-- Icono LIVE a la izquierda -->
                         <img src="img/ico_live.png" alt="Live" class="w-12 h-12 rounded-full" />
                         <div>
                             <p class="text-sm font-semibold text-gray-800 flex items-center gap-2">
@@ -345,8 +371,7 @@
                                 </span>
                             </p>
                             <p class="text-xs text-gray-500">Visualiza los transportes ya registrados desde la pantalla
-                                de
-                                Control.</p>
+                                de Control.</p>
                         </div>
                     </div>
                     <div class="text-right text-xs text-gray-500">
@@ -435,7 +460,6 @@
 
         /* HELPERS GENERALES */
         const $ = (q, root = document) => root.querySelector(q);
-        const $$ = (q, root = document) => Array.from(root.querySelectorAll(q));
         const escapeHtml = s =>
             String(s).replace(/[&<>"]/g, m => ({
                 "&": "&amp;",
@@ -467,9 +491,7 @@
 
         function isAdminUser(user) {
             if (!user) return false;
-
             const normRol = normalizeRole(user.rol || user.role);
-
             return (
                 normRol === "administrador" ||
                 user.roleKey === "UsuarioAdmin" ||
@@ -479,9 +501,7 @@
 
         function isCoordLogUser(user) {
             if (!user) return false;
-
             const normRol = normalizeRole(user.rol || user.role);
-
             return (
                 normRol === "coordinadorlogistico" ||
                 user.roleKey === "UsuarioLogistico" ||
@@ -504,36 +524,36 @@
                     let enable = false;
 
                     if (isFile) {
-                        // Entorno local → todo habilitado
                         enable = true;
                     } else if (isAdmin) {
-                        // Admin → full access
                         enable = true;
                     } else if (isCoord) {
-                        // Coordinador Logístico → solo control y estatus
                         if (page === "control.html" || page === "estatus.html") {
                             enable = true;
                         }
                     } else {
-                        // Otros roles → nada
                         enable = false;
                     }
 
                     if (enable) {
                         link.href = page;
                         link.classList.remove("cursor-default", "opacity-80");
-                        link.classList.add("hover:bg-bmm-light");
+                        // FIX: antes agregabas una clase tailwind que no existía
+                        link.classList.add("hover-bg-bmm-light");
+                        // y mantenemos el fondo bmm “60” en los que no son current
+                        if (!page.includes("estatus.html")) {
+                            link.classList.add("bg-bmm-60");
+                        }
                     } else {
                         link.removeAttribute("href");
                         link.classList.add("cursor-default", "opacity-80");
-                        link.classList.remove("hover:bg-bmm-light");
+                        link.classList.remove("hover-bg-bmm-light");
                     }
                 });
         }
 
         /* GUARDAR ACCESO A LA PÁGINA */
         function guardAccess() {
-            // Permite pruebas locales
             if (location.protocol === "file:") return true;
 
             try {
@@ -577,6 +597,7 @@
             const sidebar = $("#sidebar"),
                 main = $("#main-content"),
                 btn = $("#hamburger-btn");
+
             if (btn && sidebar && main) {
                 btn.addEventListener("click", () => {
                     const isExpanded = sidebar.classList.contains("sidebar-expanded");
@@ -586,6 +607,7 @@
                     main.classList.toggle("main-content-collapsed", isExpanded);
                 });
             }
+
             $("#logout-btn").addEventListener("click", () => {
                 sessionStorage.clear();
                 localStorage.removeItem("currentUser");
@@ -639,8 +661,10 @@
             if (!chip) return;
             chip.classList.remove("todo", "live", "done");
             chip.classList.add(status);
+
             const tsEl = $("#ts-" + folio + "-" + step);
             if (tsEl && tsText) tsEl.textContent = tsText;
+
             const tagEl = $("#tag-" + folio + "-" + step);
             if (tagEl && tagText !== undefined) tagEl.textContent = tagText || "";
         }
@@ -663,8 +687,9 @@
 
         function renderCardSkeleton(folio, cita) {
             const el = document.createElement("div");
-            el.className = "transport-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden";
+            el.className = "transport-card bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hidden";
             el.dataset.folio = folio;
+
             el.innerHTML = `
         <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100">
           <div class="flex items-center gap-3">
@@ -681,13 +706,11 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <span
-              class="inline-flex items-center gap-1 text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+            <span class="inline-flex items-center gap-1 text-xs font-semibold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
               <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
               LIVE
             </span>
-            <span
-              class="inline-flex items-center gap-1 text-xs font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
+            <span class="inline-flex items-center gap-1 text-xs font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
               <span id="estado-${folio}">En Proceso</span>
             </span>
           </div>
@@ -712,9 +735,7 @@
                     "Patio (S)",
                     "Disuasión (S)",
                     "Salida de Planta"
-                ]
-                    .map(
-                        (t, i) => `
+                ].map((t, i) => `
               <div class="text-center">
                 <div id="chip-${folio}-${i}" class="chip todo mx-auto">
                   <img src="${iconForStep(i)}" class="w-14 h-14" alt="${t}">
@@ -723,9 +744,7 @@
                 <div id="ts-${folio}-${i}" class="mt-1 text-xs text-gray-500"></div>
                 <div id="tag-${folio}-${i}" class="mt-1 text-[11px] text-blue-700"></div>
               </div>
-            `
-                    )
-                    .join("")}
+            `).join("")}
           </div>
         </div>`;
             return el;
@@ -821,6 +840,7 @@
             $("#kpi-total").textContent = total;
             $("#kpi-enproceso").textContent = enProceso;
             $("#kpi-cancelados").textContent = cancelados;
+
             const folioActual = order[currentIndex] || "—";
             $("#kpi-folio").textContent = folioActual;
         }
@@ -852,10 +872,8 @@
             if (autoTimer) clearInterval(autoTimer);
             if (order.length === 0) return;
             autoTimer = setInterval(() => {
-                if (order.length > 0) {
-                    showSlide(currentIndex + 1);
-                }
-            }, 30000); // 30 segundos
+                if (order.length > 0) showSlide(currentIndex + 1);
+            }, 30000);
         }
 
         function subscribeLiveControls() {
@@ -900,6 +918,9 @@
                     emptyState.classList.remove("hidden");
                     $("#btn-prev").disabled = true;
                     $("#btn-next").disabled = true;
+                    $("#carousel-position-label").textContent = "Transporte 0 de 0";
+                    $("#kpi-folio").textContent = "—";
+                    updateKpis();
                 } else {
                     emptyState.classList.add("hidden");
                     if (currentIndex >= order.length) currentIndex = 0;
@@ -907,6 +928,9 @@
                 }
 
                 resetAutoAdvance();
+            }, (err) => {
+                console.error("onSnapshot error:", err);
+                alert("Error al suscribirse en vivo. Revisa índices de Firestore (createdAt + activo) o permisos.");
             });
         }
 
@@ -927,23 +951,13 @@
         (async function init() {
             if (!guardAccess()) return;
 
-            if (!currentUser) {
-                currentUser = getCurrentUserFromStorage();
-            }
+            if (!currentUser) currentUser = getCurrentUserFromStorage();
 
-            // Configura permisos del sidebar según rol
             setupSidebarNav();
-
-            // Reloj del header
             startClock();
-
-            // Suscripción en vivo a ControlTransportes
             subscribeLiveControls();
         })();
     </script>
 </body>
 
-
 </html>
-
-
