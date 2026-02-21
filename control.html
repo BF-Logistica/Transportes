@@ -376,7 +376,8 @@
           class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
           Aceptar (dar de alta)
         </button>
-        <button id="mcita-btn-cancelar" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
+        <button id="mcita-btn-cancelar"
+          class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
           Cancelar cita
         </button>
         <button id="mcita-btn-confirm-cancel"
@@ -529,6 +530,8 @@
     </div>
   </div>
 
+  <iframe id="gs_iframe" name="gs_iframe" style="display:none;"></iframe>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import {
@@ -536,7 +539,7 @@
       onSnapshot, query, where, serverTimestamp, orderBy
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // ========= ✅ PON AQUÍ TU WEB APP DE APPS SCRIPT =========
+    
     const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
 
     const firebaseConfig = {
@@ -579,9 +582,7 @@
     }
 
     function applyTimerColor(el, ms) {
-      // limpio
       el.classList.remove("text-red-600", "text-yellow-600", "text-[var(--bmm-blue)]");
-      // reglas
       if (ms >= THRESH_RED_MS) el.classList.add("text-red-600");
       else if (ms >= THRESH_YELLOW_MS) el.classList.add("text-yellow-600");
       else el.classList.add("text-[var(--bmm-blue)]");
@@ -595,11 +596,10 @@
     }
 
     function startTimer(folio, startISO) {
-      stopTimer(folio); // evita duplicados
+      stopTimer(folio);
       const startMs = new Date(startISO).getTime();
       if (!Number.isFinite(startMs)) return;
 
-      // pinta inmediato
       setTimerDisplay(folio, Date.now() - startMs);
 
       activeTimers[folio] = setInterval(() => {
@@ -782,7 +782,6 @@
             disuasionS_fin: null,
             salidaPlanta: null,
 
-            // ✅ CRONÓMETRO
             cronometro_inicio: null,
             cronometro_fin: null,
             duracion_rampa_ms: null,
@@ -836,7 +835,7 @@
       }
     }
 
-    // ========= ✅ GOOGLE SHEETS LOG (fetch directo, sin CORS manual) =========
+    
     async function sendToGoogleSheets(payload) {
       if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
         console.warn("GOOGLE_SHEET_WEBAPP_URL no configurada.");
@@ -844,21 +843,21 @@
       }
 
       try {
-        const res = await fetch(GOOGLE_SHEET_WEBAPP_URL, {
+        const params = new URLSearchParams();
+        params.set("payload", JSON.stringify(payload || {}));
+        params.set("type", (payload?.type ?? ""));
+        params.set("folio", (payload?.folio ?? ""));
+        params.set("actionType", (payload?.actionType ?? ""));
+        params.set("ts", new Date().toISOString());
+
+        await fetch(GOOGLE_SHEET_WEBAPP_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          mode: "no-cors",
+          body: params,
+          keepalive: true
         });
 
-        const text = await res.text();
-        let data = {};
-        try { data = JSON.parse(text || "{}"); } catch { data = { raw: text }; }
-
-        // Apps Script a veces responde 200 aunque haya error dentro.
-        if (!data?.ok) {
-          console.warn("Respuesta Google Sheets (no ok):", data);
-        }
-        return data;
+        return { ok: true, mode: "no-cors", sent: true };
       } catch (e) {
         console.warn("Error enviando a Google Sheets:", e);
         return { ok: false, error: String(e) };
@@ -1093,7 +1092,6 @@
 
     const cards = new Map();
 
-    // ====== BLINDADO: cálculo de step actual ======
     function computeFirstIncomplete(data) {
       const p = data.pasos || {};
       const estado = (data.estado || "En Proceso");
@@ -1185,27 +1183,23 @@
       }
     }
 
-    // ✅ aquí amarramos el cronómetro al estado real
     function syncTimerFromData(folio, data) {
       const p = data.pasos || {};
       const startISO = p.cronometro_inicio;
       const endISO = p.cronometro_fin;
       const msSaved = p.duracion_rampa_ms;
 
-      // Si ya terminó, mostramos final y paramos.
       if (endISO && (typeof msSaved === "number")) {
         stopTimer(folio);
         setTimerDisplay(folio, msSaved);
         return;
       }
 
-      // Si hay inicio y aún no hay fin => corre
       if (startISO && !endISO) {
         startTimer(folio, startISO);
         return;
       }
 
-      // No aplica todavía
       stopTimer(folio);
       setTimerDisplay(folio, 0);
     }
@@ -1257,8 +1251,6 @@
       $("#estado-" + folio).textContent = estado;
 
       applyButtonsPolicy(folio, data);
-
-      // ✅ CRONÓMETRO
       syncTimerFromData(folio, data);
     }
 
@@ -1473,7 +1465,7 @@
       $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
     }
 
-    // ====== ✅ NUEVO MODAL CITA (GUARDIA DECIDE) ======
+    // ====== MODAL CITA (GUARDIA DECIDE) ======
     const mCita = $("#modal-cita");
     const mcitaGrid = $("#mcita-grid");
     const mcitaX = $("#mcita-x");
@@ -1592,7 +1584,6 @@
       <img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso">
     </div>
 
-    <!-- ✅ CRONÓMETRO -->
     <div class="mb-6 flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3">
       <div>
         <div class="text-xs text-gray-500">Tiempo en Rampa (desde “Iniciar descarga”)</div>
@@ -1801,7 +1792,6 @@
               break;
             }
 
-            // ✅ STEP 4: INICIAR DESCARGA -> arranca cronómetro
             case 4: {
               if (control.estado === "Cancelado") { act.disabled = false; break; }
 
@@ -1812,8 +1802,6 @@
                 if (!com) break;
 
                 const ts = nowISO();
-
-                // si ya existía inicio de cronómetro, NO lo reiniciamos
                 const inicioCrono = p.cronometro_inicio || ts;
 
                 await updateDoc(cref, {
@@ -1841,13 +1829,11 @@
               break;
             }
 
-            // ✅ STEP 6: LIBERACIÓN -> frena cronómetro y guarda duración
             case 6: {
               if (control.estado === "Cancelado") { act.disabled = false; break; }
               const com = await pedirComentario("Registrar Liberación", "liberacion", "registrar"); if (!com) break;
               if (!p.liberacion) {
                 const ts = nowISO();
-
                 const startISO = p.cronometro_inicio;
                 let durMs = null;
 
@@ -1938,8 +1924,6 @@
       });
     }
 
-    // ====== CIERRE (lo dejé como lo tenías; Sheets lo vemos en la siguiente parte) ======
-
     async function buildSheetsPayload({ actionType, folio, freshData, closedAtISO }) {
       const cita = freshData.cita || {};
       const comentarios = Array.isArray(freshData.comentarios) ? [...freshData.comentarios] : [];
@@ -1957,7 +1941,6 @@
         duracionRampaHHMMSS: (typeof freshData?.pasos?.duracion_rampa_ms === "number")
           ? formatDuration(freshData.pasos.duracion_rampa_ms)
           : "",
-
         cita: {
           id: cita.id || "",
           linea: cita.linea || "",
@@ -1970,7 +1953,6 @@
           destino: cita.destino || "",
           usuarioProveedor: cita.usuarioProveedor || ""
         },
-
         timeline: comentarios.map(c => ({
           paso: c.paso || "",
           pasoLabel: pasoLabel(c.paso || ""),
@@ -2069,7 +2051,6 @@
       closeModalCierre();
     };
 
-    // ===== Carga inicial =====
     async function loadActiveControls() {
       const cont = $("#cards-container");
 
@@ -2102,7 +2083,6 @@
       if (count > 0) $("#empty-state").classList.add("hidden");
     }
 
-    // ===== Alta por folio (con modal aceptar/cancelar) =====
     $("#add-folio-btn").onclick = async () => {
       const folioInput = $("#folio-input");
       const folio = folioInput.value.trim().toUpperCase();
