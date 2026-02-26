@@ -49,6 +49,32 @@
       width: 250px
     }
 
+    /* ===== Modal Info nice layout ===== */
+  .kv {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: .75rem;
+    padding: .6rem .75rem;
+  }
+  .kv .k {
+    color: #475569;
+    font-size: .78rem;
+    line-height: 1.1rem;
+    word-break: break-word;
+    max-width: 58%;
+  }
+  .kv .v {
+    font-weight: 600;
+    text-align: right;
+    line-height: 1.1rem;
+    word-break: break-word;
+    max-width: 42%;
+  }
+
     .main-content-collapsed {
       margin-left: 80px
     }
@@ -501,7 +527,7 @@
             <li>Guardará el histórico (<span class="font-mono">ControlTransportesHistorico</span>).</li>
             <li>Generará PDF con logo, info, timeline y chat.</li>
             <li>La información será almacenada en la base de datos. (Info + Timeline).</li>
-            <li><b>Enviará el PDF por correo</b> al Proveedor y Administradores.</li>
+            <li><b>Enviará el PDF por correo</b> a Administradores.</li>
           </ul>
         </div>
       </div>
@@ -516,13 +542,27 @@
   </div>
 
   <!-- MODAL INFO -->
+  <!-- MODAL INFO (FIX: scroll + layout) -->
   <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden">
-      <div class="px-6 py-4 flex items-center justify-between border-b border-gray-200">
-        <h3 class="text-xl font-semibold">Información del transporte</h3>
-        <button id="mi-close" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border border-gray-100">
+      <!-- Header sticky -->
+      <div class="px-5 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
+        <div class="min-w-0">
+          <h3 class="text-lg sm:text-xl font-semibold truncate">Información del transporte</h3>
+          <p class="text-xs text-gray-500">Vista completa de campos (CitasConfirmadas)</p>
+        </div>
+  
+        <div class="flex items-center gap-2">
+          <input id="info-search" type="text" placeholder="Buscar campo…"
+            class="hidden sm:block px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+          <button id="mi-close" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm font-semibold">Cerrar</button>
+        </div>
       </div>
-      <div id="info-grid" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+  
+      <!-- Body con scroll -->
+      <div class="p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
+        <div id="info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+      </div>
     </div>
   </div>
 
@@ -1573,37 +1613,79 @@
       return out;
     }
 
-    async function openInfoByFolio(folio, fallbackCita = null) {
-      const grid = $("#info-grid");
-      grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
+async function openInfoByFolio(folio, fallbackCita = null) {
+  const grid = $("#info-grid");
+  const modal = $("#modal-info");
+  const search = $("#info-search");
 
-      let full = null;
-      try {
-        full = await fetchCitaConfirmadaByFolio(folio);
-      } catch (e) {
-        console.warn("Error leyendo CitasConfirmadas:", e);
-      }
+  grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
 
-      const base = full || ({ folio, ...(fallbackCita || {}) });
+  let full = null;
+  try {
+    full = await fetchCitaConfirmadaByFolio(folio);
+  } catch (e) {
+    console.warn("Error leyendo CitasConfirmadas:", e);
+  }
 
-      // Si quieres ocultar campos ruidosos, aquí:
-      const { createdAt, updatedAt, ...clean } = base;
+  const base = full || ({ folio, ...(fallbackCita || {}) });
 
-      const rows = flattenForUI(clean);
-      rows.sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+  // Quita “ruido” si quieres
+  const { createdAt, updatedAt, ...clean } = base;
 
-      grid.innerHTML = rows.map(([k, v]) => `
-        <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border gap-3">
-          <span class="text-gray-600 break-all">${escapeHtml(k)}</span>
-          <span class="font-medium break-all text-right">${escapeHtml(v)}</span>
-        </div>
-      `).join("");
+  let rows = flattenForUI(clean);
 
-      const modal = $("#modal-info");
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-      $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
-    }
+  // Orden: primero “lo importante”, luego el resto alfabético
+  const priority = [
+    "folio", "fecha", "hora", "horaExtra",
+    "lineaTransporte", "linea",
+    "placas", "placas2",
+    "chofer", "destino", "frontera",
+    "tipoTransporte", "tipoVisita",
+    "razon", "factura", "sello", "sello2",
+    "citaProveedorId", "id", "estatus"
+  ];
+
+  const norm = (s) => String(s || "").toLowerCase();
+
+  rows.sort((a, b) => {
+    const ak = a[0], bk = b[0];
+    const ap = priority.indexOf(ak);
+    const bp = priority.indexOf(bk);
+    if (ap !== -1 || bp !== -1) return (ap === -1 ? 999 : ap) - (bp === -1 ? 999 : bp);
+    return norm(ak).localeCompare(norm(bk));
+  });
+
+  const render = (list) => {
+    grid.innerHTML = list.map(([k, v]) => `
+      <div class="kv">
+        <div class="k">${escapeHtml(k)}</div>
+        <div class="v">${escapeHtml(safeStr(v) || "-")}</div>
+      </div>
+    `).join("");
+  };
+
+  render(rows);
+
+  // Filtro en vivo (si existe input)
+  if (search) {
+    search.value = "";
+    search.oninput = () => {
+      const q = search.value.trim().toLowerCase();
+      if (!q) return render(rows);
+      const filtered = rows.filter(([k, v]) =>
+        String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)
+      );
+      render(filtered);
+    };
+  }
+
+  modal.classList.remove("hidden");
+  modal.classList.add("flex");
+  $("#mi-close").onclick = () => {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+  };
+}
 
     // ====== MODAL CITA (GUARDIA DECIDE) ======
     const mCita = $("#modal-cita");
@@ -2153,20 +2235,19 @@
       const pdfBase64 = await generatePDFBase64({ folio, controlData: freshData, chatMessages });
 
       // 5) Enviar correo por Apps Script (case nuevo)
-      const proveedorEmail = (freshData?.cita?.usuarioProveedor || "").trim();
       await sendToGoogleSheets({
-        type: "CONTROL_ENVIAR_PDF",
-        folio,
-        to: [proveedorEmail].filter(Boolean),
-        cc: ADMIN_EMAILS,
-        subject: `Historial de Transporte ${folio}`,
-        body: `Se adjunta el historial del transporte ${folio}.`,
-        fileName: `Historial_${folio}.pdf`,
-        pdfBase64,
-        enviadoPor: currentUser?.nombre || "",
-        enviadoPorEmail: currentUser?.email || "",
-        closedAtISO
-      });
+      type: "CONTROL_ENVIAR_PDF",
+      folio,
+      to: ADMIN_EMAILS,     // ✅ SOLO ADMIN
+      cc: [],               // ✅ SIN CC
+      subject: `Historial de Transporte ${folio}`,
+      body: `Se adjunta el historial del transporte ${folio}.`,
+      fileName: `Historial_${folio}.pdf`,
+      pdfBase64,
+      enviadoPor: currentUser?.nombre || "",
+      enviadoPorEmail: currentUser?.email || "",
+      closedAtISO
+    });
 
       closeModalCierre();
       alert("Listo: se guardó el histórico y se envió el PDF por correo.");
@@ -2308,3 +2389,4 @@
 </body>
 
 </html>
+
