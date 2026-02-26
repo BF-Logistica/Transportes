@@ -529,12 +529,13 @@
       <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
-            <!-- ✅ icono personalizable -->
             <img src="img/agendar_cita.png" alt="Generar" class="w-7 h-7 object-contain pointer-events-none select-none" />
           </div>
           <div>
             <h2 class="text-lg font-semibold text-gray-900">Generar Cita (sin cita previa)</h2>
-            <p class="text-xs text-gray-500">Se guardará como <b>CitaPendiente</b> y se enviará correo de pre-registro al proveedor.</p>
+            <p class="text-xs text-gray-500">
+              Se guardará como <b>CitaPendiente</b> y se enviará correo de pre-registro al proveedor.
+            </p>
           </div>
         </div>
         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
@@ -558,14 +559,14 @@
 
           <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Correo proveedor</label>
-            <input id="gn-usuarioProveedor" type="email"
+            <input id="gn-usuarioProveedor" type="email" autocomplete="email" inputmode="email"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
               placeholder="proveedor@correo.com" />
-            <p id="gn-usuarioProveedor-error" class="text-[11px] text-red-600 mt-1 hidden">Correo obligatorio.</p>
+            <p id="gn-usuarioProveedor-error" class="text-[11px] text-red-600 mt-1 hidden">Correo obligatorio y válido.</p>
           </div>
 
           <div>
-            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Frontera</label>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Frontera (opcional)</label>
             <input id="gn-frontera" type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
               placeholder="Ej: Reynosa / Laredo / ..." />
@@ -580,7 +581,7 @@
 
           <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea transportista</label>
-            <input id="gn-lineaTransporte" type="text"
+            <input id="gn-lineaTransporte" type="text" autocomplete="organization"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
               placeholder="Ej: Transportes XYZ" />
             <p id="gn-lineaTransporte-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
@@ -588,7 +589,7 @@
 
           <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Placas</label>
-            <input id="gn-placas" type="text"
+            <input id="gn-placas" type="text" autocapitalize="characters"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
               placeholder="ABC-123" />
             <p id="gn-placas-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
@@ -596,7 +597,7 @@
 
           <div>
             <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Chofer</label>
-            <input id="gn-chofer" type="text"
+            <input id="gn-chofer" type="text" autocomplete="name"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
               placeholder="Nombre del chofer" />
             <p id="gn-chofer-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
@@ -616,7 +617,7 @@
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
               <option value="">Selecciona...</option>
               <option value="Sencillo">Sencillo</option>
-              <option value="Full">Full</option>              
+              <option value="Full">Full</option>
             </select>
             <p id="gn-tipoTransporte-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
           </div>
@@ -637,7 +638,7 @@
             <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha</label>
             <input id="gn-fecha" type="date"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
-            <p id="gn-fecha-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+            <p id="gn-fecha-error" class="text-[11px] text-red-600 mt-1 hidden">Selecciona una fecha desde hoy en adelante.</p>
           </div>
 
           <div>
@@ -683,6 +684,9 @@
               <option value="No">No</option>
               <option value="Sí">Sí</option>
             </select>
+            <p class="text-[11px] text-gray-500 mt-1">
+              Si es <b>Sí</b> se mostrará “Caja que recolecta”. Si es <b>No</b> se mostrará “Caja que deja”.
+            </p>
           </div>
 
           <div id="gn-cajaDeja-wrap">
@@ -697,6 +701,9 @@
             <input id="gn-cajaRecolecta" type="text"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
               placeholder="Caja que recolecta" />
+            <p id="gn-cajaRecolecta-error" class="text-[11px] text-red-600 mt-1 hidden">
+              Si “Recolecta caja” = Sí, debes indicar la caja que recolecta.
+            </p>
           </div>
 
           <div class="md:col-span-2">
@@ -804,8 +811,6 @@
 
     const APPS_SCRIPT_AUTH_TOKEN = "tk_logistica_bmm_2026";
 
-    
-    
     const APPS_SCRIPT_REGISTRO_URL =
       "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
 
@@ -1839,7 +1844,7 @@
     }
 
     // ===============================
-    // ✅ NUEVO: Generar cita (sin reglas de fecha/capacidad)
+    // ✅ NUEVO: Generar cita (desde hoy en adelante, sin validar capacidad)
     // ===============================
     function openGenModal() {
       const modal = document.getElementById("gen-modal");
@@ -1856,6 +1861,7 @@
         "gn-tipoVisita-error",
         "gn-fecha-error",
         "gn-hora-error",
+        "gn-cajaRecolecta-error",
       ].forEach(id => document.getElementById(id).classList.add("hidden"));
 
       // reset campos básicos
@@ -1867,7 +1873,14 @@
 
       document.getElementById("gn-tipoTransporte").value = "";
       document.getElementById("gn-tipoVisita").value = "";
-      document.getElementById("gn-fecha").value = "";
+
+      // ✅ fecha: desde hoy
+      const hoyISO = getTodayISO();
+      const fechaEl = document.getElementById("gn-fecha");
+      fechaEl.min = hoyISO;
+      fechaEl.value = hoyISO;
+
+      // recolecta default
       document.getElementById("gn-recolectaCaja").value = "No";
 
       // horas
@@ -1879,10 +1892,14 @@
         opt.textContent = h;
         horaSel.appendChild(opt);
       });
+      horaSel.value = allSlots[0] || "";
 
+      // estado UI dependiente
       document.getElementById("gn-horaExtra-wrap").classList.add("hidden");
       document.getElementById("gn-horaExtra").value = "";
-      document.getElementById("gn-cajaRecolecta-wrap").classList.add("hidden");
+
+      updateGenUIByRecolectaCaja();
+      updateGenUIByTipoVisita();
 
       modal.classList.remove("hidden");
       modal.classList.add("flex");
@@ -1905,6 +1922,11 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
     }
 
+    function isDateFromToday(fechaISO) {
+      if (!fechaISO) return false;
+      return dateToComparable(fechaISO) >= dateToComparable(getTodayISO());
+    }
+
     function computeHoraExtraIfNeeded(tipoVisita, hora) {
       if (tipoVisita === "Carga y Descarga") {
         return addHoursToTimeStr(hora, 2);
@@ -1921,7 +1943,7 @@
       const razon = (document.getElementById("gn-razon").value || "").trim();
 
       const lineaTransporte = (document.getElementById("gn-lineaTransporte").value || "").trim();
-      const placas = (document.getElementById("gn-placas").value || "").trim();
+      const placas = (document.getElementById("gn-placas").value || "").trim().toUpperCase();
       const chofer = (document.getElementById("gn-chofer").value || "").trim();
       const destino = (document.getElementById("gn-destino").value || "").trim();
 
@@ -1951,7 +1973,9 @@
       setErr("gn-tipoVisita-error", false);
       setErr("gn-fecha-error", false);
       setErr("gn-hora-error", false);
+      setErr("gn-cajaRecolecta-error", false);
 
+      // ✅ Validaciones completas
       if (!usuarioProveedor || !isValidEmail(usuarioProveedor)) { setErr("gn-usuarioProveedor-error", true); ok = false; }
       if (!lineaTransporte) { setErr("gn-lineaTransporte-error", true); ok = false; }
       if (!placas) { setErr("gn-placas-error", true); ok = false; }
@@ -1959,8 +1983,13 @@
       if (!destino) { setErr("gn-destino-error", true); ok = false; }
       if (!tipoTransporte) { setErr("gn-tipoTransporte-error", true); ok = false; }
       if (!tipoVisita) { setErr("gn-tipoVisita-error", true); ok = false; }
-      if (!fecha) { setErr("gn-fecha-error", true); ok = false; }
+      if (!fecha || !isDateFromToday(fecha)) { setErr("gn-fecha-error", true); ok = false; }
       if (!hora) { setErr("gn-hora-error", true); ok = false; }
+
+      // ✅ Dependencia: si recolecta caja = Sí -> cajaRecolecta requerido
+      if (recolectaCaja === "Sí") {
+        if (!cajaRecolecta) { setErr("gn-cajaRecolecta-error", true); ok = false; }
+      }
 
       if (!ok) return;
 
@@ -1969,6 +1998,9 @@
 
       const horaExtra = computeHoraExtraIfNeeded(tipoVisita, hora);
       document.getElementById("gn-horaExtra").value = horaExtra || "";
+
+      // reflejar placas ya normalizadas
+      document.getElementById("gn-placas").value = placas;
 
       const btn = document.getElementById("gn-save-btn");
       const original = btn.innerHTML;
@@ -2004,7 +2036,7 @@
           sello: sello || "",
 
           recolectaCaja: recolectaCaja || "No",
-          cajaDeja: cajaDeja || "",
+          cajaDeja: (recolectaCaja === "No" ? (cajaDeja || "") : ""),
           cajaRecolecta: (recolectaCaja === "Sí" ? (cajaRecolecta || "") : ""),
 
           notas: notas || "",
@@ -2037,7 +2069,7 @@
             caja,
             sello,
             recolectaCaja,
-            cajaDeja,
+            cajaDeja: (recolectaCaja === "No" ? (cajaDeja || "") : ""),
             cajaRecolecta: (recolectaCaja === "Sí" ? (cajaRecolecta || "") : ""),
             notas,
             esDomingo
@@ -2127,9 +2159,26 @@
 
     function updateGenUIByRecolectaCaja() {
       const v = document.getElementById("gn-recolectaCaja").value || "No";
-      const wrap = document.getElementById("gn-cajaRecolecta-wrap");
-      if (v === "Sí") wrap.classList.remove("hidden");
-      else wrap.classList.add("hidden");
+      const wrapRecolecta = document.getElementById("gn-cajaRecolecta-wrap");
+      const wrapDeja = document.getElementById("gn-cajaDeja-wrap");
+
+      // limpiar error de cajaRecolecta si cambia a No
+      if (v !== "Sí") {
+        setErr("gn-cajaRecolecta-error", false);
+        const reco = document.getElementById("gn-cajaRecolecta");
+        if (reco) reco.value = "";
+      } else {
+        const deja = document.getElementById("gn-cajaDeja");
+        if (deja) deja.value = "";
+      }
+
+      if (v === "Sí") {
+        wrapRecolecta.classList.remove("hidden");
+        wrapDeja.classList.add("hidden");
+      } else {
+        wrapRecolecta.classList.add("hidden");
+        wrapDeja.classList.remove("hidden");
+      }
     }
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -2218,6 +2267,14 @@
       document.getElementById("gn-hora").addEventListener("change", updateGenUIByTipoVisita);
       document.getElementById("gn-recolectaCaja").addEventListener("change", updateGenUIByRecolectaCaja);
 
+      // UX: placas a mayúsculas en vivo
+      const placasEl = document.getElementById("gn-placas");
+      if (placasEl) {
+        placasEl.addEventListener("input", () => {
+          placasEl.value = (placasEl.value || "").toUpperCase();
+        });
+      }
+
       // Calendario: abrir modal
       const calendarBtn = document.getElementById("calendar-btn");
       if (calendarBtn) {
@@ -2262,4 +2319,3 @@
 </body>
 
 </html>
-
