@@ -347,7 +347,7 @@
     </main>
   </div>
 
-  <!-- ✅ NUEVO MODAL: CONFIRMAR / CANCELAR CITA (GUARDIA) -->
+  <!-- ✅ MODAL: CONFIRMAR / CANCELAR CITA (GUARDIA) -->
   <div id="modal-cita" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -499,20 +499,17 @@
           <div class="font-semibold mb-1">¿Qué hará el sistema?</div>
           <ul class="list-disc pl-5 space-y-1">
             <li>Guardará el histórico (<span class="font-mono">ControlTransportesHistorico</span>).</li>
-            <li>Generará PDF con logo, info, timeline y chat.</li>            
+            <li>Generará PDF con logo, info, timeline y chat.</li>
             <li>La información será almacenada en la base de datos. (Info + Timeline).</li>
+            <li><b>Enviará el PDF por correo</b> al Proveedor y Administradores.</li>
           </ul>
         </div>
       </div>
       <div class="px-6 pb-6 flex flex-wrap gap-3 justify-end">
         <button id="cierre-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button>
-        <button id="cierre-only"
-          class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] font-semibold">
-          Finalizar sin descargar
-        </button>
         <button id="cierre-pdf"
           class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
-          Finalizar y descargar PDF
+          Finalizar y enviar por correo
         </button>
       </div>
     </div>
@@ -538,8 +535,13 @@
       onSnapshot, query, where, serverTimestamp, orderBy
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    
     const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
+
+    // ✅ ADMIN EMAILS (definidos)
+    const ADMIN_EMAILS = [
+      "admin1@tuempresa.com",
+      "admin2@tuempresa.com"
+    ];
 
     const firebaseConfig = {
       apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
@@ -834,7 +836,6 @@
       }
     }
 
-    
     async function sendToGoogleSheets(payload) {
       if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
         console.warn("GOOGLE_SHEET_WEBAPP_URL no configurada.");
@@ -1008,6 +1009,107 @@
       });
 
       docPdf.save(`Historial_${folio}.pdf`);
+    }
+
+    // ✅ NUEVO: generar PDF base64 para enviarlo por correo (sin descargar)
+    async function generatePDFBase64({ folio, controlData, chatMessages }) {
+      const { jsPDF } = window.jspdf || {};
+      if (!jsPDF) throw new Error("jsPDF no disponible");
+
+      const docPdf = new jsPDF({ unit: "pt", format: "a4" });
+      const pageW = docPdf.internal.pageSize.getWidth();
+      const margin = 40;
+
+      const logoPath = "img/logo_bf.png";
+      try {
+        const img = await fetch(logoPath);
+        const blob = await img.blob();
+        const reader = new FileReader();
+        const dataUrl = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); });
+        docPdf.addImage(dataUrl, "PNG", margin, 24, 140, 34);
+      } catch { }
+
+      docPdf.setFont("helvetica", "bold");
+      docPdf.setFontSize(16);
+      docPdf.text("Historial de Transporte", pageW / 2, 48, { align: "center" });
+
+      docPdf.setFont("helvetica", "normal");
+      docPdf.setFontSize(10);
+      docPdf.text(`Generado: ${new Date().toLocaleString()}`, pageW - margin, 48, { align: "right" });
+
+      let y = 80;
+
+      docPdf.setFont("helvetica", "bold");
+      docPdf.setFontSize(12);
+      docPdf.text(`Folio: ${folio}`, margin, y);
+      docPdf.text(`Estado: ${controlData.estado || "-"}`, pageW - margin, y, { align: "right" });
+      y += 14;
+
+      const cita = controlData.cita || {};
+      const infoRows = buildInfoRows(cita, folio);
+
+      docPdf.autoTable({
+        startY: y + 10,
+        head: [["Campo", "Valor"]],
+        body: infoRows,
+        styles: { fontSize: 9, cellPadding: 6 },
+        headStyles: { fillColor: [13, 28, 132] },
+        margin: { left: margin, right: margin }
+      });
+
+      y = docPdf.lastAutoTable.finalY + 18;
+
+      const comentarios = Array.isArray(controlData.comentarios) ? [...controlData.comentarios] : [];
+      comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
+
+      const timelineBody = comentarios.map(c => ([
+        pasoLabel(c.paso),
+        c.ts ? new Date(c.ts).toLocaleString() : "",
+        c.usuario || "",
+        c.comentario || ""
+      ]));
+
+      docPdf.setFont("helvetica", "bold");
+      docPdf.setFontSize(12);
+      docPdf.text("Timeline (estación / fecha-hora / usuario / comentario)", margin, y);
+      docPdf.setFont("helvetica", "normal");
+
+      docPdf.autoTable({
+        startY: y + 10,
+        head: [["Estación", "Fecha/Hora", "Usuario", "Comentario"]],
+        body: timelineBody.length ? timelineBody : [["-", "-", "-", "-"]],
+        styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+        headStyles: { fillColor: [16, 185, 129] },
+        columnStyles: { 0: { cellWidth: 120 }, 1: { cellWidth: 120 }, 2: { cellWidth: 110 }, 3: { cellWidth: 180 } },
+        margin: { left: margin, right: margin }
+      });
+
+      y = docPdf.lastAutoTable.finalY + 18;
+
+      const chat = Array.isArray(chatMessages) ? chatMessages : [];
+      docPdf.setFont("helvetica", "bold");
+      docPdf.setFontSize(12);
+      docPdf.text("Chat", margin, y);
+      docPdf.setFont("helvetica", "normal");
+
+      const chatBody = chat.map(m => ([
+        m.userName || "",
+        (m.createdAt?.seconds ? new Date(m.createdAt.seconds * 1000).toLocaleString() : ""),
+        m.text || ""
+      ]));
+
+      docPdf.autoTable({
+        startY: y + 10,
+        head: [["Usuario", "Fecha/Hora", "Mensaje"]],
+        body: chatBody.length ? chatBody : [["-", "-", "-"]],
+        styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
+        headStyles: { fillColor: [59, 130, 246] },
+        columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 130 }, 2: { cellWidth: 290 } },
+        margin: { left: margin, right: margin }
+      });
+
+      const dataUri = docPdf.output("datauristring");
+      return (dataUri.split(",")[1] || "");
     }
 
     async function saveToHistorico({ folio, controlData, chatMessages, closedAtISO }) {
@@ -1427,8 +1529,8 @@
 
       cierreModo.value = (estado === "Cancelado") ? "Cierre por CANCELACIÓN" : "Cierre normal";
       cierreSub.textContent = (estado === "Cancelado")
-        ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar y guardar histórico."
-        : "Registra Salida de Planta y genera el histórico.";
+        ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar, guardar histórico y enviar PDF."
+        : "Registra Salida de Planta, guarda histórico y envía el PDF por correo.";
 
       cierre_ctx = { folio, estado };
       mCierre.classList.remove("hidden");
@@ -1444,23 +1546,62 @@
     $("#cierre-x").onclick = closeModalCierre;
     $("#cierre-cancel").onclick = closeModalCierre;
 
-    // ===== MODAL INFO =====
-    function openInfo(data) {
+    // ===== MODAL INFO (TODOS LOS CAMPOS DE CitasConfirmadas) =====
+    async function fetchCitaConfirmadaByFolio(folio) {
+      const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio));
+      const snap = await getDocs(qRef);
+      if (snap.empty) return null;
+      const d = snap.docs[0];
+      return { id: d.id, ...d.data() };
+    }
+
+    function flattenForUI(obj, prefix = "") {
+      const out = [];
+      const isPlainObj = (v) => v && typeof v === "object" && !Array.isArray(v);
+
+      for (const [k, v] of Object.entries(obj || {})) {
+        const key = prefix ? `${prefix}.${k}` : k;
+
+        if (isPlainObj(v)) {
+          out.push(...flattenForUI(v, key));
+        } else if (Array.isArray(v)) {
+          out.push([key, v.map(x => isPlainObj(x) ? JSON.stringify(x) : safeStr(x)).join(", ")]);
+        } else {
+          out.push([key, safeStr(v)]);
+        }
+      }
+      return out;
+    }
+
+    async function openInfoByFolio(folio, fallbackCita = null) {
       const grid = $("#info-grid");
-      const rows = [
-        ["Folio", data.folio],
-        ["Línea", data.linea || data.lineaTransporte || "-"],
-        ["Placas", data.placas || "-"],
-        ["Tipo transporte", data.tipoTransporte || "-"],
-        ["Tipo visita", data.tipoVisita || "-"],
-        ["Fecha", data.fecha || "-"],
-        ["Hora", data.hora || "-"],
-        ["Hora extra", data.horaExtra || "-"],
-        ["Destino", data.destino || "-"],
-        ["Proveedor", data.usuarioProveedor || "-"]
-      ];
-      grid.innerHTML = rows.map(([k, v]) => `<div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border"><span class="text-gray-600">${k}</span><span class="font-medium">${escapeHtml(v)}</span></div>`).join("");
-      const modal = $("#modal-info"); modal.classList.remove("hidden"); modal.classList.add("flex");
+      grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
+
+      let full = null;
+      try {
+        full = await fetchCitaConfirmadaByFolio(folio);
+      } catch (e) {
+        console.warn("Error leyendo CitasConfirmadas:", e);
+      }
+
+      const base = full || ({ folio, ...(fallbackCita || {}) });
+
+      // Si quieres ocultar campos ruidosos, aquí:
+      const { createdAt, updatedAt, ...clean } = base;
+
+      const rows = flattenForUI(clean);
+      rows.sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+
+      grid.innerHTML = rows.map(([k, v]) => `
+        <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border gap-3">
+          <span class="text-gray-600 break-all">${escapeHtml(k)}</span>
+          <span class="font-medium break-all text-right">${escapeHtml(v)}</span>
+        </div>
+      `).join("");
+
+      const modal = $("#modal-info");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
       $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
     }
 
@@ -1630,7 +1771,8 @@
     }
 
     function attachCardHandlers(cardEl, folio, cita) {
-      cardEl.querySelector(`[data-info="${folio}"]`).onclick = () => openInfo({ folio, ...cita });
+      // ✅ Info ahora muestra TODOS los campos reales
+      cardEl.querySelector(`[data-info="${folio}"]`).onclick = () => openInfoByFolio(folio, cita);
 
       cardEl.addEventListener("click", async (e) => {
         const btnChat = e.target.closest("[data-chat]");
@@ -1962,51 +2104,10 @@
       };
     }
 
-    $("#cierre-only").onclick = async () => {
-      if (!cierre_ctx) return;
-      const folio = cierre_ctx.folio;
-      const cref = doc(db, "ControlTransportes", folio);
-      const snap = await getDoc(cref);
-      const control = snap.data() || {};
-      const card = cards.get(folio);
-      if (!card) { closeModalCierre(); return; }
-
-      const usuario = cierreOperador.value.trim();
-      const comentario = cierreComentario.value.trim();
-      if (!usuario || !comentario) { cierreError.classList.remove("hidden"); return; }
-      cierreError.classList.add("hidden");
-
-      const closedAtISO = nowISO();
-      const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
-      const comentariosPrev = control.comentarios || [];
-      const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
-
-      await updateDoc(cref, {
-        "pasos.salidaPlanta": closedAtISO,
-        estado: estadoFinal,
-        activo: false,
-        "pasos.forceNextStep": null,
-        updatedAt: serverTimestamp(),
-        comentarios: newComentarios,
-        closedAtISO
-      });
-
-      await setCitaFinalizada(control.cita?.id);
-
-      const freshSnap = await getDoc(cref);
-      const freshData = freshSnap.data() || control;
-
-      const chatMessages = await getChatMessages(folio);
-      await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
-
-      const payload = await buildSheetsPayload({ actionType: "FinalizarSinDescargar", folio, freshData, closedAtISO });
-      await sendToGoogleSheets(payload);
-
-      closeModalCierre();
-    };
-
+    // ✅ NUEVO: cierre -> guardar histórico + enviar PDF por correo (Apps Script)
     $("#cierre-pdf").onclick = async () => {
       if (!cierre_ctx) return;
+
       const folio = cierre_ctx.folio;
       const cref = doc(db, "ControlTransportes", folio);
       const snap = await getDoc(cref);
@@ -2024,6 +2125,7 @@
       const comentariosPrev = control.comentarios || [];
       const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
 
+      // 1) Cerrar en Firestore
       await updateDoc(cref, {
         "pasos.salidaPlanta": closedAtISO,
         estado: estadoFinal,
@@ -2036,18 +2138,38 @@
 
       await setCitaFinalizada(control.cita?.id);
 
+      // 2) Refrescar datos, chat, guardar histórico
       const freshSnap = await getDoc(cref);
       const freshData = freshSnap.data() || control;
 
       const chatMessages = await getChatMessages(folio);
       await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
 
-      const payload = await buildSheetsPayload({ actionType: "FinalizarYDescargarPDF", folio, freshData, closedAtISO });
-      await sendToGoogleSheets(payload);
+      // 3) Log a Sheets (trazabilidad)
+      const payloadLog = await buildSheetsPayload({ actionType: "FinalizarYEnviarPDF", folio, freshData, closedAtISO });
+      await sendToGoogleSheets(payloadLog);
 
-      await generatePDFAndDownload({ folio, controlData: freshData, chatMessages });
+      // 4) Generar PDF base64
+      const pdfBase64 = await generatePDFBase64({ folio, controlData: freshData, chatMessages });
+
+      // 5) Enviar correo por Apps Script (case nuevo)
+      const proveedorEmail = (freshData?.cita?.usuarioProveedor || "").trim();
+      await sendToGoogleSheets({
+        type: "CONTROL_ENVIAR_PDF",
+        folio,
+        to: [proveedorEmail].filter(Boolean),
+        cc: ADMIN_EMAILS,
+        subject: `Historial de Transporte ${folio}`,
+        body: `Se adjunta el historial del transporte ${folio}.`,
+        fileName: `Historial_${folio}.pdf`,
+        pdfBase64,
+        enviadoPor: currentUser?.nombre || "",
+        enviadoPorEmail: currentUser?.email || "",
+        closedAtISO
+      });
 
       closeModalCierre();
+      alert("Listo: se guardó el histórico y se envió el PDF por correo.");
     };
 
     async function loadActiveControls() {
@@ -2136,6 +2258,7 @@
       if (decision.action === "cancel") {
         await cancelCita({ citaId: cita.id, folio, comentarioCancel: decision.comment });
 
+        // ✅ Reutiliza acción existente: ahora incluye to/cc para que Apps Script envíe a proveedor + admin
         await sendToGoogleSheets({
           type: "CITA_CANCELADA",
           folio,
@@ -2144,6 +2267,8 @@
           canceladoPor: currentUser?.nombre || "",
           canceladoPorEmail: currentUser?.email || "",
           canceladoComentario: decision.comment || "",
+          to: [(cita.usuarioProveedor || "").trim()].filter(Boolean),
+          cc: ADMIN_EMAILS,
           cita: {
             linea: cita.lineaTransporte || cita.linea || "",
             placas: cita.placas || "",
@@ -2183,6 +2308,3 @@
 </body>
 
 </html>
-
-
-
