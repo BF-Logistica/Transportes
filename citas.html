@@ -254,9 +254,14 @@
               aria-label="Buscar cita por línea, placas, chofer o factura" />
           </div>
 
-          <button id="clear-filters"
-            class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">
-            Limpiar filtros
+          <!-- ✅ CAMBIO 1: botón Generar Cita (reemplaza Limpiar filtros) -->
+          <button id="generate-cita"
+            class="px-4 py-2 bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 4v16m8-8H4" />
+            </svg>
+            Generar Cita
           </button>
 
           <!-- BOTÓN CALENDARIO SEMANAL -->
@@ -462,6 +467,263 @@
     </div>
   </div>
 
+  <!-- ✅ NUEVO: MODAL CANCELACIÓN (motivo) -->
+  <div id="cancel-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center overflow-hidden">
+            <svg class="w-6 h-6 text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v4m0 4h.01M10.29 3.86l-7.4 12.8A2 2 0 004.61 20h14.78a2 2 0 001.72-3.04l-7.4-12.8a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900">Cancelar cita</h2>
+            <p class="text-xs text-gray-500">Este comentario se enviará por correo al proveedor.</p>
+          </div>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
+          CitaCancelada
+        </span>
+      </div>
+
+      <div class="px-6 py-4 space-y-3 text-sm overflow-y-auto">
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-700">
+          <div><b id="cn-linea">-</b> <span class="text-gray-400">•</span> <span id="cn-placas">-</span></div>
+          <div class="mt-1">
+            <span id="cn-fecha">-</span> <span class="text-gray-400">•</span> <span id="cn-hora">-</span>
+            <span class="text-gray-400">•</span> <span id="cn-email">-</span>
+          </div>
+        </div>
+
+        <div>
+          <label for="cn-motivo" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Motivo de cancelación</label>
+          <textarea id="cn-motivo" rows="4"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+            placeholder="Ej: Se reprograma por congestión de patio / documentación incompleta / cambio de destino..."></textarea>
+          <p id="cn-error" class="text-[11px] text-red-600 mt-1 hidden">Escribe el motivo para poder cancelar.</p>
+        </div>
+
+        <p id="cn-general-error" class="text-xs text-red-600 hidden">
+          Ocurrió un error al cancelar. Intenta nuevamente.
+        </p>
+      </div>
+
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
+        <button id="cn-cancel-btn" type="button"
+          class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium transition-colors">
+          Volver
+        </button>
+        <button id="cn-confirm-btn" type="button"
+          class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors flex items-center gap-2">
+          Confirmar cancelación
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ NUEVO: MODAL GENERAR CITA -->
+  <div id="gen-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+            <!-- ✅ icono personalizable -->
+            <img src="img/agendar_cita.png" alt="Generar" class="w-7 h-7 object-contain pointer-events-none select-none" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900">Generar Cita (sin cita previa)</h2>
+            <p class="text-xs text-gray-500">Se guardará como <b>CitaPendiente</b> y se enviará correo de pre-registro al proveedor.</p>
+          </div>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
+          CitaPendiente
+        </span>
+      </div>
+
+      <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[70vh]">
+        <p id="gn-general-error" class="text-xs text-red-600 hidden">
+          Ocurrió un error al generar la cita. Intenta nuevamente.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div class="md:col-span-2">
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-700">
+              <div class="font-semibold text-gray-800">Proveedor (correo destino)</div>
+              <div class="text-gray-500">Este correo recibirá el pre-registro.</div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Correo proveedor</label>
+            <input id="gn-usuarioProveedor" type="email"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="proveedor@correo.com" />
+            <p id="gn-usuarioProveedor-error" class="text-[11px] text-red-600 mt-1 hidden">Correo obligatorio.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Frontera</label>
+            <input id="gn-frontera" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Ej: Silao / Bajío / ..." />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Razón social (opcional)</label>
+            <input id="gn-razon" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Razón social" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea transportista</label>
+            <input id="gn-lineaTransporte" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Ej: Transportes XYZ" />
+            <p id="gn-lineaTransporte-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Placas</label>
+            <input id="gn-placas" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="ABC-123" />
+            <p id="gn-placas-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Chofer</label>
+            <input id="gn-chofer" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Nombre del chofer" />
+            <p id="gn-chofer-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Destino</label>
+            <input id="gn-destino" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Destino" />
+            <p id="gn-destino-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo transporte</label>
+            <select id="gn-tipoTransporte"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+              <option value="">Selecciona...</option>
+              <option value="Sencillo">Sencillo</option>
+              <option value="Full">Full</option>
+              <option value="Torton">Torton</option>
+              <option value="Rabón">Rabón</option>
+              <option value="Otro">Otro</option>
+            </select>
+            <p id="gn-tipoTransporte-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo visita</label>
+            <select id="gn-tipoVisita"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+              <option value="">Selecciona...</option>
+              <option value="Carga">Carga</option>
+              <option value="Descarga">Descarga</option>
+              <option value="Carga y Descarga">Carga y Descarga</option>
+            </select>
+            <p id="gn-tipoVisita-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha</label>
+            <input id="gn-fecha" type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+            <p id="gn-fecha-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora</label>
+            <select id="gn-hora"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+            </select>
+            <p id="gn-hora-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
+          </div>
+
+          <div id="gn-horaExtra-wrap" class="hidden">
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora extra (automática)</label>
+            <input id="gn-horaExtra" type="text" readonly
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" />
+            <p class="text-[11px] text-gray-500 mt-1">Se calcula como +2 horas cuando es “Carga y Descarga”.</p>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Factura (opcional)</label>
+            <input id="gn-factura" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Factura" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">No. caja (opcional)</label>
+            <input id="gn-caja" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Caja" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">No. sello (opcional)</label>
+            <input id="gn-sello" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Sello" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Recolecta caja?</label>
+            <select id="gn-recolectaCaja"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+              <option value="No">No</option>
+              <option value="Sí">Sí</option>
+            </select>
+          </div>
+
+          <div id="gn-cajaDeja-wrap">
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Caja que deja (si aplica)</label>
+            <input id="gn-cajaDeja" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Caja que deja" />
+          </div>
+
+          <div id="gn-cajaRecolecta-wrap" class="hidden">
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Caja que recolecta</label>
+            <input id="gn-cajaRecolecta" type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Caja que recolecta" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Comentarios / notas</label>
+            <textarea id="gn-notas" rows="3"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+              placeholder="Notas..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
+        <button id="gn-cancel-btn" type="button"
+          class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium transition-colors">
+          Cerrar
+        </button>
+        <button id="gn-save-btn" type="button"
+          class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white text-sm font-semibold transition-colors flex items-center gap-2">
+          Generar y notificar
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL CALENDARIO SEMANAL -->
   <div id="calendar-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto max-h-[90vh] flex flex-col overflow-hidden">
@@ -544,6 +806,11 @@
       "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
 
     const APPS_SCRIPT_AUTH_TOKEN = "tk_logistica_bmm_2026";
+
+    
+    
+    const APPS_SCRIPT_REGISTRO_URL =
+      "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
 
     let allCitas = [];
     let filteredCitas = [];
@@ -989,7 +1256,7 @@
     }
 
     // ===============================
-    // ✅ NUEVO: helpers "hot refresh" del calendario
+    // ✅ helpers "hot refresh" del calendario
     // ===============================
     function isCalendarOpen() {
       const modal = document.getElementById("calendar-modal");
@@ -1014,8 +1281,6 @@
     }
 
     function upsertCalendarCitaFromAcceptance({ id, fecha, hora, horaExtra, estatus, linea, tipoVisita }) {
-      // Si el calendario nunca se ha cargado, no hay cache que actualizar.
-      // Se verá bien cuando lo abras (porque carga desde Firestore).
       if (!calendarDataLoaded) return;
 
       const baseISO = formatISOFromDate(calendarBaseWeekStart);
@@ -1117,7 +1382,6 @@
 
         await setDoc(confirmRef, dataConfirmada);
 
-        // ✅ NUEVO: actualizar calendario "en caliente" (sin recargar)
         upsertCalendarCitaFromAcceptance({
           id: currentCita.id,
           fecha,
@@ -1156,7 +1420,6 @@
             const res = await fetch(APPS_SCRIPT_MAIL_URL, {
               method: "POST",
               headers: {
-                // ✅ Igual que agendarcita.html para evitar preflight CORS
                 "Content-Type": "text/plain;charset=utf-8"
               },
               body: JSON.stringify({
@@ -1186,13 +1449,8 @@
           alert("Cita confirmada. No se encontró correo de proveedor para enviar confirmación.");
         }
 
-        // ✅ remover de tabla pendientes
         allCitas = allCitas.filter(c => c.id !== currentCita.id);
         applyFilters();
-
-        // ✅ opcional: si el calendario está mostrando "pendiente" como item previo, lo limpiamos por id
-        // (no es estrictamente necesario porque el upsert ya lo reemplaza con Confirmada si ya estaba)
-        // removeCalendarCitaById(currentCita.id);
 
         closeCitaModal();
 
@@ -1206,36 +1464,186 @@
       }
     }
 
-    async function deleteCita() {
+    // ✅ CAMBIO 2: Eliminar cita ahora -> cancelar con motivo + correo + registro
+    function openCancelModal() {
       if (!currentCita) return;
 
-      const confirmar = confirm(
-        "¿Seguro que deseas eliminar esta cita? Esta acción no se puede deshacer."
-      );
-      if (!confirmar) return;
+      const modal = document.getElementById("cancel-modal");
+      document.getElementById("cn-general-error").classList.add("hidden");
+      document.getElementById("cn-error").classList.add("hidden");
+      document.getElementById("cn-motivo").value = "";
 
-      const deleteBtn = document.getElementById("cm-delete-btn");
-      const originalText = deleteBtn.textContent;
-      deleteBtn.disabled = true;
-      deleteBtn.textContent = "Eliminando...";
+      const horaMostrar = currentCita.horaExtra
+        ? `${currentCita.hora} - ${currentCita.horaExtra}`
+        : (currentCita.hora || "-");
+
+      document.getElementById("cn-linea").textContent = currentCita.linea || "-";
+      document.getElementById("cn-placas").textContent = currentCita.placas || "-";
+      document.getElementById("cn-fecha").textContent = currentCita.fecha || "-";
+      document.getElementById("cn-hora").textContent = horaMostrar;
+      document.getElementById("cn-email").textContent = currentCita.usuarioProveedor || "-";
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeCancelModal() {
+      const modal = document.getElementById("cancel-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    async function appendRegistroCancelacion({ folio, citaId, canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario, cita }) {
+      if (!APPS_SCRIPT_REGISTRO_URL || APPS_SCRIPT_REGISTRO_URL.includes("PEGA_AQUI")) {
+        console.warn("APPS_SCRIPT_REGISTRO_URL no configurado. Se omitió append a Registro.");
+        return;
+      }
 
       try {
+        const res = await fetch(APPS_SCRIPT_REGISTRO_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            authToken: APPS_SCRIPT_AUTH_TOKEN,
+            type: "CITA_CANCELADA",
+            folio: folio || "",
+            citaId,
+            canceladoAtISO,
+            canceladoPor,
+            canceladoPorEmail,
+            canceladoComentario,
+            cita: cita || {}
+          })
+        });
+
+        const raw = await res.text();
+        let data = null;
+        try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
+
+        if (!res.ok || (data && data.success === false)) {
+          console.warn("Registro (Sheets) respondió con problema:", { status: res.status, raw, data });
+        }
+      } catch (e) {
+        console.warn("No se pudo registrar en Sheets (Registro):", e);
+      }
+    }
+
+    async function confirmarCancelacion() {
+      if (!currentCita) return;
+
+      const motivoEl = document.getElementById("cn-motivo");
+      const errEl = document.getElementById("cn-error");
+      const genErrEl = document.getElementById("cn-general-error");
+
+      errEl.classList.add("hidden");
+      genErrEl.classList.add("hidden");
+
+      const motivo = (motivoEl.value || "").trim();
+      if (!motivo) {
+        errEl.classList.remove("hidden");
+        return;
+      }
+
+      const btn = document.getElementById("cn-confirm-btn");
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner"></div>';
+
+      const canceladoAtISO = new Date().toISOString();
+      const canceladoPor = (currentUser && (currentUser.nombre || currentUser.name)) ? (currentUser.nombre || currentUser.name) : "Administrador";
+      const canceladoPorEmail = (currentUser && (currentUser.email || currentUser.correo)) ? (currentUser.email || currentUser.correo) : "";
+
+      try {
+        // 1) Actualizar Firestore (NO borrar)
         const docRef = doc(db, "CitasProveedor", currentCita.id);
-        await deleteDoc(docRef);
+        await updateDoc(docRef, {
+          estatus: "CitaCancelada",
+          canceladoAtISO,
+          canceladoPor,
+          canceladoPorEmail,
+          canceladoComentario: motivo
+        });
 
-        // ✅ NUEVO: si el calendario ya se cargó, quitarlo del cache para refrescar el modal al instante
+        // 2) Enviar correo cancelación al proveedor
+        const correoDestino = currentCita.usuarioProveedor || "";
+        if (correoDestino) {
+          const payloadCancelEmail = {
+            to: correoDestino,
+            folio: (currentCita.raw && currentCita.raw.folio) ? String(currentCita.raw.folio) : "",
+            citaId: currentCita.id,
+            motivo,
+            datosCita: {
+              linea: currentCita.linea,
+              placas: currentCita.placas,
+              tipoTransporte: currentCita.tipoTransporte,
+              tipoVisita: currentCita.tipoVisita,
+              fecha: currentCita.fecha,
+              hora: currentCita.hora,
+              horaExtra: currentCita.horaExtra,
+              destino: currentCita.destino,
+              usuarioProveedor: currentCita.usuarioProveedor
+            }
+          };
+
+          try {
+            const res = await fetch(APPS_SCRIPT_MAIL_URL, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify({
+                authToken: APPS_SCRIPT_AUTH_TOKEN,
+                action: "sendCitaCancelacion",
+                payload: payloadCancelEmail
+              })
+            });
+
+            const raw = await res.text();
+            let data = null;
+            try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
+
+            if (!res.ok || (data && data.success === false) || !data) {
+              console.warn("Problema al enviar correo cancelación:", { status: res.status, raw, data });
+            }
+          } catch (mailErr) {
+            console.warn("Error al enviar correo cancelación:", mailErr);
+          }
+        }
+
+        // 3) Registrar en Sheets (Registro) usando formato que me compartiste
+        await appendRegistroCancelacion({
+          folio: (currentCita.raw && currentCita.raw.folio) ? String(currentCita.raw.folio) : "",
+          citaId: currentCita.id,
+          canceladoAtISO,
+          canceladoPor,
+          canceladoPorEmail,
+          canceladoComentario: motivo,
+          cita: {
+            linea: currentCita.linea,
+            placas: currentCita.placas,
+            tipoTransporte: currentCita.tipoTransporte,
+            tipoVisita: currentCita.tipoVisita,
+            fecha: currentCita.fecha,
+            hora: currentCita.hora,
+            horaExtra: currentCita.horaExtra,
+            destino: currentCita.destino,
+            usuarioProveedor: currentCita.usuarioProveedor
+          }
+        });
+
+        // 4) UI: quitar de la tabla pendientes + calendario
         removeCalendarCitaById(currentCita.id);
-
         allCitas = allCitas.filter(c => c.id !== currentCita.id);
         applyFilters();
-        alert("Cita eliminada correctamente.");
+
+        closeCancelModal();
         closeCitaModal();
+        alert("Cita cancelada y notificada al proveedor.");
+
       } catch (err) {
-        console.error("Error al eliminar cita:", err);
-        alert("Ocurrió un error al eliminar la cita. Intenta nuevamente.");
+        console.error("Error al cancelar cita:", err);
+        genErrEl.classList.remove("hidden");
       } finally {
-        deleteBtn.disabled = false;
-        deleteBtn.textContent = originalText;
+        btn.disabled = false;
+        btn.innerHTML = original;
       }
     }
 
@@ -1246,8 +1654,8 @@
 
     function getWeekStartMonday(date) {
       const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      const day = d.getDay(); // 0 dom ... 6 sáb
-      const diff = (day === 0 ? -6 : 1 - day); // lunes como inicio
+      const day = d.getDay();
+      const diff = (day === 0 ? -6 : 1 - day);
       d.setDate(d.getDate() + diff);
       return d;
     }
@@ -1304,7 +1712,6 @@
       const result = [];
 
       try {
-        // Pendientes futuras (desde el lunes de la semana actual)
         const qPend = query(
           collection(db, "CitasProveedor"),
           where("estatus", "==", "CitaPendiente")
@@ -1328,7 +1735,6 @@
           });
         });
 
-        // Confirmadas futuras (desde el lunes de la semana actual)
         const qConf = query(
           collection(db, "CitasProveedor"),
           where("estatus", "==", "CitaConfirmada")
@@ -1356,10 +1762,7 @@
       }
 
       calendarCitas = result;
-
-      // Indexar por hora y también por horaExtra
       rebuildCalendarIndexFromArray();
-
       calendarDataLoaded = true;
     }
 
@@ -1438,6 +1841,300 @@
       modal.classList.remove("flex");
     }
 
+    // ===============================
+    // ✅ NUEVO: Generar cita (sin reglas de fecha/capacidad)
+    // ===============================
+    function openGenModal() {
+      const modal = document.getElementById("gen-modal");
+      document.getElementById("gn-general-error").classList.add("hidden");
+
+      // limpiar errores
+      [
+        "gn-usuarioProveedor-error",
+        "gn-lineaTransporte-error",
+        "gn-placas-error",
+        "gn-chofer-error",
+        "gn-destino-error",
+        "gn-tipoTransporte-error",
+        "gn-tipoVisita-error",
+        "gn-fecha-error",
+        "gn-hora-error",
+      ].forEach(id => document.getElementById(id).classList.add("hidden"));
+
+      // reset campos básicos
+      [
+        "gn-usuarioProveedor", "gn-frontera", "gn-razon",
+        "gn-lineaTransporte", "gn-placas", "gn-chofer", "gn-destino",
+        "gn-factura", "gn-caja", "gn-sello", "gn-cajaDeja", "gn-cajaRecolecta", "gn-notas"
+      ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+
+      document.getElementById("gn-tipoTransporte").value = "";
+      document.getElementById("gn-tipoVisita").value = "";
+      document.getElementById("gn-fecha").value = "";
+      document.getElementById("gn-recolectaCaja").value = "No";
+
+      // horas
+      const horaSel = document.getElementById("gn-hora");
+      horaSel.innerHTML = "";
+      allSlots.forEach(h => {
+        const opt = document.createElement("option");
+        opt.value = h;
+        opt.textContent = h;
+        horaSel.appendChild(opt);
+      });
+
+      document.getElementById("gn-horaExtra-wrap").classList.add("hidden");
+      document.getElementById("gn-horaExtra").value = "";
+      document.getElementById("gn-cajaRecolecta-wrap").classList.add("hidden");
+
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeGenModal() {
+      const modal = document.getElementById("gen-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function setErr(id, show) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle("hidden", !show);
+    }
+
+    function isValidEmail(email) {
+      const v = String(email || "").trim();
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    }
+
+    function computeHoraExtraIfNeeded(tipoVisita, hora) {
+      if (tipoVisita === "Carga y Descarga") {
+        return addHoursToTimeStr(hora, 2);
+      }
+      return null;
+    }
+
+    async function generarCita() {
+      const generalError = document.getElementById("gn-general-error");
+      generalError.classList.add("hidden");
+
+      const usuarioProveedor = (document.getElementById("gn-usuarioProveedor").value || "").trim();
+      const frontera = (document.getElementById("gn-frontera").value || "").trim();
+      const razon = (document.getElementById("gn-razon").value || "").trim();
+
+      const lineaTransporte = (document.getElementById("gn-lineaTransporte").value || "").trim();
+      const placas = (document.getElementById("gn-placas").value || "").trim();
+      const chofer = (document.getElementById("gn-chofer").value || "").trim();
+      const destino = (document.getElementById("gn-destino").value || "").trim();
+
+      const tipoTransporte = document.getElementById("gn-tipoTransporte").value || "";
+      const tipoVisita = document.getElementById("gn-tipoVisita").value || "";
+
+      const fecha = document.getElementById("gn-fecha").value || "";
+      const hora = document.getElementById("gn-hora").value || "";
+
+      const factura = (document.getElementById("gn-factura").value || "").trim();
+      const caja = (document.getElementById("gn-caja").value || "").trim();
+      const sello = (document.getElementById("gn-sello").value || "").trim();
+
+      const recolectaCaja = document.getElementById("gn-recolectaCaja").value || "No";
+      const cajaDeja = (document.getElementById("gn-cajaDeja").value || "").trim();
+      const cajaRecolecta = (document.getElementById("gn-cajaRecolecta").value || "").trim();
+
+      const notas = (document.getElementById("gn-notas").value || "").trim();
+
+      let ok = true;
+      setErr("gn-usuarioProveedor-error", false);
+      setErr("gn-lineaTransporte-error", false);
+      setErr("gn-placas-error", false);
+      setErr("gn-chofer-error", false);
+      setErr("gn-destino-error", false);
+      setErr("gn-tipoTransporte-error", false);
+      setErr("gn-tipoVisita-error", false);
+      setErr("gn-fecha-error", false);
+      setErr("gn-hora-error", false);
+
+      if (!usuarioProveedor || !isValidEmail(usuarioProveedor)) { setErr("gn-usuarioProveedor-error", true); ok = false; }
+      if (!lineaTransporte) { setErr("gn-lineaTransporte-error", true); ok = false; }
+      if (!placas) { setErr("gn-placas-error", true); ok = false; }
+      if (!chofer) { setErr("gn-chofer-error", true); ok = false; }
+      if (!destino) { setErr("gn-destino-error", true); ok = false; }
+      if (!tipoTransporte) { setErr("gn-tipoTransporte-error", true); ok = false; }
+      if (!tipoVisita) { setErr("gn-tipoVisita-error", true); ok = false; }
+      if (!fecha) { setErr("gn-fecha-error", true); ok = false; }
+      if (!hora) { setErr("gn-hora-error", true); ok = false; }
+
+      if (!ok) return;
+
+      const dt = new Date(fecha + "T00:00:00");
+      const esDomingo = dt.getDay() === 0;
+
+      const horaExtra = computeHoraExtraIfNeeded(tipoVisita, hora);
+      document.getElementById("gn-horaExtra").value = horaExtra || "";
+
+      const btn = document.getElementById("gn-save-btn");
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<div class="loading-spinner"></div>';
+
+      try {
+        const newRef = doc(collection(db, "CitasProveedor"));
+        const citaId = newRef.id;
+
+        const data = {
+          estatus: "CitaPendiente",
+          fecha,
+          hora,
+          horaExtra: horaExtra || null,
+          esDomingo,
+
+          usuarioProveedor,
+
+          frontera: frontera || "",
+          razon: razon || "",
+
+          lineaTransporte,
+          linea: lineaTransporte, // por compatibilidad
+          placas,
+          chofer,
+          destino,
+          tipoTransporte,
+          tipoVisita,
+
+          factura: factura || "",
+          caja: caja || "",
+          sello: sello || "",
+
+          recolectaCaja: recolectaCaja || "No",
+          cajaDeja: cajaDeja || "",
+          cajaRecolecta: (recolectaCaja === "Sí" ? (cajaRecolecta || "") : ""),
+
+          notas: notas || "",
+
+          createdAt: new Date().toISOString(),
+          createdBy: (currentUser && (currentUser.nombre || currentUser.name)) ? (currentUser.nombre || currentUser.name) : "Administrador",
+          createdByEmail: (currentUser && (currentUser.email || currentUser.correo)) ? (currentUser.email || currentUser.correo) : ""
+        };
+
+        await setDoc(newRef, data);
+
+        // correo pre-registro (sendAppointmentNotification)
+        const payloadMail = {
+          providerEmail: usuarioProveedor,
+          providerLinea: lineaTransporte,
+          providerRazon: razon,
+          providerFrontera: frontera,
+          citaId,
+          cita: {
+            fecha,
+            hora,
+            horaExtra: horaExtra || "",
+            tipoVisita,
+            tipoTransporte,
+            destino,
+            chofer,
+            lineaTransporte,
+            placas,
+            factura,
+            caja,
+            sello,
+            recolectaCaja,
+            cajaDeja,
+            cajaRecolecta: (recolectaCaja === "Sí" ? (cajaRecolecta || "") : ""),
+            notas,
+            esDomingo
+          }
+        };
+
+        try {
+          await fetch(APPS_SCRIPT_MAIL_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({
+              authToken: APPS_SCRIPT_AUTH_TOKEN,
+              action: "sendAppointmentNotification",
+              payload: payloadMail
+            })
+          });
+        } catch (e) {
+          console.warn("No se pudo enviar correo de pre-registro:", e);
+        }
+
+        // agregar a la tabla local
+        allCitas.unshift({
+          id: citaId,
+          raw: data,
+          linea: data.lineaTransporte || data.linea || "",
+          placas: data.placas || "",
+          tipoTransporte: data.tipoTransporte || "",
+          tipoVisita: data.tipoVisita || "",
+          fecha: data.fecha || "",
+          hora: data.hora || "",
+          horaExtra: data.horaExtra || null,
+          chofer: data.chofer || "",
+          destino: data.destino || "",
+          factura: data.factura || "",
+          notas: data.notas || "",
+          esDomingo: !!data.esDomingo,
+          frontera: data.frontera ?? "",
+          recolectaCaja: data.recolectaCaja || "",
+          usuarioProveedor: data.usuarioProveedor || "",
+          estatus: data.estatus || "CitaPendiente"
+        });
+        applyFilters();
+
+        // calendario cache (si ya existe)
+        if (calendarDataLoaded) {
+          calendarCitas.push({
+            id: citaId,
+            estatus: "CitaPendiente",
+            fecha,
+            hora: hora || "",
+            horaExtra: horaExtra || null,
+            linea: lineaTransporte || "",
+            placas: placas || "",
+            tipoTransporte: tipoTransporte || "",
+            tipoVisita: tipoVisita || ""
+          });
+          rebuildCalendarIndexFromArray();
+          if (isCalendarOpen()) renderCalendarWeek();
+        }
+
+        closeGenModal();
+        alert("Cita generada como CitaPendiente y notificada por correo.");
+
+      } catch (err) {
+        console.error("Error al generar cita:", err);
+        generalError.classList.remove("hidden");
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    }
+
+    function updateGenUIByTipoVisita() {
+      const tipoVisita = document.getElementById("gn-tipoVisita").value || "";
+      const hora = document.getElementById("gn-hora").value || "";
+      const wrap = document.getElementById("gn-horaExtra-wrap");
+      const input = document.getElementById("gn-horaExtra");
+
+      if (tipoVisita === "Carga y Descarga") {
+        wrap.classList.remove("hidden");
+        input.value = computeHoraExtraIfNeeded(tipoVisita, hora) || "";
+      } else {
+        wrap.classList.add("hidden");
+        input.value = "";
+      }
+    }
+
+    function updateGenUIByRecolectaCaja() {
+      const v = document.getElementById("gn-recolectaCaja").value || "No";
+      const wrap = document.getElementById("gn-cajaRecolecta-wrap");
+      if (v === "Sí") wrap.classList.remove("hidden");
+      else wrap.classList.add("hidden");
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       if (!enforceAdminAccess()) return;
 
@@ -1461,11 +2158,6 @@
 
       document.getElementById("search-input").addEventListener("input", applyFilters);
 
-      document.getElementById("clear-filters").addEventListener("click", () => {
-        document.getElementById("search-input").value = "";
-        applyFilters();
-      });
-
       document.getElementById("logout-btn").addEventListener("click", () => {
         sessionStorage.clear();
         localStorage.removeItem("currentUser");
@@ -1474,7 +2166,15 @@
 
       document.getElementById("cm-cancel-btn").addEventListener("click", closeCitaModal);
       document.getElementById("cm-accept-btn").addEventListener("click", acceptCita);
-      document.getElementById("cm-delete-btn").addEventListener("click", deleteCita);
+
+      // ✅ CAMBIO 2: Eliminar -> abrir modal cancelación
+      document.getElementById("cm-delete-btn").addEventListener("click", () => {
+        openCancelModal();
+      });
+
+      // modal cancelación
+      document.getElementById("cn-cancel-btn").addEventListener("click", closeCancelModal);
+      document.getElementById("cn-confirm-btn").addEventListener("click", confirmarCancelacion);
 
       document.getElementById("cm-hora").addEventListener("change", () => {
         if (!currentCita) return;
@@ -1504,6 +2204,22 @@
           openCitaModal(id);
         }
       });
+
+      // ✅ NUEVO: abrir modal generar cita
+      const genBtn = document.getElementById("generate-cita");
+      if (genBtn) {
+        genBtn.addEventListener("click", () => {
+          openGenModal();
+        });
+      }
+
+      // generar: listeners
+      document.getElementById("gn-cancel-btn").addEventListener("click", closeGenModal);
+      document.getElementById("gn-save-btn").addEventListener("click", generarCita);
+
+      document.getElementById("gn-tipoVisita").addEventListener("change", updateGenUIByTipoVisita);
+      document.getElementById("gn-hora").addEventListener("change", updateGenUIByTipoVisita);
+      document.getElementById("gn-recolectaCaja").addEventListener("change", updateGenUIByRecolectaCaja);
 
       // Calendario: abrir modal
       const calendarBtn = document.getElementById("calendar-btn");
