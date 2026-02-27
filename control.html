@@ -660,8 +660,6 @@
         form.action = url;
         form.target = "gs_iframe";
 
-        // Importante: payload grande (pdfBase64) — Apps Script tiene límites.
-        // (si algún día crece demasiado, te conviene “subir por chunks” o generar el PDF directo en Apps Script)
         for (const [k, v] of Object.entries(dataObj)) {
           const input = document.createElement("input");
           input.type = "hidden";
@@ -898,8 +896,11 @@
       }
     }
 
-    async function cancelCita({ citaId, folio, comentarioCancel }) {
+    // ✅ "Eliminar cita" (cancelación) = updateDoc (no deleteDoc) + auditoría
+    async function cancelCita({ citaId, folio, comentarioCancel, citaSnapshot = null }) {
       if (!citaId) return;
+
+      // 1) Firestore (verdad fuente)
       await updateDoc(doc(db, "CitasConfirmadas", citaId), {
         estatus: "CitaCancelada",
         canceladoAt: serverTimestamp(),
@@ -909,7 +910,67 @@
         canceladoComentario: comentarioCancel || "",
         updatedAt: serverTimestamp()
       });
-      console.log("Cita cancelada:", folio);
+
+      // 2) Correo (Apps Script) - best effort (si falla, NO revierte)
+      try {
+        const rid = newRid("CANCEL");
+        await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
+          rid,
+          // Mantengo tu action actual para no romper tu Apps Script:
+          action: "CITA_CANCELADA_EMAIL",
+          folio,
+          citaId,
+          canceladoAtISO: nowISO(),
+          canceladoPor: currentUser?.nombre || "",
+          canceladoPorEmail: currentUser?.email || "",
+          canceladoComentario: comentarioCancel || "",
+          // info de la cita para el correo (Apps Script decide destinatarios)
+          cita: JSON.stringify({
+            linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
+            placas: (citaSnapshot?.placas || ""),
+            tipoTransporte: (citaSnapshot?.tipoTransporte || ""),
+            tipoVisita: (citaSnapshot?.tipoVisita || ""),
+            fecha: (citaSnapshot?.fecha || ""),
+            hora: (citaSnapshot?.hora || ""),
+            horaExtra: (citaSnapshot?.horaExtra || ""),
+            destino: (citaSnapshot?.destino || ""),
+            usuarioProveedor: (citaSnapshot?.usuarioProveedor || "")
+          })
+        });
+
+        // (opcional) si tu Apps Script ya responde con postMessage, puedes esperar:
+        // await waitForRid(rid, 30000);
+      } catch (e) {
+        console.warn("⚠️ Cancelación: falló envío de correo (no se revierte cancelación).", e);
+      }
+
+      // 3) Registro (Sheets) - best effort (si falla, NO revierte)
+      try {
+        await sendToSheetsViaForm({
+          type: "CITA_CANCELADA",
+          folio,
+          citaId,
+          canceladoAtISO: nowISO(),
+          canceladoPor: currentUser?.nombre || "",
+          canceladoPorEmail: currentUser?.email || "",
+          canceladoComentario: comentarioCancel || "",
+          cita: {
+            linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
+            placas: (citaSnapshot?.placas || ""),
+            tipoTransporte: (citaSnapshot?.tipoTransporte || ""),
+            tipoVisita: (citaSnapshot?.tipoVisita || ""),
+            fecha: (citaSnapshot?.fecha || ""),
+            hora: (citaSnapshot?.hora || ""),
+            horaExtra: (citaSnapshot?.horaExtra || ""),
+            destino: (citaSnapshot?.destino || ""),
+            usuarioProveedor: (citaSnapshot?.usuarioProveedor || "")
+          }
+        });
+      } catch (e) {
+        console.warn("⚠️ Cancelación: falló registro en Sheets (no se revierte cancelación).", e);
+      }
+
+      console.log("✅ Cita cancelada (soft-delete):", folio);
     }
 
     async function logBitacora(folio, entry) {
@@ -937,7 +998,6 @@
         action: "LOG_SHEETS",
         payload: JSON.stringify(payload || {})
       });
-      // normalmente no necesitamos respuesta
       return { ok: true, rid };
     }
 
@@ -945,7 +1005,6 @@
     // ✅ PDF helpers
     // =========================
     function buildInfoRows(cita, folio) {
-      // OJO: aquí “siempre salen todos” aunque estén vacíos (se van como "-" o "")
       return [
         ["Folio", folio],
         ["Línea", cita.linea || cita.lineaTransporte || ""],
@@ -1603,6 +1662,10 @@
       mcitaCancelComent.value = "";
       mcitaCancelErr.classList.add("hidden");
 
+      // reset botón confirm por si quedó en estado raro
+      mcitaBtnConfirmCancel.disabled = false;
+      mcitaBtnConfirmCancel.textContent = "Aceptar cancelación";
+
       mCita.classList.remove("hidden");
       mCita.classList.add("flex");
 
@@ -1613,6 +1676,8 @@
 
     mcitaX.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "close" }); closeModalCita(); };
     mcitaBtnAceptar.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "accept" }); closeModalCita(); };
+
+    // Al dar click en "Cancelar cita" solo abre el campo de motivo (como ya lo tenías)
     mcitaBtnCancelar.onclick = () => {
       mcitaCancelWrap.classList.remove("hidden");
       mcitaBtnConfirmCancel.classList.remove("hidden");
@@ -1620,12 +1685,31 @@
       mcitaBtnAceptar.classList.add("hidden");
       mcitaCancelComent.focus();
     };
-    mcitaBtnConfirmCancel.onclick = () => {
+
+    // ✅ AQUÍ es donde agregamos el método "Eliminar cita" (cancelación controlada)
+    mcitaBtnConfirmCancel.onclick = async () => {
       const comment = mcitaCancelComent.value.trim();
       if (!comment) { mcitaCancelErr.classList.remove("hidden"); return; }
       mcitaCancelErr.classList.add("hidden");
-      mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment });
-      closeModalCita();
+
+      // UX: bloquear para no doble-cancelar
+      mcitaBtnConfirmCancel.disabled = true;
+      const oldTxt = mcitaBtnConfirmCancel.textContent;
+      mcitaBtnConfirmCancel.textContent = "Cancelando...";
+
+      try {
+        // resolvemos acción "cancel" pero pasando el comment
+        mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment });
+
+        // el flujo real se ejecuta abajo en el handler de add-folio-btn (decision.action === "cancel")
+        closeModalCita();
+      } catch (e) {
+        console.error(e);
+        mcitaBtnConfirmCancel.disabled = false;
+        mcitaBtnConfirmCancel.textContent = oldTxt;
+        mcitaCancelErr.textContent = "Error al intentar cancelar. Revisa consola.";
+        mcitaCancelErr.classList.remove("hidden");
+      }
     };
 
     // ===== UI: card =====
@@ -2098,14 +2182,12 @@
           folio,
           fileName: `Historial_${folio}.pdf`,
           pdfBase64,
-          // metadata útil (por si quieres en el correo)
           estado: freshData.estado || "",
           closedAtISO,
           enviadoPor: currentUser?.nombre || "",
           enviadoPorEmail: currentUser?.email || ""
         });
 
-        // Espera respuesta (Apps Script debe responder con postMessage)
         const resp = await waitForRid(rid, 45000);
 
         if (resp?.ok && resp?.fileUrl) {
@@ -2115,7 +2197,6 @@
           a.textContent = resp.fileUrl;
           alert("Listo: PDF guardado en Drive y correo enviado con el link.");
         } else {
-          // Si el backend no manda postMessage, igual pudo haber funcionado.
           alert("Se envió la solicitud a Apps Script. Si no ves el link aquí, revisa Drive/correo (o habilita postMessage en el Apps Script).");
         }
 
@@ -2211,39 +2292,25 @@
         return;
       }
 
+      // ✅ AQUÍ queda el método completo de "Eliminar cita" cuando el usuario presiona "Cancelar cita"
       if (decision.action === "cancel") {
-        await cancelCita({ citaId: cita.id, folio, comentarioCancel: decision.comment });
+        try {
+          await cancelCita({
+            citaId: cita.id,
+            folio,
+            comentarioCancel: decision.comment,
+            citaSnapshot: cita
+          });
 
-        // En cancelación: aquí ya NO metemos correos en frontend.
-        // Mandamos a Apps Script para que él sepa a quién notificar.
-        const rid = newRid("CANCEL");
-        await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
-          rid,
-          action: "CITA_CANCELADA_EMAIL",
-          folio,
-          citaId: cita.id || "",
-          canceladoAtISO: nowISO(),
-          canceladoPor: currentUser?.nombre || "",
-          canceladoPorEmail: currentUser?.email || "",
-          canceladoComentario: decision.comment || "",
-          // info de la cita para el correo (sin emails aquí; Apps Script decide)
-          cita: JSON.stringify({
-            linea: cita.lineaTransporte || cita.linea || "",
-            placas: cita.placas || "",
-            tipoTransporte: cita.tipoTransporte || "",
-            tipoVisita: cita.tipoVisita || "",
-            fecha: cita.fecha || "",
-            hora: cita.hora || "",
-            horaExtra: cita.horaExtra || "",
-            destino: cita.destino || "",
-            usuarioProveedor: cita.usuarioProveedor || ""
-          })
-        });
-
-        folioInput.value = "";
-        folioInput.focus();
-        alert("Cita cancelada. Este folio ya no pasará.");
-        return;
+          folioInput.value = "";
+          folioInput.focus();
+          alert("Cita cancelada (registrada y notificada). Este folio ya no pasará.");
+          return;
+        } catch (e) {
+          console.error(e);
+          alert("Error al cancelar la cita. Revisa consola.");
+          return;
+        }
       }
     };
 
