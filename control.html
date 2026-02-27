@@ -50,30 +50,32 @@
     }
 
     /* ===== Modal Info nice layout ===== */
-  .kv {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: .75rem;
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: .75rem;
-    padding: .6rem .75rem;
-  }
-  .kv .k {
-    color: #475569;
-    font-size: .78rem;
-    line-height: 1.1rem;
-    word-break: break-word;
-    max-width: 58%;
-  }
-  .kv .v {
-    font-weight: 600;
-    text-align: right;
-    line-height: 1.1rem;
-    word-break: break-word;
-    max-width: 42%;
-  }
+    .kv {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: .75rem;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+      border-radius: .75rem;
+      padding: .6rem .75rem;
+    }
+
+    .kv .k {
+      color: #475569;
+      font-size: .78rem;
+      line-height: 1.1rem;
+      word-break: break-word;
+      max-width: 58%;
+    }
+
+    .kv .v {
+      font-weight: 600;
+      text-align: right;
+      line-height: 1.1rem;
+      word-break: break-word;
+      max-width: 42%;
+    }
 
     .main-content-collapsed {
       margin-left: 80px
@@ -541,7 +543,6 @@
     </div>
   </div>
 
-  <!-- MODAL INFO -->
   <!-- MODAL INFO (FIX: scroll + layout) -->
   <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border border-gray-100">
@@ -551,14 +552,14 @@
           <h3 class="text-lg sm:text-xl font-semibold truncate">Información del transporte</h3>
           <p class="text-xs text-gray-500">Vista completa de campos (CitasConfirmadas)</p>
         </div>
-  
+
         <div class="flex items-center gap-2">
           <input id="info-search" type="text" placeholder="Buscar campo…"
             class="hidden sm:block px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
           <button id="mi-close" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm font-semibold">Cerrar</button>
         </div>
       </div>
-  
+
       <!-- Body con scroll -->
       <div class="p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
         <div id="info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
@@ -904,19 +905,81 @@
       }
     }
 
+    // ==========================================================
+    // ✅ FIX: INFO DEL PDF CON CAMPOS FIJOS (SIEMPRE APARECEN)
+    // ==========================================================
+    const TRANSPORTE_FIELDS = [
+      // Identificación
+      ["Folio", "folio"],
+      ["ID Cita", "id"],
+      ["Estatus", "estatus"],
+
+      // Fecha / hora
+      ["Fecha", "fecha"],
+      ["Hora", "hora"],
+      ["Hora extra", "horaExtra"],
+
+      // Proveedor / línea
+      ["Línea transporte", "lineaTransporte"],
+      ["Línea (fallback)", "linea"],
+      ["Razón social", "razon"],
+      ["Frontera", "frontera"],
+      ["Correo proveedor", "usuarioProveedor"],
+
+      // Unidad / chofer
+      ["Chofer", "chofer"],
+      ["Placas", "placas"],
+      ["Placas 2", "placas2"],
+
+      // Tipo / destino
+      ["Tipo visita", "tipoVisita"],
+      ["Tipo transporte", "tipoTransporte"],
+      ["Destino", "destino"],
+
+      // Docs / seguridad
+      ["Factura", "factura"],
+      ["No. caja", "caja"],
+      ["No. caja (deja)", "cajaDeja"],
+      ["No. caja (recolecta)", "cajaRecolecta"],
+      ["Recolecta caja", "recolectaCaja"],
+      ["No. sello", "sello"],
+      ["No. sello 2", "sello2"],
+
+      // Notas
+      ["Notas / Comentarios (cita)", "notas"],
+      ["Es domingo", "esDomingo"],
+
+      // Datos extras comunes (si existen en tu doc)
+      ["Dirección fiscal", "direccionFiscal"],
+      ["Dirección patios", "direccionPatios"],
+      ["Teléfono contacto", "telefonoContacto"],
+      ["Recolecta caja (detalle)", "recolectaCajaDetalle"]
+    ];
+
+    function getByKey(obj, key) {
+      if (!obj) return undefined;
+      return obj[key];
+    }
+
+    function normalizeValueForPdf(v) {
+      if (v === null || v === undefined) return "-";
+      if (typeof v === "boolean") return v ? "Sí" : "No";
+      const s = String(v).trim();
+      return s ? s : "-";
+    }
+
     function buildInfoRows(cita, folio) {
-      return [
-        ["Folio", folio],
-        ["Línea", cita.linea || cita.lineaTransporte || "-"],
-        ["Placas", cita.placas || "-"],
-        ["Tipo transporte", cita.tipoTransporte || "-"],
-        ["Tipo visita", cita.tipoVisita || "-"],
-        ["Fecha", cita.fecha || "-"],
-        ["Hora", cita.hora || "-"],
-        ["Hora extra", cita.horaExtra || "-"],
-        ["Destino", cita.destino || "-"],
-        ["Proveedor", cita.usuarioProveedor || "-"]
-      ];
+      // Mantén compatibilidad: algunos campos están en "cita" del control,
+      // y otros podrían estar en el doc real. Aquí imprimimos todo aunque vaya vacío.
+      const base = { ...(cita || {}) };
+
+      // Asegura que "folio" exista en el objeto para el schema
+      base.folio = folio;
+
+      return TRANSPORTE_FIELDS.map(([label, key]) => {
+        const val = getByKey(base, key);
+        return [label, normalizeValueForPdf(val)];
+      });
     }
 
     function pasoLabel(paso) {
@@ -1613,79 +1676,75 @@
       return out;
     }
 
-async function openInfoByFolio(folio, fallbackCita = null) {
-  const grid = $("#info-grid");
-  const modal = $("#modal-info");
-  const search = $("#info-search");
+    async function openInfoByFolio(folio, fallbackCita = null) {
+      const grid = $("#info-grid");
+      const modal = $("#modal-info");
+      const search = $("#info-search");
 
-  grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
+      grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
 
-  let full = null;
-  try {
-    full = await fetchCitaConfirmadaByFolio(folio);
-  } catch (e) {
-    console.warn("Error leyendo CitasConfirmadas:", e);
-  }
+      let full = null;
+      try {
+        full = await fetchCitaConfirmadaByFolio(folio);
+      } catch (e) {
+        console.warn("Error leyendo CitasConfirmadas:", e);
+      }
 
-  const base = full || ({ folio, ...(fallbackCita || {}) });
+      const base = full || ({ folio, ...(fallbackCita || {}) });
 
-  // Quita “ruido” si quieres
-  const { createdAt, updatedAt, ...clean } = base;
+      const { createdAt, updatedAt, ...clean } = base;
+      let rows = flattenForUI(clean);
 
-  let rows = flattenForUI(clean);
+      const priority = [
+        "folio", "fecha", "hora", "horaExtra",
+        "lineaTransporte", "linea",
+        "placas", "placas2",
+        "chofer", "destino", "frontera",
+        "tipoTransporte", "tipoVisita",
+        "razon", "factura", "sello", "sello2",
+        "citaProveedorId", "id", "estatus"
+      ];
 
-  // Orden: primero “lo importante”, luego el resto alfabético
-  const priority = [
-    "folio", "fecha", "hora", "horaExtra",
-    "lineaTransporte", "linea",
-    "placas", "placas2",
-    "chofer", "destino", "frontera",
-    "tipoTransporte", "tipoVisita",
-    "razon", "factura", "sello", "sello2",
-    "citaProveedorId", "id", "estatus"
-  ];
+      const norm = (s) => String(s || "").toLowerCase();
 
-  const norm = (s) => String(s || "").toLowerCase();
+      rows.sort((a, b) => {
+        const ak = a[0], bk = b[0];
+        const ap = priority.indexOf(ak);
+        const bp = priority.indexOf(bk);
+        if (ap !== -1 || bp !== -1) return (ap === -1 ? 999 : ap) - (bp === -1 ? 999 : bp);
+        return norm(ak).localeCompare(norm(bk));
+      });
 
-  rows.sort((a, b) => {
-    const ak = a[0], bk = b[0];
-    const ap = priority.indexOf(ak);
-    const bp = priority.indexOf(bk);
-    if (ap !== -1 || bp !== -1) return (ap === -1 ? 999 : ap) - (bp === -1 ? 999 : bp);
-    return norm(ak).localeCompare(norm(bk));
-  });
+      const render = (list) => {
+        grid.innerHTML = list.map(([k, v]) => `
+          <div class="kv">
+            <div class="k">${escapeHtml(k)}</div>
+            <div class="v">${escapeHtml(safeStr(v) || "-")}</div>
+          </div>
+        `).join("");
+      };
 
-  const render = (list) => {
-    grid.innerHTML = list.map(([k, v]) => `
-      <div class="kv">
-        <div class="k">${escapeHtml(k)}</div>
-        <div class="v">${escapeHtml(safeStr(v) || "-")}</div>
-      </div>
-    `).join("");
-  };
+      render(rows);
 
-  render(rows);
+      if (search) {
+        search.value = "";
+        search.oninput = () => {
+          const q = search.value.trim().toLowerCase();
+          if (!q) return render(rows);
+          const filtered = rows.filter(([k, v]) =>
+            String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)
+          );
+          render(filtered);
+        };
+      }
 
-  // Filtro en vivo (si existe input)
-  if (search) {
-    search.value = "";
-    search.oninput = () => {
-      const q = search.value.trim().toLowerCase();
-      if (!q) return render(rows);
-      const filtered = rows.filter(([k, v]) =>
-        String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)
-      );
-      render(filtered);
-    };
-  }
-
-  modal.classList.remove("hidden");
-  modal.classList.add("flex");
-  $("#mi-close").onclick = () => {
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
-  };
-}
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      $("#mi-close").onclick = () => {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      };
+    }
 
     // ====== MODAL CITA (GUARDIA DECIDE) ======
     const mCita = $("#modal-cita");
@@ -1853,7 +1912,6 @@ async function openInfoByFolio(folio, fallbackCita = null) {
     }
 
     function attachCardHandlers(cardEl, folio, cita) {
-      // ✅ Info ahora muestra TODOS los campos reales
       cardEl.querySelector(`[data-info="${folio}"]`).onclick = () => openInfoByFolio(folio, cita);
 
       cardEl.addEventListener("click", async (e) => {
@@ -2236,18 +2294,18 @@ async function openInfoByFolio(folio, fallbackCita = null) {
 
       // 5) Enviar correo por Apps Script (case nuevo)
       await sendToGoogleSheets({
-      type: "CONTROL_ENVIAR_PDF",
-      folio,
-      to: ADMIN_EMAILS,     // ✅ SOLO ADMIN
-      cc: [],               // ✅ SIN CC
-      subject: `Historial de Transporte ${folio}`,
-      body: `Se adjunta el historial del transporte ${folio}.`,
-      fileName: `Historial_${folio}.pdf`,
-      pdfBase64,
-      enviadoPor: currentUser?.nombre || "",
-      enviadoPorEmail: currentUser?.email || "",
-      closedAtISO
-    });
+        type: "CONTROL_ENVIAR_PDF",
+        folio,
+        to: ADMIN_EMAILS,     // ✅ SOLO ADMIN
+        cc: [],               // ✅ SIN CC
+        subject: `Historial de Transporte ${folio}`,
+        body: `Se adjunta el historial del transporte ${folio}.`,
+        fileName: `Historial_${folio}.pdf`,
+        pdfBase64,
+        enviadoPor: currentUser?.nombre || "",
+        enviadoPorEmail: currentUser?.email || "",
+        closedAtISO
+      });
 
       closeModalCierre();
       alert("Listo: se guardó el histórico y se envió el PDF por correo.");
@@ -2339,7 +2397,6 @@ async function openInfoByFolio(folio, fallbackCita = null) {
       if (decision.action === "cancel") {
         await cancelCita({ citaId: cita.id, folio, comentarioCancel: decision.comment });
 
-        // ✅ Reutiliza acción existente: ahora incluye to/cc para que Apps Script envíe a proveedor + admin
         await sendToGoogleSheets({
           type: "CITA_CANCELADA",
           folio,
@@ -2389,4 +2446,3 @@ async function openInfoByFolio(folio, fallbackCita = null) {
 </body>
 
 </html>
-
