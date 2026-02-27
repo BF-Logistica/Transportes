@@ -14,7 +14,6 @@
   <script src="/_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- PDF libs (client-side) -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.29/dist/jspdf.plugin.autotable.min.js"></script>
 
@@ -254,7 +253,6 @@
 
 <body>
   <div id="app" class="h-full flex">
-    <!-- SIDEBAR -->
     <aside id="sidebar"
       class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
       <div class="p-4 flex items-center justify-between border-b border-gray-200">
@@ -319,7 +317,6 @@
       </nav>
     </aside>
 
-    <!-- MAIN -->
     <main id="main-content" class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
       <header class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
         <div class="flex items-center gap-3 min-w-0">
@@ -336,7 +333,6 @@
         </button>
       </header>
 
-      <!-- Buscador / alta -->
       <section class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
         <div class="flex flex-wrap items-center gap-3">
           <div class="flex-1 min-w-[260px]">
@@ -361,7 +357,6 @@
         </div>
       </section>
 
-      <!-- Tarjetas -->
       <section id="cards-container" class="flex-1 overflow-auto p-4 sm:p-6">
         <div id="empty-state"
           class="h-[60vh] rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-500">
@@ -375,7 +370,6 @@
     </main>
   </div>
 
-  <!-- ✅ MODAL: CONFIRMAR / CANCELAR CITA (GUARDIA) -->
   <div id="modal-cita" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -416,7 +410,6 @@
     </div>
   </div>
 
-  <!-- MODAL DESTINO -->
   <div id="modal-destino" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
@@ -434,7 +427,6 @@
     </div>
   </div>
 
-  <!-- MODAL POST-LIBERACIÓN -->
   <div id="modal-postlib" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
@@ -451,7 +443,6 @@
     </div>
   </div>
 
-  <!-- MODAL RAMPA -->
   <div id="modal-rampa" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
@@ -463,7 +454,6 @@
     </div>
   </div>
 
-  <!-- MODAL REGISTRO -->
   <div id="modal-com" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
@@ -491,7 +481,6 @@
     </div>
   </div>
 
-  <!-- MODAL CIERRE -->
   <div id="modal-cierre" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -547,7 +536,6 @@
     </div>
   </div>
 
-  <!-- MODAL INFO -->
   <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border border-gray-100">
       <div
@@ -571,7 +559,6 @@
     </div>
   </div>
 
-  <!-- ✅ IFRAME “túnel” para Apps Script (cero broncas CORS) -->
   <iframe id="gs_iframe" name="gs_iframe" style="display:none;"></iframe>
 
   <script type="module">
@@ -582,14 +569,12 @@
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     // ==============
-    // ✅ Apps Script URLs
+    // ✅ Apps Script URLs y Tokens
     // ==============
-    // (1) Tu script actual para SHEETS (trazabilidad / logs)
+    const APPS_SCRIPT_AUTH_TOKEN = "tk_logistica_bmm_2026";
     const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
-
-    // (2) Tu script NUEVO para DRIVE + CORREO (manda link del PDF)
     const MAIL_DRIVE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
-
+    
     // ✅ Folder ID de Drive donde se guardan los PDFs
     const DRIVE_FOLDER_ID = "17A5BW6jd0Dkl_k-b507YuNHltTp3ZUqS";
 
@@ -654,7 +639,7 @@
     }
 
     // =========================
-    // ✅ FORM + IFRAME POST (cero CORS)
+    // ✅ FORM + IFRAME POST (para evitar CORS en PDFs grandes)
     // =========================
     function postToAppsScriptViaForm(url, dataObj = {}) {
       return new Promise((resolve) => {
@@ -900,15 +885,51 @@
     }
 
     // =========================
-    // ✅ ELIMINAR CITA (soft-delete) — modo pro (CitasProveedor / CitasConfirmadas)
+    // ✅ ELIMINAR CITA: Mismo código robusto que tenías en Citas
     // =========================
+    
+    // Función espejo de tu código para registrar la cancelación en Sheets
+    async function appendRegistroCancelacion({ folio, citaId, canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario, cita }) {
+      if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGA_AQUI")) {
+          console.warn("GOOGLE_SHEET_WEBAPP_URL no configurado. Se omitió append a Registro.");
+          return;
+      }
+      try {
+          const res = await fetch(GOOGLE_SHEET_WEBAPP_URL, {
+              method: "POST",
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+              body: JSON.stringify({
+                  authToken: APPS_SCRIPT_AUTH_TOKEN,
+                  type: "CITA_CANCELADA",
+                  folio: folio || "",
+                  citaId,
+                  canceladoAtISO,
+                  canceladoPor,
+                  canceladoPorEmail,
+                  canceladoComentario,
+                  cita: cita || {}
+              })
+          });
+
+          const raw = await res.text();
+          let data = null;
+          try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
+
+          if (!res.ok || (data && data.success === false)) {
+              console.warn("Registro (Sheets) respondió con problema:", { status: res.status, raw, data });
+          }
+      } catch (e) {
+          console.warn("No se pudo registrar en Sheets (Registro):", e);
+      }
+    }
+
     async function cancelCita({ citaId, folio, comentarioCancel, citaSnapshot = null }) {
       if (!folio) throw new Error("Falta folio");
       if (!comentarioCancel?.trim()) throw new Error("Falta comentarioCancel");
 
-      const userName = currentUser?.nombre || "";
-      const userEmail = currentUser?.email || "";
-      const canceladoAtISO = nowISO();
+      const canceladoPor = (currentUser && (currentUser.nombre || currentUser.name)) ? (currentUser.nombre || currentUser.name) : "Administrador";
+      const canceladoPorEmail = (currentUser && (currentUser.email || currentUser.correo)) ? (currentUser.email || currentUser.correo) : "";
+      const canceladoAtISO = new Date().toISOString();
 
       // Preferimos CitasProveedor si existe vínculo
       const citaProveedorId =
@@ -926,82 +947,77 @@
       // 1) Firestore (verdad fuente) — NO deleteDoc, es soft-delete
       await updateDoc(doc(db, target.col, target.id), {
         estatus: "CitaCancelada",
-        canceladoAt: serverTimestamp(),
         canceladoAtISO,
-        canceladoPor: userName,
-        canceladoPorEmail: userEmail,
+        canceladoPor,
+        canceladoPorEmail,
         canceladoComentario: comentarioCancel.trim(),
         updatedAt: serverTimestamp()
       });
 
-      // 2) Correo (best effort) — NO revertimos si falla
-      try {
-        const rid = newRid("CANCEL");
-
-        const to =
-          citaSnapshot?.correoProveedor ||
-          citaSnapshot?.proveedorEmail ||
-          citaSnapshot?.usuarioProveedorEmail ||
-          citaSnapshot?.email ||
-          "";
-
-        const payload = {
-          to,
-          folio,
-          motivo: comentarioCancel.trim(),
-          citaId: target.id,
-          origenColeccion: target.col,
-          datosCita: {
-            fecha: citaSnapshot?.fecha || "",
-            hora: citaSnapshot?.hora || "",
-            linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
-            placas: citaSnapshot?.placas || "",
-            tipoVisita: citaSnapshot?.tipoVisita || "",
-            tipoTransporte: citaSnapshot?.tipoTransporte || "",
-            destino: citaSnapshot?.destino || ""
-          }
+      // 2) Correo (best effort)
+      const correoDestino = citaSnapshot?.usuarioProveedor || citaSnapshot?.correoProveedor || citaSnapshot?.proveedorEmail || citaSnapshot?.email || "";
+      if (correoDestino) {
+        const payloadCancelEmail = {
+            to: correoDestino,
+            folio: String(folio),
+            citaId: target.id,
+            motivo: comentarioCancel.trim(),
+            datosCita: {
+                linea: citaSnapshot?.lineaTransporte || citaSnapshot?.linea || "",
+                placas: citaSnapshot?.placas || "",
+                tipoTransporte: citaSnapshot?.tipoTransporte || "",
+                tipoVisita: citaSnapshot?.tipoVisita || "",
+                fecha: citaSnapshot?.fecha || "",
+                hora: citaSnapshot?.hora || "",
+                horaExtra: citaSnapshot?.horaExtra || "",
+                destino: citaSnapshot?.destino || "",
+                usuarioProveedor: correoDestino
+            }
         };
 
-        await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
-          rid,
-          action: "sendCitaCancelacion",
-          payload: JSON.stringify(payload)
-        });
+        try {
+            const res = await fetch(MAIL_DRIVE_WEBAPP_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify({
+                    authToken: APPS_SCRIPT_AUTH_TOKEN,
+                    action: "sendCitaCancelacion",
+                    payload: payloadCancelEmail
+                })
+            });
 
-        // Si tu Apps Script responde con postMessage puedes activar:
-        // const resp = await waitForRid(rid, 30000);
-        // console.log("Cancel mail resp:", resp);
+            const raw = await res.text();
+            let data = null;
+            try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
 
-      } catch (e) {
-        console.warn("⚠️ Cancelación: falló envío de correo (no se revierte).", e);
+            if (!res.ok || (data && data.success === false) || !data) {
+                console.warn("Problema al enviar correo cancelación:", { status: res.status, raw, data });
+            }
+        } catch (mailErr) {
+            console.warn("Error al enviar correo cancelación:", mailErr);
+        }
       }
 
-      // 3) Sheets log (best effort) — NO revertimos si falla
-      try {
-        await sendToSheetsViaForm({
-          type: "CITA_CANCELADA",
-          folio,
+      // 3) Sheets log utilizando la función exacta
+      await appendRegistroCancelacion({
+          folio: String(folio),
           citaId: target.id,
-          origenColeccion: target.col,
           canceladoAtISO,
-          canceladoPor: userName,
-          canceladoPorEmail: userEmail,
+          canceladoPor,
+          canceladoPorEmail,
           canceladoComentario: comentarioCancel.trim(),
           cita: {
-            linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
-            placas: (citaSnapshot?.placas || ""),
-            tipoTransporte: (citaSnapshot?.tipoTransporte || ""),
-            tipoVisita: (citaSnapshot?.tipoVisita || ""),
-            fecha: (citaSnapshot?.fecha || ""),
-            hora: (citaSnapshot?.hora || ""),
-            horaExtra: (citaSnapshot?.horaExtra || ""),
-            destino: (citaSnapshot?.destino || ""),
-            usuarioProveedor: (citaSnapshot?.usuarioProveedor || "")
+              linea: citaSnapshot?.lineaTransporte || citaSnapshot?.linea || "",
+              placas: citaSnapshot?.placas || "",
+              tipoTransporte: citaSnapshot?.tipoTransporte || "",
+              tipoVisita: citaSnapshot?.tipoVisita || "",
+              fecha: citaSnapshot?.fecha || "",
+              hora: citaSnapshot?.hora || "",
+              horaExtra: citaSnapshot?.horaExtra || "",
+              destino: citaSnapshot?.destino || "",
+              usuarioProveedor: correoDestino
           }
-        });
-      } catch (e) {
-        console.warn("⚠️ Cancelación: falló registro en Sheets (no se revierte).", e);
-      }
+      });
 
       console.log("✅ Cita cancelada (soft-delete):", folio, "→", target.col, target.id);
     }
@@ -1018,7 +1034,7 @@
     }
 
     // =========================
-    // ✅ Sheets log via FORM (sin fetch)
+    // ✅ Sheets log via FORM (usado solo para FinalizarYEnviarLINK, sin fetch)
     // =========================
     async function sendToSheetsViaForm(payload) {
       if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
