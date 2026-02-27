@@ -471,7 +471,8 @@
       </div>
       <div class="p-6 space-y-3">
         <div>
-          <label for="mc-operador" class="text-xs font-semibold text-gray-600">Usuario que registra (obligatorio)</label>
+          <label for="mc-operador" class="text-xs font-semibold text-gray-600">Usuario que registra
+            (obligatorio)</label>
           <input id="mc-operador" type="text" placeholder="Nombre y Apellido"
             class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]" />
         </div>
@@ -532,8 +533,7 @@
 
         <div id="drive-link-wrap" class="hidden rounded-lg border bg-blue-50 p-3 text-sm">
           <div class="font-semibold text-blue-900">Link generado</div>
-          <a id="drive-link" href="#" target="_blank" rel="noopener"
-            class="text-blue-700 underline break-all">—</a>
+          <a id="drive-link" href="#" target="_blank" rel="noopener" class="text-blue-700 underline break-all">—</a>
         </div>
 
       </div>
@@ -550,7 +550,8 @@
   <!-- MODAL INFO -->
   <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border border-gray-100">
-      <div class="px-5 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
+      <div
+        class="px-5 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
         <div class="min-w-0">
           <h3 class="text-lg sm:text-xl font-semibold truncate">Información del transporte</h3>
           <p class="text-xs text-gray-500">Vista completa de campos (CitasConfirmadas)</p>
@@ -559,7 +560,8 @@
         <div class="flex items-center gap-2">
           <input id="info-search" type="text" placeholder="Buscar campo…"
             class="hidden sm:block px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
-          <button id="mi-close" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm font-semibold">Cerrar</button>
+          <button id="mi-close"
+            class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm font-semibold">Cerrar</button>
         </div>
       </div>
 
@@ -900,91 +902,80 @@
     // =========================
     // ✅ ELIMINAR CITA (soft-delete) — EXACTO estilo "Eliminar cita"
     // =========================
-    // Reglas:
-    // 1) NO deleteDoc: solo updateDoc(estatus="CitaCancelada") + campos de auditoría
-    // 2) Enviar correo (best-effort) por Apps Script
-    // 3) Registrar en Sheets (best-effort)
-    // 4) Si existe referencia a CitasProveedor, también la cancela (best-effort)
-    async function cancelCita({ citaId, folio, comentarioCancel, citaSnapshot = null }) {
-      if (!citaId) throw new Error("cancelCita: falta citaId");
-      const canceladoAtISO = nowISO();
 
-      const cancelMeta = {
+    // ✅ "Eliminar cita" (cancelación) = updateDoc (no deleteDoc) + auditoría
+    async function cancelCita({ citaId, folio, comentarioCancel, citaSnapshot = null }) {
+      if (!citaId) throw new Error("Falta citaId");
+
+      // 1) Firestore (verdad fuente)
+      await updateDoc(doc(db, "CitasConfirmadas", citaId), {
         estatus: "CitaCancelada",
         canceladoAt: serverTimestamp(),
-        canceladoAtISO,
+        canceladoAtISO: nowISO(),
         canceladoPor: currentUser?.nombre || "",
         canceladoPorEmail: currentUser?.email || "",
         canceladoComentario: comentarioCancel || "",
         updatedAt: serverTimestamp()
-      };
+      });
 
-      // (1) Firestore: CitasConfirmadas es la fuente aquí (porque tu lookup es por CitasConfirmadas)
-      await updateDoc(doc(db, "CitasConfirmadas", citaId), cancelMeta);
-
-      // (1b) Best-effort: si tu documento trae el ID de la cita del proveedor, también cancelamos ahí
-      // soporta: citaProveedorId, citaProveedorDocId, proveedorCitaId (por si cambiaste el nombre)
-      const provId =
-        citaSnapshot?.citaProveedorId ||
-        citaSnapshot?.citaProveedorDocId ||
-        citaSnapshot?.proveedorCitaId ||
-        null;
-
-      if (provId) {
-        try {
-          await updateDoc(doc(db, "CitasProveedor", provId), cancelMeta);
-        } catch (e) {
-          console.warn("⚠️ No se pudo cancelar en CitasProveedor (no revierte):", e);
-        }
-      }
-
-      // (2) Correo (Apps Script) — best-effort
+      // 2) Apps Script (correo) - lo que TU script espera: payload.to + payload.motivo + payload.datosCita
       try {
-        const rid = newRid("CANCEL_MAIL");
+        const rid = newRid("CANCEL");
+
+        // 🔥 OJO: "to" DEBE ser un EMAIL real.
+        // Ajusta estos campos según tu CitasConfirmadas (elige el que sí sea correo).
+        const to =
+          (citaSnapshot?.correoProveedor) ||
+          (citaSnapshot?.proveedorEmail) ||
+          (citaSnapshot?.usuarioProveedorEmail) ||
+          (citaSnapshot?.email) ||
+          ""; // <- si esto queda vacío, Apps Script va a fallar
+
+        const payload = {
+          to,
+          folio,
+          motivo: comentarioCancel || "",
+          citaId,
+          datosCita: {
+            fecha: citaSnapshot?.fecha || "",
+            hora: citaSnapshot?.hora || "",
+            linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
+            placas: citaSnapshot?.placas || "",
+            tipoVisita: citaSnapshot?.tipoVisita || "",
+            tipoTransporte: citaSnapshot?.tipoTransporte || "",
+            destino: citaSnapshot?.destino || ""
+          },
+
+          // opcional: si quieres mandar admins desde el frontend:
+          // adminEmails: ["admin1@tuempresa.com", "admin2@tuempresa.com"]
+        };
+
+        // ✅ Importante: mandar payload como JSON en el campo "payload"
         await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
           rid,
           action: "sendCitaCancelacion",
-          folio,
-          citaId,
-          canceladoAtISO,
-          canceladoPor: currentUser?.nombre || "",
-          canceladoPorEmail: currentUser?.email || "",
-          canceladoComentario: comentarioCancel || "",
-
-          // si tu script lo usa para mandar al proveedor:
-          proveedorEmail: citaSnapshot?.usuarioProveedorEmail || citaSnapshot?.proveedorEmail || "",
-
-          // datos para el template del correo
-          fecha: citaSnapshot?.fecha || "",
-          hora: citaSnapshot?.hora || "",
-          tipoVisita: citaSnapshot?.tipoVisita || "",
-          tipoTransporte: citaSnapshot?.tipoTransporte || "",
-          placas: citaSnapshot?.placas || "",
-          linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
+          payload: JSON.stringify(payload)
         });
 
-        // Si tu Apps Script regresa postMessage, puedes esperar (opcional):
-        // await waitForRid(rid, 30000);
+        // Si tu Apps Script responde con postMessage, puedes esperar:
+        // const resp = await waitForRid(rid, 30000);
+        // console.log("Resp cancel:", resp);
+
       } catch (e) {
-        console.warn("⚠️ Cancelación: falló envío de correo (no se revierte la cancelación).", e);
+        console.warn("⚠️ Cancelación: falló envío de correo (no se revierte cancelación).", e);
       }
 
-      // (3) Sheets — best-effort
+      // 3) Sheets log - best effort (si falla, NO revierte)
       try {
-        const rid = newRid("CANCEL_SHEETS");
-        await postToAppsScriptViaForm(GOOGLE_SHEET_WEBAPP_URL, {
-          rid,
-          action: "appendRegistroCancelacion",
+        await sendToSheetsViaForm({
           type: "CITA_CANCELADA",
           folio,
           citaId,
-          metadata: JSON.stringify({
-            canceladoAtISO,
-            canceladoPor: currentUser?.nombre || "",
-            canceladoPorEmail: currentUser?.email || "",
-            canceladoComentario: comentarioCancel || "",
-          }),
-          datosCita: JSON.stringify({
+          canceladoAtISO: nowISO(),
+          canceladoPor: currentUser?.nombre || "",
+          canceladoPorEmail: currentUser?.email || "",
+          canceladoComentario: comentarioCancel || "",
+          cita: {
             linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
             placas: (citaSnapshot?.placas || ""),
             tipoTransporte: (citaSnapshot?.tipoTransporte || ""),
@@ -994,13 +985,10 @@
             horaExtra: (citaSnapshot?.horaExtra || ""),
             destino: (citaSnapshot?.destino || ""),
             usuarioProveedor: (citaSnapshot?.usuarioProveedor || "")
-          })
+          }
         });
-
-        // opcional:
-        // await waitForRid(rid, 20000);
       } catch (e) {
-        console.warn("⚠️ Cancelación: falló registro en Sheets (no se revierte la cancelación).", e);
+        console.warn("⚠️ Cancelación: falló registro en Sheets (no se revierte cancelación).", e);
       }
 
       console.log("✅ Cita cancelada (soft-delete):", folio);
