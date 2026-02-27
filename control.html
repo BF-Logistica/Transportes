@@ -1874,7 +1874,7 @@
     </div>
 
     <div class="grid grid-cols-5 lg:grid-cols-10 gap-5">
-      ${["Llegada", "Ingreso", "Disuasión (E)", "Patio (E)", "Rampa", "Fin Descarga", "Liberación", "Patio (S)", "Disuasión (S)", "Salida de Planta"].map((t, i) => `
+      ${["Llegada", "Ingreso", "Disuasión (E)", "Patio (E)", "Rampa", "Fin Carga/Descarga", "Liberación", "Patio (S)", "Disuasión (S)", "Salida de Planta"].map((t, i) => `
         <div class="text-center">
           <div id="chip-${folio}-${i}" class="chip todo mx-auto">
             <img src="${iconForStep(i)}" class="w-14 h-14" alt="${t}">
@@ -2446,5 +2446,6 @@
 </body>
 
 </html>
+
 
 
