@@ -916,26 +916,24 @@
         const rid = newRid("CANCEL");
         await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
           rid,
-          // Mantengo tu action actual para no romper tu Apps Script:
-          action: "CITA_CANCELADA_EMAIL",
+          action: "sendCitaCancelacion", 
           folio,
           citaId,
           canceladoAtISO: nowISO(),
           canceladoPor: currentUser?.nombre || "",
           canceladoPorEmail: currentUser?.email || "",
           canceladoComentario: comentarioCancel || "",
-          // info de la cita para el correo (Apps Script decide destinatarios)
-          cita: JSON.stringify({
-            linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
-            placas: (citaSnapshot?.placas || ""),
-            tipoTransporte: (citaSnapshot?.tipoTransporte || ""),
-            tipoVisita: (citaSnapshot?.tipoVisita || ""),
-            fecha: (citaSnapshot?.fecha || ""),
-            hora: (citaSnapshot?.hora || ""),
-            horaExtra: (citaSnapshot?.horaExtra || ""),
-            destino: (citaSnapshot?.destino || ""),
-            usuarioProveedor: (citaSnapshot?.usuarioProveedor || "")
-          })
+        
+          // OJO: manda también el correo del proveedor si tu script lo requiere
+          proveedorEmail: citaSnapshot?.usuarioProveedor || "",
+        
+          // datos extra por si el correo los imprime
+          fecha: citaSnapshot?.fecha || "",
+          hora: citaSnapshot?.hora || "",
+          tipoVisita: citaSnapshot?.tipoVisita || "",
+          tipoTransporte: citaSnapshot?.tipoTransporte || "",
+          placas: citaSnapshot?.placas || "",
+          linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
         });
 
         // (opcional) si tu Apps Script ya responde con postMessage, puedes esperar:
@@ -2330,3 +2328,4 @@
 </body>
 
 </html>
+
