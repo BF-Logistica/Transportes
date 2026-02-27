@@ -676,7 +676,7 @@
     }
 
     /* =========================================================
-       CRONÓMETRO (inicia en RAMPA y termina al finalizar LIBERACIÓN)
+       CRONÓMETRO (inicia en RAMPA y termina al finalizar LIBERACIÓN o Cancelar)
        ========================================================= */
     const rampTimers = new Map();
 
@@ -844,24 +844,41 @@
       return el;
     }
 
+    // ✅ LÓGICA DE SALTO DE CANCELACIÓN AÑADIDA AQUÍ
+    function computeFirstIncomplete(data) {
+        const p = data.pasos || {};
+        const estado = (data.estado || "En Proceso");
+
+        const stamps = [
+            p.llegada,
+            p.ingreso,
+            (p.disuasionE_inicio && p.disuasionE_fin),
+            p.patioE_fin,
+            p.rampa_inicio,
+            p.finDescarga,
+            p.liberacion,
+            p.patioS_fin,
+            (p.disuasionS_inicio && p.disuasionS_fin),
+            p.salidaPlanta
+        ];
+
+        if (typeof p.forceNextStep === "number" && !p.salidaPlanta) {
+            return { firstIncomplete: p.forceNextStep, stamps, forced: true };
+        }
+        if (estado === "Cancelado" && !p.salidaPlanta) {
+            return { firstIncomplete: 9, stamps, forced: true };
+        }
+
+        let idx = stamps.findIndex(v => !v);
+        if (idx === -1) idx = stamps.length;
+        return { firstIncomplete: idx, stamps, forced: false };
+    }
+
     function syncUIFromData(folio, data) {
       const p = data.pasos || {};
-
-      const stamps = [
-        p.llegada,
-        p.ingreso,
-        (p.disuasionE_inicio && p.disuasionE_fin),
-        p.patioE_fin,
-        p.rampa_inicio,
-        p.finDescarga,
-        p.liberacion,
-        p.patioS_fin,
-        (p.disuasionS_inicio && p.disuasionS_fin),
-        p.salidaPlanta
-      ];
-
-      let firstIncomplete = stamps.findIndex(ts => !ts);
-      if (firstIncomplete === -1) firstIncomplete = stamps.length;
+      
+      // ✅ Utilizamos la función de salto que acabamos de inyectar
+      const { firstIncomplete, stamps } = computeFirstIncomplete(data);
 
       const stepTimes = [
         p.llegada,
@@ -892,7 +909,7 @@
         setChip(
           folio,
           2,
-          stamps[2] ? "done" : "live",
+          stamps[2] ? "done" : (firstIncomplete === 2 ? "live" : "todo"),
           fin ? fin.toLocaleString() : "",
           p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : "")
         );
@@ -902,6 +919,12 @@
         const tag = $("#tag-" + folio + "-3");
         if (tag) tag.textContent = p.patio_rampa;
       }
+      
+      // ✅ Mostramos la etiqueta de Cancelado debajo del estatus de Rampa si fue cancelado ahí
+      if (p.rampa_cancel) {
+          const tag = $("#tag-" + folio + "-4");
+          if (tag) tag.textContent = "Cancelado";
+      }
 
       if (p.postLiberacionDestino) {
         const tag = $("#tag-" + folio + "-6");
@@ -909,7 +932,7 @@
       }
 
       let truckStep;
-      if (firstIncomplete === stamps.length) {
+      if (firstIncomplete >= stamps.length) {
         truckStep = stamps.length - 1;
       } else {
         truckStep = firstIncomplete;
@@ -919,18 +942,18 @@
       const estEl = $("#estado-" + folio);
       if (estEl) estEl.textContent = data.estado || "En Proceso";
 
+      // ✅ El cronómetro ahora se congela si el transporte fue cancelado (usando cancel_ts)
       const rampaStart = toDateSafe(p.rampa_inicio);
-      const liberacionEnd = toDateSafe(p.liberacion);
+      const liberacionEnd = toDateSafe(p.liberacion || p.cancel_ts);
       startOrUpdateRampTimer(folio, rampaStart, liberacionEnd);
     }
 
-    // ✅ ACTUALIZACIÓN DE KPI CANCELADOS (Mejorado)
+    // ✅ ACTUALIZACIÓN DE KPI CANCELADOS
     function updateKpis() {
       const total = order.length;
       let enProceso = 0;
       let canceladosActivos = 0;
 
-      // Evaluamos el estatus de las tarjetas en vivo en la pantalla
       for (const folio of order) {
         const data = cards.get(folio)?.data || {};
         const estado = (data.estado || "En Proceso").toLowerCase();
@@ -944,7 +967,7 @@
       $("#kpi-total").textContent = total;
       $("#kpi-enproceso").textContent = enProceso;
       
-      // Sumamos los rechazados en puerta + los que se cerraron + los que aún están en pantalla
+      // ✅ Sumamos todos los tipos de cancelaciones del día
       $("#kpi-cancelados").textContent = rechazadosEnPuerta + canceladosCerrados + canceladosActivos;
 
       const folioActual = order[currentIndex] || "—";
@@ -1042,7 +1065,7 @@
       });
     }
 
-    // ✅ NUEVO: Suscripción a cancelados del día (sin forzar índices compuestos en Firebase)
+    // ✅ NUEVO: Suscripción a cancelados del día
     function subscribeCanceladosHoy() {
       const localToday = getTodayLocalString();
       const utcToday = getTodayUTCString();
@@ -1062,7 +1085,7 @@
         updateKpis();
       }, err => console.warn("Error leyendo KPIs de CitasConfirmadas:", err));
 
-      // 2) Escuchar cancelados a mitad del proceso (Histórico)
+      // 2) Escuchar cancelados a mitad del proceso ya cerrados (Histórico)
       const qHist = query(
         collection(db, "ControlTransportesHistorico"),
         where("closedDate", "==", utcToday)
@@ -1098,7 +1121,7 @@
       setupSidebarNav();
       startClock();
       subscribeLiveControls();
-      subscribeCanceladosHoy(); // ✅ Arranca la lectura global de cancelados
+      subscribeCanceladosHoy(); // ✅ Arranca la lectura global de cancelados de hoy
     })();
   </script>
 </body>
