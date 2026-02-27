@@ -261,7 +261,6 @@
 
 <body>
   <div id="app" class="h-full flex">
-    <!-- SIDEBAR -->
     <aside id="sidebar"
       class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
       <div class="p-4 flex items-center border-b border-gray-200">
@@ -317,7 +316,6 @@
           </li>
 
           <li>
-            <!-- current page -->
             <a data-page="estatus.html"
               class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
               <span class="nav-icon-wrapper">
@@ -330,7 +328,6 @@
       </nav>
     </aside>
 
-    <!-- MAIN -->
     <main id="main-content" class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
       <header class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
         <div class="flex items-center gap-3 min-w-0">
@@ -347,7 +344,6 @@
         </button>
       </header>
 
-      <!-- Encabezado LIVE -->
       <section class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">
@@ -371,7 +367,6 @@
         </div>
       </section>
 
-      <!-- KPIs simples -->
       <section class="px-4 sm:px-6 py-4 bg-gray-50 border-b border-gray-200">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
@@ -383,8 +378,8 @@
             <div id="kpi-enproceso" class="text-2xl font-semibold mt-1">0</div>
           </div>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
-            <div class="text-xs text-gray-500">Cancelados</div>
-            <div id="kpi-cancelados" class="text-2xl font-semibold mt-1">0</div>
+            <div class="text-xs text-gray-500">Cancelados hoy</div>
+            <div id="kpi-cancelados" class="text-2xl font-semibold mt-1 text-red-600">0</div>
           </div>
           <div class="bg-white rounded-xl shadow-sm border border-gray-100 px-4 py-3">
             <div class="text-xs text-gray-500">Último folio mostrado</div>
@@ -393,7 +388,6 @@
         </div>
       </section>
 
-      <!-- Carrusel de tarjetas -->
       <section class="flex-1 overflow-auto p-4 sm:p-6">
         <div id="carousel-wrapper" class="relative max-w-6xl mx-auto w-full">
           <button id="btn-prev" class="carousel-arrow carousel-arrow-left" aria-label="Anterior" disabled>
@@ -683,12 +677,8 @@
 
     /* =========================================================
        CRONÓMETRO (inicia en RAMPA y termina al finalizar LIBERACIÓN)
-       - start: p.rampa_inicio
-       - stop:  p.liberacion (cuando existe)
-       - 45 min: amarillo
-       - 90 min: rojo
        ========================================================= */
-    const rampTimers = new Map(); // folio -> intervalId
+    const rampTimers = new Map();
 
     function msToHMS(ms) {
       const total = Math.max(0, Math.floor(ms / 1000));
@@ -699,7 +689,6 @@
     }
 
     function setTimerStyle(el, elapsedMs) {
-      // reset classes (tailwind)
       el.classList.remove(
         "bg-gray-100", "text-gray-700",
         "bg-yellow-100", "text-yellow-800",
@@ -730,14 +719,12 @@
 
       stopRampTimer(folio);
 
-      // Si no hay rampa, no mostramos nada útil
       if (!startDate) {
         el.textContent = "⏱ Rampa: —";
         el.className = "inline-flex items-center gap-1 text-xs font-semibold bg-gray-100 text-gray-700 px-3 py-1 rounded-full";
         return;
       }
 
-      // Si ya existe liberación => timer terminado (congelado)
       if (endDateOrNull) {
         const elapsed = endDateOrNull.getTime() - startDate.getTime();
         el.textContent = `⏱ Rampa→Liberación: ${msToHMS(elapsed)}`;
@@ -746,7 +733,6 @@
         return;
       }
 
-      // En vivo: corre cada 1s desde rampa_inicio
       const tick = () => {
         const now = Date.now();
         const elapsed = now - startDate.getTime();
@@ -760,11 +746,29 @@
       rampTimers.set(folio, intervalId);
     }
 
-    /* ESTADO DE TARJETAS / CARRUSEL */
+    /* ESTADO DE TARJETAS / CARRUSEL / KPIs */
     const cards = new Map();
     let order = [];
     let currentIndex = 0;
     let autoTimer = null;
+
+    // ✅ NUEVAS VARIABLES PARA KPIs CANCELADOS HOY
+    let rechazadosEnPuerta = 0;
+    let canceladosCerrados = 0;
+
+    // Helper: Formato YYYY-MM-DD según hora local
+    function getTodayLocalString() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    // Helper: Formato YYYY-MM-DD según hora UTC (como se guarda el closedDate)
+    function getTodayUTCString() {
+      return new Date().toISOString().slice(0, 10);
+    }
 
     function renderCardSkeleton(folio, cita) {
       const el = document.createElement("div");
@@ -797,7 +801,6 @@
               <span id="estado-${folio}">En Proceso</span>
             </span>
 
-            <!-- ✅ CRONÓMETRO RAMPA→LIBERACIÓN -->
             <span id="timer-${folio}" class="inline-flex items-center gap-1 text-xs font-semibold bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
               ⏱ Rampa→Liberación: —
             </span>
@@ -916,28 +919,33 @@
       const estEl = $("#estado-" + folio);
       if (estEl) estEl.textContent = data.estado || "En Proceso";
 
-      // ✅ TIMER: inicia en RAMPA y termina cuando existe LIBERACIÓN
-      // - mientras no exista liberación: corre en vivo
       const rampaStart = toDateSafe(p.rampa_inicio);
       const liberacionEnd = toDateSafe(p.liberacion);
       startOrUpdateRampTimer(folio, rampaStart, liberacionEnd);
     }
 
+    // ✅ ACTUALIZACIÓN DE KPI CANCELADOS (Mejorado)
     function updateKpis() {
       const total = order.length;
       let enProceso = 0;
-      let cancelados = 0;
+      let canceladosActivos = 0;
 
+      // Evaluamos el estatus de las tarjetas en vivo en la pantalla
       for (const folio of order) {
         const data = cards.get(folio)?.data || {};
         const estado = (data.estado || "En Proceso").toLowerCase();
-        if (estado === "cancelado") cancelados++;
-        else enProceso++;
+        if (estado === "cancelado") {
+            canceladosActivos++;
+        } else {
+            enProceso++;
+        }
       }
 
       $("#kpi-total").textContent = total;
       $("#kpi-enproceso").textContent = enProceso;
-      $("#kpi-cancelados").textContent = cancelados;
+      
+      // Sumamos los rechazados en puerta + los que se cerraron + los que aún están en pantalla
+      $("#kpi-cancelados").textContent = rechazadosEnPuerta + canceladosCerrados + canceladosActivos;
 
       const folioActual = order[currentIndex] || "—";
       $("#kpi-folio").textContent = folioActual;
@@ -1008,7 +1016,6 @@
 
         for (const [folio, info] of Array.from(cards.entries())) {
           if (!seenFolios.has(folio)) {
-            // limpia timer al borrar tarjeta
             stopRampTimer(folio);
             info.rootEl.remove();
             cards.delete(folio);
@@ -1031,11 +1038,46 @@
         resetAutoAdvance();
       }, (err) => {
         console.error("onSnapshot error:", err);
-        alert("Error al suscribirse en vivo. Revisa índices de Firestore (createdAt + activo) o permisos.");
+        alert("Error al suscribirse en vivo. Revisa índices de Firestore o permisos.");
       });
     }
 
-    /* BOTONES DEL CARRUSEL */
+    // ✅ NUEVO: Suscripción a cancelados del día (sin forzar índices compuestos en Firebase)
+    function subscribeCanceladosHoy() {
+      const localToday = getTodayLocalString();
+      const utcToday = getTodayUTCString();
+
+      // 1) Escuchar cancelados desde la puerta (CitasConfirmadas)
+      const qCitas = query(
+        collection(db, "CitasConfirmadas"),
+        where("fecha", "==", localToday)
+      );
+      
+      onSnapshot(qCitas, snap => {
+        let count = 0;
+        snap.forEach(d => {
+          if (d.data().estatus === "CitaCancelada") count++;
+        });
+        rechazadosEnPuerta = count;
+        updateKpis();
+      }, err => console.warn("Error leyendo KPIs de CitasConfirmadas:", err));
+
+      // 2) Escuchar cancelados a mitad del proceso (Histórico)
+      const qHist = query(
+        collection(db, "ControlTransportesHistorico"),
+        where("closedDate", "==", utcToday)
+      );
+
+      onSnapshot(qHist, snap => {
+        let count = 0;
+        snap.forEach(d => {
+          if (d.data().estado === "Cancelado") count++;
+        });
+        canceladosCerrados = count;
+        updateKpis();
+      }, err => console.warn("Error leyendo KPIs de ControlTransportesHistorico:", err));
+    }
+
     $("#btn-prev").addEventListener("click", () => {
       if (order.length === 0) return;
       showSlide(currentIndex - 1);
@@ -1056,9 +1098,9 @@
       setupSidebarNav();
       startClock();
       subscribeLiveControls();
+      subscribeCanceladosHoy(); // ✅ Arranca la lectura global de cancelados
     })();
   </script>
 </body>
 
 </html>
-
