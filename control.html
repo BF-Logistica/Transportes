@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -22,10 +23,13 @@
       --bmm-blue: #0d1c84;
       --bmm-blue-light: #1b2c9f;
       --text-main: #0f172a;
-      --surface: #f3f4f6;
+      --surface: #f3f4f6
     }
 
-    html, body { height: 100%; }
+    html,
+    body {
+      height: 100%
+    }
 
     body {
       margin: 0;
@@ -34,112 +38,18 @@
       overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       color: var(--text-main);
-      background-color: var(--surface);
+      background-color: var(--surface)
     }
 
-    .sidebar-collapsed { width: 80px; }
-    .sidebar-expanded  { width: 250px; }
-
-    .main-content-collapsed { margin-left: 80px; }
-    .main-content-expanded  { margin-left: 250px; }
-
-    .menu-text {
-      opacity: 0;
-      width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      transition: opacity .3s, width .3s;
-    }
-    .sidebar-expanded .menu-text { opacity: 1; width: auto; }
-    .sidebar-collapsed .menu-text { display: none; }
-
-    .sidebar-collapsed nav a {
-      justify-content: center;
-      padding-left: 0;
-      padding-right: 0;
+    .sidebar-collapsed {
+      width: 80px
     }
 
-    .nav-icon {
-      width: 32px;
-      height: 32px;
-      flex-shrink: 0;
-      object-fit: contain;
-      display: block;
-    }
-    .sidebar-collapsed .nav-icon {
-      width: 40px;
-      height: 40px;
-      margin: 0 auto;
+    .sidebar-expanded {
+      width: 250px
     }
 
-    .timeline {
-      height: 8px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      position: relative;
-      overflow: hidden;
-    }
-    .timeline > div {
-      height: 8px;
-      background: linear-gradient(90deg, #0ea5e9, #22c55e);
-      width: 0;
-      border-radius: 999px;
-    }
-    .truck {
-      position: absolute;
-      top: -50px;
-      left: 0;
-      transform: translateX(-50%);
-      transition: left .35s ease;
-    }
-
-    .chip {
-      width: 100px;
-      height: 100px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 18px rgba(2, 6, 23, .08);
-    }
-    .chip img { width: 56px; height: 56px; }
-
-    .chip.done {
-      background: #10b981;
-      color: #fff;
-    }
-    .chip.todo {
-      background: #fff;
-      color: #64748b;
-      border: 2px solid #e5e7eb;
-    }
-    .chip.live {
-      background: rgba(250, 204, 21, .14);
-      color: #92400e;
-      border: 2px solid rgba(250, 204, 21, .55);
-      box-shadow: 0 4px 14px rgba(250, 204, 21, .25);
-    }
-
-    .modal-backdrop { background: rgba(0,0,0,.5); }
-
-    @view-transition { navigation: auto; }
-
-    .btn {
-      padding: .45rem .75rem;
-      border-radius: .6rem;
-      font-size: .82rem;
-      font-weight: 600;
-    }
-    .btn[disabled] { opacity: .45; pointer-events: none; }
-    .btn.mark { background: #059669; color: #fff; }
-    .btn.mark:hover { background: #047857; }
-    .btn.fin { background: #1d4ed8; color: #fff; margin-top: .6rem; }
-    .btn.fin:hover { background: #1e40af; }
-    .btn.cancel { background: #e5e7eb; color: #111827; margin-top: .6rem; }
-    .btn.cancel:hover { background: #d1d5db; }
-    .btn.danger { background: #dc2626; color: #fff; }
-    .btn.danger:hover { background: #b91c1c; }
-
+    /* ===== Modal Info nice layout ===== */
     .kv {
       display: flex;
       align-items: flex-start;
@@ -150,6 +60,7 @@
       border-radius: .75rem;
       padding: .6rem .75rem;
     }
+
     .kv .k {
       color: #475569;
       font-size: .78rem;
@@ -157,6 +68,7 @@
       word-break: break-word;
       max-width: 58%;
     }
+
     .kv .v {
       font-weight: 600;
       text-align: right;
@@ -165,10 +77,177 @@
       max-width: 42%;
     }
 
+    .main-content-collapsed {
+      margin-left: 80px
+    }
+
+    .main-content-expanded {
+      margin-left: 250px
+    }
+
+    .menu-text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      transition: opacity .3s, width .3s
+    }
+
+    .sidebar-expanded .menu-text {
+      opacity: 1;
+      width: auto
+    }
+
+    .sidebar-collapsed .menu-text {
+      display: none
+    }
+
+    .sidebar-collapsed nav a {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0
+    }
+
+    .nav-icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+      object-fit: contain;
+      display: block
+    }
+
+    .sidebar-collapsed .nav-icon {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto
+    }
+
+    .timeline {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .timeline>div {
+      height: 8px;
+      background: linear-gradient(90deg, #0ea5e9, #22c55e);
+      width: 0;
+      border-radius: 999px
+    }
+
+    .truck {
+      position: absolute;
+      top: -50px;
+      left: 0;
+      transform: translateX(-50%);
+      transition: left .35s ease
+    }
+
+    .chip {
+      width: 100px;
+      height: 100px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(2, 6, 23, .08)
+    }
+
+    .chip img {
+      width: 56px;
+      height: 56px
+    }
+
+    .chip.done {
+      background: #10b981;
+      color: #fff
+    }
+
+    .chip.todo {
+      background: #fff;
+      color: #64748b;
+      border: 2px solid #e5e7eb
+    }
+
+    .chip.live {
+      background: rgba(250, 204, 21, .14);
+      color: #92400e;
+      border: 2px solid rgba(250, 204, 21, .55);
+      box-shadow: 0 4px 14px rgba(250, 204, 21, .25)
+    }
+
+    .modal-backdrop {
+      background: rgba(0, 0, 0, .5)
+    }
+
+    @view-transition {
+      navigation: auto
+    }
+
+    .btn {
+      padding: .45rem .75rem;
+      border-radius: .6rem;
+      font-size: .82rem;
+      font-weight: 600
+    }
+
+    .btn[disabled] {
+      opacity: .45;
+      pointer-events: none
+    }
+
+    .btn.mark {
+      background: #059669;
+      color: #fff
+    }
+
+    .btn.mark:hover {
+      background: #047857
+    }
+
+    .btn.fin {
+      background: #1d4ed8;
+      color: #fff;
+      margin-top: .6rem
+    }
+
+    .btn.fin:hover {
+      background: #1e40af
+    }
+
+    .btn.cancel {
+      background: #e5e7eb;
+      color: #111827;
+      margin-top: .6rem
+    }
+
+    .btn.cancel:hover {
+      background: #d1d5db
+    }
+
+    .btn.danger {
+      background: #dc2626;
+      color: #fff
+    }
+
+    .btn.danger:hover {
+      background: #b91c1c
+    }
+
     @media (max-width:768px) {
-      .sidebar-expanded { width: 210px; }
-      .main-content-expanded { margin-left: 210px; }
-      header h1 { font-size: 1.15rem; }
+      .sidebar-expanded {
+        width: 210px
+      }
+
+      .main-content-expanded {
+        margin-left: 210px
+      }
+
+      header h1 {
+        font-size: 1.15rem
+      }
     }
   </style>
 </head>
@@ -176,13 +255,13 @@
 <body>
   <div id="app" class="h-full flex">
     <!-- SIDEBAR -->
-    <aside id="sidebar" class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+    <aside id="sidebar"
+      class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
       <div class="p-4 flex items-center justify-between border-b border-gray-200">
         <div class="hidden" id="sidebar-title-wrapper">
           <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
           <span class="menu-text" id="app-title-sidebar"></span>
         </div>
-
         <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
           class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -190,7 +269,6 @@
           </svg>
         </button>
       </div>
-
       <nav class="flex-1 p-4 overflow-y-auto" aria-label="Navegación principal">
         <ul class="space-y-2">
           <li>
@@ -202,7 +280,8 @@
             </a>
           </li>
           <li>
-            <a data-page="usuarios.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+            <a data-page="usuarios.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
               <span class="nav-icon-wrapper">
                 <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
               </span>
@@ -210,7 +289,8 @@
             </a>
           </li>
           <li>
-            <a data-page="citas.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
+            <a data-page="citas.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
               <span class="nav-icon-wrapper">
                 <img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" />
               </span>
@@ -218,7 +298,8 @@
             </a>
           </li>
           <li>
-            <a data-page="control.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+            <a data-page="control.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
               <span class="nav-icon-wrapper">
                 <img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" />
               </span>
@@ -226,7 +307,8 @@
             </a>
           </li>
           <li>
-            <a data-page="estatus.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
+            <a data-page="estatus.html"
+              class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
               <span class="nav-icon-wrapper">
                 <img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" />
               </span>
@@ -322,8 +404,7 @@
           class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
           Aceptar (dar de alta)
         </button>
-        <button id="mcita-btn-cancelar"
-          class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
+        <button id="mcita-btn-cancelar" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
           Cancelar cita
         </button>
         <button id="mcita-btn-confirm-cancel"
@@ -342,9 +423,12 @@
         <p class="text-sm text-gray-600">Seleccione el destino:</p>
       </div>
       <div class="p-6 flex gap-3">
-        <button data-accion="Rampa" class="destop grow px-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Rampa</button>
-        <button data-accion="Patio" class="destop grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
-        <button data-accion="Cancelar" class="destop grow px-5 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">Cancelar</button>
+        <button data-accion="Rampa"
+          class="destop grow px-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Rampa</button>
+        <button data-accion="Patio"
+          class="destop grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
+        <button data-accion="Cancelar"
+          class="destop grow px-5 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">Cancelar</button>
       </div>
     </div>
   </div>
@@ -357,8 +441,11 @@
         <p class="text-sm text-gray-600">Solo aplica si va a Patio.</p>
       </div>
       <div class="p-6 flex gap-3">
-        <button data-accion="Patio" class="postlib grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
-        <button data-accion="DisuasionS" class="postlib grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Disuasión (S)</button>
+        <button data-accion="Patio"
+          class="postlib grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
+        <button data-accion="DisuasionS"
+          class="postlib grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Disuasión
+          (S)</button>
       </div>
     </div>
   </div>
@@ -370,9 +457,8 @@
         <h3 class="text-xl font-semibold">Seleccione la Rampa</h3>
       </div>
       <div id="rampa-grid" class="p-6 grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
-      <div class="px-6 pb-6">
-        <button id="rampa-cancel" class="w-full py-3 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button>
-      </div>
+      <div class="px-6 pb-6"><button id="rampa-cancel"
+          class="w-full py-3 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button></div>
     </div>
   </div>
 
@@ -397,7 +483,8 @@
       </div>
       <div class="px-6 pb-6 flex gap-3 justify-end">
         <button id="mc-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
-        <button id="mc-ok" class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">Aceptar</button>
+        <button id="mc-ok"
+          class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">Aceptar</button>
       </div>
     </div>
   </div>
@@ -412,7 +499,6 @@
         </div>
         <button id="cierre-x" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
       </div>
-
       <div class="p-6 space-y-3">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
@@ -426,13 +512,11 @@
               class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700" />
           </div>
         </div>
-
         <div>
           <label for="cierre-comentario" class="text-xs font-semibold text-gray-600">Comentarios (obligatorio)</label>
           <textarea id="cierre-comentario" rows="3" placeholder="Ej. Unidad sale de planta sin novedad"
             class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
         </div>
-
         <p id="cierre-error" class="text-sm text-red-600 hidden">Completa usuario y comentarios.</p>
 
         <div class="rounded-lg border bg-gray-50 p-3 text-sm text-gray-700">
@@ -440,17 +524,23 @@
           <ul class="list-disc pl-5 space-y-1">
             <li>Guardará el histórico (<span class="font-mono">ControlTransportesHistorico</span>).</li>
             <li>Generará PDF con logo, info, timeline y chat.</li>
-            <li><b>Enviará el PDF por correo</b> a Administradores.</li>
-            <li><b>Y hará un backup en Drive</b> (1 admin recibirá link como prueba de guardado).</li>
+            <li>Subirá el PDF a Drive.</li>
+            <li><b>Enviará correo desde Apps Script con el LINK del PDF</b> (sin adjuntar).</li>
           </ul>
         </div>
-      </div>
 
+        <div id="drive-link-wrap" class="hidden rounded-lg border bg-blue-50 p-3 text-sm">
+          <div class="font-semibold text-blue-900">Link generado</div>
+          <a id="drive-link" href="#" target="_blank" rel="noopener"
+            class="text-blue-700 underline break-all">—</a>
+        </div>
+
+      </div>
       <div class="px-6 pb-6 flex flex-wrap gap-3 justify-end">
         <button id="cierre-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button>
         <button id="cierre-pdf"
           class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
-          Finalizar y enviar por correo
+          Finalizar y enviar LINK por correo
         </button>
       </div>
     </div>
@@ -478,6 +568,7 @@
     </div>
   </div>
 
+  <!-- ✅ IFRAME “túnel” para Apps Script (cero broncas CORS) -->
   <iframe id="gs_iframe" name="gs_iframe" style="display:none;"></iframe>
 
   <script type="module">
@@ -487,45 +578,17 @@
       onSnapshot, query, where, serverTimestamp, orderBy
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // ============================================================
-    // ✅ CONFIG WEBAPP (Apps Script)
-    // ============================================================
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
-    const AUTH_TOKEN = "tk_logistica_bmm_2026";
+    // ==============
+    // ✅ Apps Script URLs
+    // ==============
+    // (1) Tu script actual para SHEETS (trazabilidad / logs)
+    const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
 
-    // ✅ ADMIN EMAILS (para usos del frontend: cancelación proveedor + admins, backup link a 1 admin, etc.)
-    const ADMIN_EMAILS = [
-      "mitzyguadalupe.rosado@beiersdorf.com",
-      "mitrosa@hotmail.com"
-    ];
+    // (2) Tu script NUEVO para DRIVE + CORREO (manda link del PDF)
+    const MAIL_DRIVE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
 
-    // ============================================================
-    // ✅ Apps Script call (no-cors, JSON en text/plain)
-    // ============================================================
-    async function callMailAPI(action, payload) {
-      if (!WEBAPP_URL || WEBAPP_URL.includes("PEGAR_AQUI")) {
-        console.warn("WEBAPP_URL no configurada");
-        return { ok: false, skipped: true };
-      }
-
-      const body = { authToken: AUTH_TOKEN, action, payload: payload || {} };
-
-      try {
-        await fetch(WEBAPP_URL, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "text/plain;charset=utf-8" },
-          body: JSON.stringify(body),
-          keepalive: true
-        });
-
-        // En no-cors NO hay forma confiable de leer response.
-        return { ok: true, sent: true, mode: "no-cors" };
-      } catch (e) {
-        console.warn("callMailAPI error:", e);
-        return { ok: false, error: String(e) };
-      }
-    }
+    // ✅ Folder ID de Drive donde se guardan los PDFs
+    const DRIVE_FOLDER_ID = "17A5BW6jd0Dkl_k-b507YuNHltTp3ZUqS";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
@@ -559,36 +622,27 @@
       const h = Math.floor(totalSeconds / 3600);
       const m = Math.floor((totalSeconds % 3600) / 60);
       const s = totalSeconds % 60;
-      return [h, m, s].map(n => n.toString().padStart(2, "0")).join(":");
+      return [h, m, s].map(n => String(n).padStart(2, "0")).join(":");
     }
-
     function applyTimerColor(el, ms) {
       el.classList.remove("text-red-600", "text-yellow-600", "text-[var(--bmm-blue)]");
       if (ms >= THRESH_RED_MS) el.classList.add("text-red-600");
       else if (ms >= THRESH_YELLOW_MS) el.classList.add("text-yellow-600");
       else el.classList.add("text-[var(--bmm-blue)]");
     }
-
     function setTimerDisplay(folio, ms) {
       const el = document.getElementById(`timer-${folio}`);
       if (!el) return;
-      el.textContent = formatDuration(Math.max(0, ms || 0));
-      applyTimerColor(el, ms || 0);
+      el.textContent = formatDuration(ms);
+      applyTimerColor(el, ms);
     }
-
     function startTimer(folio, startISO) {
       stopTimer(folio);
       const startMs = new Date(startISO).getTime();
       if (!Number.isFinite(startMs)) return;
-
       setTimerDisplay(folio, Date.now() - startMs);
-
-      activeTimers[folio] = setInterval(() => {
-        const diff = Date.now() - startMs;
-        setTimerDisplay(folio, diff);
-      }, 1000);
+      activeTimers[folio] = setInterval(() => setTimerDisplay(folio, Date.now() - startMs), 1000);
     }
-
     function stopTimer(folio) {
       if (activeTimers[folio]) {
         clearInterval(activeTimers[folio]);
@@ -596,6 +650,66 @@
       }
     }
 
+    // =========================
+    // ✅ FORM + IFRAME POST (cero CORS)
+    // =========================
+    function postToAppsScriptViaForm(url, dataObj = {}) {
+      return new Promise((resolve) => {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = url;
+        form.target = "gs_iframe";
+
+        // Importante: payload grande (pdfBase64) — Apps Script tiene límites.
+        // (si algún día crece demasiado, te conviene “subir por chunks” o generar el PDF directo en Apps Script)
+        for (const [k, v] of Object.entries(dataObj)) {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = k;
+          input.value = (typeof v === "string") ? v : JSON.stringify(v);
+          form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        setTimeout(() => { form.remove(); resolve(true); }, 50);
+      });
+    }
+
+    // ✅ Esperar respuesta vía postMessage desde Apps Script
+    const pendingByRid = new Map();
+    window.addEventListener("message", (ev) => {
+      const data = ev?.data;
+      if (!data || typeof data !== "object") return;
+      if (!data.rid) return;
+
+      const pending = pendingByRid.get(data.rid);
+      if (!pending) return;
+
+      pendingByRid.delete(data.rid);
+      pending.resolve(data);
+    });
+
+    function waitForRid(rid, timeoutMs = 30000) {
+      return new Promise((resolve) => {
+        const t = setTimeout(() => {
+          pendingByRid.delete(rid);
+          resolve({ ok: false, rid, error: "TIMEOUT" });
+        }, timeoutMs);
+
+        pendingByRid.set(rid, {
+          resolve: (payload) => { clearTimeout(t); resolve(payload); }
+        });
+      });
+    }
+
+    function newRid(prefix = "RID") {
+      return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    // =========================
+    // ✅ Roles / access
+    // =========================
     function normalizeRole(str) {
       return (str || "")
         .toLowerCase()
@@ -603,20 +717,12 @@
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\s+/g, "");
     }
-
-    function getCurrentUserFromStorage() {
-      try {
-        const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
-        return raw ? JSON.parse(raw) : null;
-      } catch {
-        return null;
-      }
-    }
-
     function guardAccess() {
       if (location.protocol === "file:") return true;
-
-      currentUser = getCurrentUserFromStorage();
+      try {
+        const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
+        currentUser = raw ? JSON.parse(raw) : null;
+      } catch { currentUser = null; }
 
       if (!currentUser) {
         alert("Debes iniciar sesión.");
@@ -641,16 +747,20 @@
         location.replace("login.html");
         return false;
       }
-
       return true;
     }
 
+    function getCurrentUserFromStorage() {
+      try {
+        const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
+        return raw ? JSON.parse(raw) : null;
+      } catch { return null; }
+    }
     function isAdminUser(user) {
       if (!user) return false;
       const normRol = normalizeRole(user.rol || user.role);
       return (normRol === "administrador" || user.roleKey === "UsuarioAdmin" || user.collection === "UsuarioAdmin");
     }
-
     function isCoordLogUser(user) {
       if (!user) return false;
       const normRol = normalizeRole(user.rol || user.role);
@@ -694,17 +804,16 @@
           main.classList.toggle("main-content-collapsed", isExpanded);
         });
       }
-
-      $("#logout-btn")?.addEventListener("click", () => {
+      $("#logout-btn").addEventListener("click", () => {
         sessionStorage.clear();
         localStorage.removeItem("currentUser");
         location.replace("login.html");
       });
     })();
 
-    // ============================
-    // DATA
-    // ============================
+    // =========================
+    // ✅ Firestore helpers
+    // =========================
     async function getCitaByFolio(folio) {
       const cDoc = await getDoc(doc(db, "ControlTransportes", folio));
       if (cDoc.exists()) { return { __yaExiste: true, ...cDoc.data() }; }
@@ -716,7 +825,6 @@
       const d = snap.docs[0];
       const data = d.data();
       const estatus = (data.estatus || "");
-
       if (estatus === "CitaFinalizada" || estatus === "CitaCancelada") return null;
       return { id: d.id, ...data };
     }
@@ -815,62 +923,41 @@
       }
     }
 
-    // ==========================================================
-    // ✅ INFO DEL PDF CON CAMPOS FIJOS (SIEMPRE APARECEN)
-    // ==========================================================
-    const TRANSPORTE_FIELDS = [
-      ["Folio", "folio"],
-      ["ID Cita", "id"],
-      ["Estatus", "estatus"],
-
-      ["Fecha", "fecha"],
-      ["Hora", "hora"],
-      ["Hora extra", "horaExtra"],
-
-      ["Línea transporte", "lineaTransporte"],
-      ["Línea (fallback)", "linea"],
-      ["Razón social", "razon"],
-      ["Frontera", "frontera"],
-      ["Correo proveedor", "usuarioProveedor"],
-
-      ["Chofer", "chofer"],
-      ["Placas", "placas"],
-      ["Placas 2", "placas2"],
-
-      ["Tipo visita", "tipoVisita"],
-      ["Tipo transporte", "tipoTransporte"],
-      ["Destino", "destino"],
-
-      ["Factura", "factura"],
-      ["No. caja", "caja"],
-      ["No. caja (deja)", "cajaDeja"],
-      ["No. caja (recolecta)", "cajaRecolecta"],
-      ["Recolecta caja", "recolectaCaja"],
-      ["No. sello", "sello"],
-      ["No. sello 2", "sello2"],
-
-      ["Notas / Comentarios (cita)", "notas"],
-      ["Es domingo", "esDomingo"],
-
-      ["Dirección fiscal", "direccionFiscal"],
-      ["Dirección patios", "direccionPatios"],
-      ["Teléfono contacto", "telefonoContacto"],
-      ["Recolecta caja (detalle)", "recolectaCajaDetalle"]
-    ];
-
-    function getByKey(obj, key) { return obj ? obj[key] : undefined; }
-
-    function normalizeValueForPdf(v) {
-      if (v === null || v === undefined) return "-";
-      if (typeof v === "boolean") return v ? "Sí" : "No";
-      const s = String(v).trim();
-      return s ? s : "-";
+    // =========================
+    // ✅ Sheets log via FORM (sin fetch)
+    // =========================
+    async function sendToSheetsViaForm(payload) {
+      if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
+        console.warn("GOOGLE_SHEET_WEBAPP_URL no configurada.");
+        return { ok: false, skipped: true };
+      }
+      const rid = newRid("SHEETS");
+      await postToAppsScriptViaForm(GOOGLE_SHEET_WEBAPP_URL, {
+        rid,
+        action: "LOG_SHEETS",
+        payload: JSON.stringify(payload || {})
+      });
+      // normalmente no necesitamos respuesta
+      return { ok: true, rid };
     }
 
+    // =========================
+    // ✅ PDF helpers
+    // =========================
     function buildInfoRows(cita, folio) {
-      const base = { ...(cita || {}) };
-      base.folio = folio;
-      return TRANSPORTE_FIELDS.map(([label, key]) => [label, normalizeValueForPdf(getByKey(base, key))]);
+      // OJO: aquí “siempre salen todos” aunque estén vacíos (se van como "-" o "")
+      return [
+        ["Folio", folio],
+        ["Línea", cita.linea || cita.lineaTransporte || ""],
+        ["Placas", cita.placas || ""],
+        ["Tipo transporte", cita.tipoTransporte || ""],
+        ["Tipo visita", cita.tipoVisita || ""],
+        ["Fecha", cita.fecha || ""],
+        ["Hora", cita.hora || ""],
+        ["Hora extra", cita.horaExtra || ""],
+        ["Destino", cita.destino || ""],
+        ["Proveedor", cita.usuarioProveedor || ""]
+      ].map(([k, v]) => ([k, (v === "" ? "-" : v)]));
     }
 
     function pasoLabel(paso) {
@@ -883,7 +970,7 @@
         patioE_fin: "Patio (E)",
         rampa_inicio: "Rampa - Inicio",
         rampa_cancel: "Rampa - Cancelado",
-        finDescarga: "Fin Carga/Descarga",
+        finDescarga: "Fin Descarga",
         liberacion: "Liberación",
         patioS_fin: "Patio (S)",
         disuasionS_inicio: "Disuasión (S) - Inicio",
@@ -901,15 +988,14 @@
       const pageW = docPdf.internal.pageSize.getWidth();
       const margin = 40;
 
-      // Logo
       const logoPath = "img/logo_bf.png";
       try {
-        const img = await fetch(logoPath, { cache: "no-store" });
+        const img = await fetch(logoPath);
         const blob = await img.blob();
         const reader = new FileReader();
         const dataUrl = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); });
         docPdf.addImage(dataUrl, "PNG", margin, 24, 140, 34);
-      } catch { /* ok */ }
+      } catch { }
 
       docPdf.setFont("helvetica", "bold");
       docPdf.setFontSize(16);
@@ -996,6 +1082,7 @@
 
     async function saveToHistorico({ folio, controlData, chatMessages, closedAtISO }) {
       const dref = doc(db, "ControlTransportesHistorico", folio);
+
       const payload = {
         folio,
         estado: controlData.estado || "Finalizado",
@@ -1009,10 +1096,13 @@
         createdAt: controlData.createdAt || null,
         updatedAt: serverTimestamp()
       };
+
       await setDoc(dref, payload, { merge: true });
     }
 
-    // ========= UI / timeline =========
+    // =========================
+    // ✅ UI/timeline (igual que tu base)
+    // =========================
     function iconForStep(i) {
       const icons = [
         "img/ico_llegada.png",
@@ -1028,11 +1118,7 @@
       ];
       return icons[i] || "img/camion.png";
     }
-
-    function stepPercent(i) {
-      return [4, 14, 24, 34, 44, 54, 64, 74, 84, 96][i] || 0;
-    }
-
+    function stepPercent(i) { return [4, 14, 24, 34, 44, 54, 64, 74, 84, 96][i] || 0; }
     function truckIconFor(t) {
       t = (t || "").toLowerCase();
       if (t.includes("cargadescarga")) return "img/truck_cyd.png";
@@ -1040,7 +1126,6 @@
       if (t.includes("carga")) return "img/truck_carga.png";
       return "img/camion.png";
     }
-
     function setChip(folio, step, status, tsText, tagText) {
       const chip = $("#chip-" + folio + "-" + step);
       if (!chip) return;
@@ -1049,22 +1134,17 @@
       if (tsText !== undefined) $("#ts-" + folio + "-" + step).textContent = tsText || "";
       if (tagText !== undefined) $("#tag-" + folio + "-" + step).textContent = tagText || "";
     }
-
     function moveTruck(folio, step) {
-      const bar = $("#bar-" + folio);
-      const truck = $("#truck-" + folio);
-      if (!bar || !truck) return;
-      bar.style.width = stepPercent(step) + "%";
-      truck.style.left = stepPercent(step) + "%";
+      $("#bar-" + folio).style.width = stepPercent(step) + "%";
+      $("#truck-" + folio).style.left = stepPercent(step) + "%";
     }
-
     function buttonsForStep(folio, step) {
       switch (step) {
         case 0: return `<button class="btn mark" data-f="${folio}" data-step="0">Registrar</button>`;
         case 1: return `<button class="btn mark" data-f="${folio}" data-step="1">Registrar</button>`;
         case 2: return `<button class="btn mark" data-f="${folio}" data-step="2">Iniciar</button><button class="btn fin" data-f="${folio}" data-step="2">Finalizar</button>`;
         case 3: return `<button class="btn fin" data-f="${folio}" data-step="3">Finalizar</button>`;
-        case 4: return `<button class="btn mark" data-f="${folio}" data-step="4">Iniciar carga/descarga</button><button class="btn cancel danger" data-f="${folio}" data-step="4">Cancelar</button>`;
+        case 4: return `<button class="btn mark" data-f="${folio}" data-step="4">Iniciar descarga</button><button class="btn cancel danger" data-f="${folio}" data-step="4">Cancelar</button>`;
         case 5: return `<button class="btn mark" data-f="${folio}" data-step="5">Registrar</button>`;
         case 6: return `<button class="btn mark" data-f="${folio}" data-step="6">Registrar</button>`;
         case 7: return `<button class="btn mark" data-f="${folio}" data-step="7">Registrar</button>`;
@@ -1096,7 +1176,6 @@
       if (typeof p.forceNextStep === "number" && !p.salidaPlanta) {
         return { firstIncomplete: p.forceNextStep, stamps, forced: true };
       }
-
       if (estado === "Cancelado" && !p.salidaPlanta) {
         return { firstIncomplete: 9, stamps, forced: true };
       }
@@ -1106,10 +1185,7 @@
       return { firstIncomplete: idx, stamps, forced: false };
     }
 
-    function toLocal(iso) {
-      try { return iso ? new Date(iso).toLocaleString() : ""; }
-      catch { return ""; }
-    }
+    function toLocal(iso) { try { return iso ? new Date(iso).toLocaleString() : ""; } catch { return ""; } }
 
     function applyButtonsPolicy(folio, data) {
       const card = cards.get(folio);
@@ -1172,11 +1248,7 @@
         setTimerDisplay(folio, msSaved);
         return;
       }
-
-      if (startISO && !endISO) {
-        startTimer(folio, startISO);
-        return;
-      }
+      if (startISO && !endISO) { startTimer(folio, startISO); return; }
 
       stopTimer(folio);
       setTimerDisplay(folio, 0);
@@ -1208,8 +1280,7 @@
 
       if (p.disuasionE_destino) {
         setChip(
-          folio,
-          2,
+          folio, 2,
           (stamps[2] ? "done" : (firstIncomplete === 2 ? "live" : "todo")),
           p.disuasionE_fin ? toLocal(p.disuasionE_fin) : "",
           p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : "")
@@ -1223,7 +1294,6 @@
       moveTruck(folio, truckStep);
 
       $("#estado-" + folio).textContent = estado;
-
       applyButtonsPolicy(folio, data);
       syncTimerFromData(folio, data);
     }
@@ -1235,12 +1305,11 @@
       const card = cards.get(folio);
       if (!card) return;
 
-      try { card.unsub && card.unsub(); } catch {}
-      try { card.chatUnsub && card.chatUnsub(); } catch {}
+      try { card.unsub && card.unsub(); } catch { }
+      try { card.chatUnsub && card.chatUnsub(); } catch { }
 
       stopTimer(folio);
-
-      try { card.rootEl?.remove(); } catch {}
+      try { card.rootEl?.remove(); } catch { }
       cards.delete(folio);
 
       if (cards.size === 0) $("#empty-state").classList.remove("hidden");
@@ -1310,51 +1379,37 @@
       });
     }
 
-    // ===== MODALS: cierre por backdrop y ESC (mejor UX) =====
-    function wireBackdropClose(modalEl, onClose) {
-      modalEl.addEventListener("click", (e) => {
-        if (e.target === modalEl) onClose?.();
-      });
-    }
-    function showModal(modalEl) { modalEl.classList.remove("hidden"); modalEl.classList.add("flex"); }
-    function hideModal(modalEl) { modalEl.classList.add("hidden"); modalEl.classList.remove("flex"); }
-
     // ===== MODAL DESTINO =====
     const mDestino = $("#modal-destino"); let md_resolve = null;
     $$(".destop", mDestino).forEach(b => b.addEventListener("click", () => {
-      hideModal(mDestino);
-      md_resolve && md_resolve(b.dataset.accion);
-      md_resolve = null;
+      mDestino.classList.add("hidden"); mDestino.classList.remove("flex");
+      md_resolve && md_resolve(b.dataset.accion); md_resolve = null;
     }));
-    function openModalDestino() { showModal(mDestino); return new Promise(res => md_resolve = res); }
-    wireBackdropClose(mDestino, () => { hideModal(mDestino); md_resolve && md_resolve(null); md_resolve = null; });
+    function openModalDestino() { mDestino.classList.remove("hidden"); mDestino.classList.add("flex"); return new Promise(res => md_resolve = res); }
 
     // ===== MODAL POST =====
     const mPost = $("#modal-postlib"); let mpost_resolve = null;
     $$(".postlib", mPost).forEach(b => b.addEventListener("click", () => {
-      hideModal(mPost);
-      mpost_resolve && mpost_resolve(b.dataset.accion);
-      mpost_resolve = null;
+      mPost.classList.add("hidden"); mPost.classList.remove("flex");
+      mpost_resolve && mpost_resolve(b.dataset.accion); mpost_resolve = null;
     }));
-    function openModalPostLiberacion() { showModal(mPost); return new Promise(res => mpost_resolve = res); }
-    wireBackdropClose(mPost, () => { hideModal(mPost); mpost_resolve && mpost_resolve(null); mpost_resolve = null; });
+    function openModalPostLiberacion() { mPost.classList.remove("hidden"); mPost.classList.add("flex"); return new Promise(res => mpost_resolve = res); }
 
     // ===== MODAL RAMPA =====
     const mRampa = $("#modal-rampa"), rampaGrid = $("#rampa-grid"); let mr_resolve = null;
-    $("#rampa-cancel").onclick = () => { hideModal(mRampa); mr_resolve && mr_resolve(null); mr_resolve = null; };
+    $("#rampa-cancel").onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve(null); mr_resolve = null; };
     function openModalRampa() {
       rampaGrid.innerHTML = "";
       for (let i = 1; i <= 18; i++) {
         const b = document.createElement("button");
         b.className = "px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold";
         b.textContent = "Rampa " + i;
-        b.onclick = () => { hideModal(mRampa); mr_resolve && mr_resolve("Rampa " + i); mr_resolve = null; };
+        b.onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve("Rampa " + i); mr_resolve = null; };
         rampaGrid.appendChild(b);
       }
-      showModal(mRampa);
+      mRampa.classList.remove("hidden"); mRampa.classList.add("flex");
       return new Promise(res => mr_resolve = res);
     }
-    wireBackdropClose(mRampa, () => { hideModal(mRampa); mr_resolve && mr_resolve(null); mr_resolve = null; });
 
     // ===== MODAL COMENTARIOS =====
     const mCom = $("#modal-com"),
@@ -1366,7 +1421,8 @@
     let mcom_resolve = null;
 
     $("#mc-cancel").onclick = () => {
-      hideModal(mCom);
+      mCom.classList.add("hidden");
+      mCom.classList.remove("flex");
       mcom_resolve && mcom_resolve({ ok: false });
       mcom_resolve = null;
     };
@@ -1379,8 +1435,8 @@
       mcError.classList.add("hidden");
 
       const out = { usuario: mcOperador.value.trim(), comentario: mcComentario.value.trim() };
-
-      hideModal(mCom);
+      mCom.classList.add("hidden");
+      mCom.classList.remove("flex");
       mcom_resolve && mcom_resolve({ ok: true, data: out });
       mcom_resolve = null;
     };
@@ -1390,11 +1446,10 @@
       mcOperador.value = currentUser?.nombre || "";
       mcComentario.value = "";
       mcError.classList.add("hidden");
-      showModal(mCom);
-      setTimeout(() => mcComentario.focus(), 0);
+      mCom.classList.remove("hidden");
+      mCom.classList.add("flex");
       return new Promise(res => mcom_resolve = res);
     }
-    wireBackdropClose(mCom, () => { hideModal(mCom); mcom_resolve && mcom_resolve({ ok: false }); mcom_resolve = null; });
 
     // ===== MODAL CIERRE =====
     const mCierre = $("#modal-cierre");
@@ -1409,27 +1464,22 @@
       cierreOperador.value = currentUser?.nombre || "";
       cierreComentario.value = "";
       cierreError.classList.add("hidden");
+      $("#drive-link-wrap").classList.add("hidden");
 
       cierreModo.value = (estado === "Cancelado") ? "Cierre por CANCELACIÓN" : "Cierre normal";
       cierreSub.textContent = (estado === "Cancelado")
-        ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar, guardar histórico y enviar PDF."
-        : "Registra Salida de Planta, guarda histórico y envía el PDF por correo.";
+        ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar, guardar histórico y enviar LINK."
+        : "Registra Salida de Planta, guarda histórico y envía el LINK del PDF por correo.";
 
       cierre_ctx = { folio, estado };
-      showModal(mCierre);
-      setTimeout(() => cierreComentario.focus(), 0);
+      mCierre.classList.remove("hidden");
+      mCierre.classList.add("flex");
     }
-
-    function closeModalCierre() {
-      cierre_ctx = null;
-      hideModal(mCierre);
-    }
-
+    function closeModalCierre() { cierre_ctx = null; mCierre.classList.add("hidden"); mCierre.classList.remove("flex"); }
     $("#cierre-x").onclick = closeModalCierre;
     $("#cierre-cancel").onclick = closeModalCierre;
-    wireBackdropClose(mCierre, closeModalCierre);
 
-    // ===== MODAL INFO =====
+    // ===== MODAL INFO (TODOS LOS CAMPOS DE CitasConfirmadas) =====
     async function fetchCitaConfirmadaByFolio(folio) {
       const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio));
       const snap = await getDocs(qRef);
@@ -1437,21 +1487,18 @@
       const d = snap.docs[0];
       return { id: d.id, ...d.data() };
     }
-
     function flattenForUI(obj, prefix = "") {
       const out = [];
       const isPlainObj = (v) => v && typeof v === "object" && !Array.isArray(v);
 
       for (const [k, v] of Object.entries(obj || {})) {
         const key = prefix ? `${prefix}.${k}` : k;
-
         if (isPlainObj(v)) out.push(...flattenForUI(v, key));
         else if (Array.isArray(v)) out.push([key, v.map(x => isPlainObj(x) ? JSON.stringify(x) : safeStr(x)).join(", ")]);
         else out.push([key, safeStr(v)]);
       }
       return out;
     }
-
     async function openInfoByFolio(folio, fallbackCita = null) {
       const grid = $("#info-grid");
       const modal = $("#modal-info");
@@ -1460,14 +1507,22 @@
       grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
 
       let full = null;
-      try { full = await fetchCitaConfirmadaByFolio(folio); }
-      catch (e) { console.warn("Error leyendo CitasConfirmadas:", e); }
+      try { full = await fetchCitaConfirmadaByFolio(folio); } catch (e) { console.warn("Error leyendo CitasConfirmadas:", e); }
 
       const base = full || ({ folio, ...(fallbackCita || {}) });
       const { createdAt, updatedAt, ...clean } = base;
+
       let rows = flattenForUI(clean);
 
-      const priority = ["folio", "fecha", "hora", "horaExtra", "lineaTransporte", "linea", "placas", "placas2", "chofer", "destino", "frontera", "tipoTransporte", "tipoVisita", "razon", "factura", "sello", "sello2", "citaProveedorId", "id", "estatus"];
+      const priority = [
+        "folio", "fecha", "hora", "horaExtra",
+        "lineaTransporte", "linea",
+        "placas", "placas2",
+        "chofer", "destino", "frontera",
+        "tipoTransporte", "tipoVisita",
+        "razon", "factura", "sello", "sello2",
+        "citaProveedorId", "id", "estatus"
+      ];
       const norm = (s) => String(s || "").toLowerCase();
 
       rows.sort((a, b) => {
@@ -1494,14 +1549,16 @@
         search.oninput = () => {
           const q = search.value.trim().toLowerCase();
           if (!q) return render(rows);
-          const filtered = rows.filter(([k, v]) => String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q));
+          const filtered = rows.filter(([k, v]) =>
+            String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)
+          );
           render(filtered);
         };
       }
 
-      showModal(modal);
-      $("#mi-close").onclick = () => hideModal(modal);
-      wireBackdropClose(modal, () => hideModal(modal));
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
     }
 
     // ====== MODAL CITA (GUARDIA DECIDE) ======
@@ -1514,7 +1571,6 @@
     const mcitaCancelWrap = $("#mcita-cancel-wrap");
     const mcitaCancelComent = $("#mcita-cancel-coment");
     const mcitaCancelErr = $("#mcita-cancel-err");
-
     let mcita_ctx = null;
 
     function renderCitaGrid(folio, cita) {
@@ -1532,7 +1588,7 @@
       ];
       mcitaGrid.innerHTML = rows.map(([k, v]) => `
         <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border">
-          <span class="text-gray-600">${escapeHtml(k)}</span>
+          <span class="text-gray-600">${k}</span>
           <span class="font-medium">${escapeHtml(v)}</span>
         </div>
       `).join("");
@@ -1540,7 +1596,6 @@
 
     function openModalCitaDecision({ folio, cita }) {
       renderCitaGrid(folio, cita);
-
       mcitaCancelWrap.classList.add("hidden");
       mcitaBtnConfirmCancel.classList.add("hidden");
       mcitaBtnCancelar.classList.remove("hidden");
@@ -1548,18 +1603,16 @@
       mcitaCancelComent.value = "";
       mcitaCancelErr.classList.add("hidden");
 
-      showModal(mCita);
+      mCita.classList.remove("hidden");
+      mCita.classList.add("flex");
+
       return new Promise((resolve) => { mcita_ctx = { folio, cita, resolve }; });
     }
 
-    function closeModalCita() {
-      hideModal(mCita);
-      mcita_ctx = null;
-    }
+    function closeModalCita() { mcita_ctx = null; mCita.classList.add("hidden"); mCita.classList.remove("flex"); }
 
     mcitaX.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "close" }); closeModalCita(); };
     mcitaBtnAceptar.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "accept" }); closeModalCita(); };
-
     mcitaBtnCancelar.onclick = () => {
       mcitaCancelWrap.classList.remove("hidden");
       mcitaBtnConfirmCancel.classList.remove("hidden");
@@ -1567,7 +1620,6 @@
       mcitaBtnAceptar.classList.add("hidden");
       mcitaCancelComent.focus();
     };
-
     mcitaBtnConfirmCancel.onclick = () => {
       const comment = mcitaCancelComent.value.trim();
       if (!comment) { mcitaCancelErr.classList.remove("hidden"); return; }
@@ -1576,94 +1628,82 @@
       closeModalCita();
     };
 
-    wireBackdropClose(mCita, () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "close" }); closeModalCita(); });
-
-    // ===== UI =====
+    // ===== UI: card =====
     function renderCardSkeleton(folio, cita) {
       const el = document.createElement("div");
       el.className = "mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden";
       el.dataset.folio = folio;
-
       el.innerHTML = `
-  <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100">
-    <div class="flex items-center gap-3">
-      <img src="${truckIconFor(cita.tipoVisita)}" class="w-7 h-7" alt="Tipo de visita">
-      <div>
-        <div class="text-lg font-semibold">Folio: <span class="text-[var(--bmm-blue)]">${escapeHtml(folio)}</span></div>
-        <div class="text-xs text-gray-500">
-          Línea: ${escapeHtml(cita.linea || cita.lineaTransporte || "-")}
-          · Placas: ${escapeHtml(cita.placas || "-")}
-          · TipoVisita: ${escapeHtml(cita.tipoVisita || "-")}
-        </div>
-      </div>
-    </div>
-    <div class="flex items-center gap-2">
-      <span class="inline-flex items-center gap-1 text-sm font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
-        <span id="estado-${folio}">En Proceso</span>
-      </span>
-      <button class="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-1" data-info="${folio}" aria-label="Ver información">
-        <img src="img/ico_info.png" class="w-4 h-4" alt="Info"> Información
-      </button>
-      <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] text-base font-semibold flex items-center gap-2" data-chat="${folio}">
-        <img src="img/chat.png" class="w-5 h-5" alt=""> Chat
-        <span id="chatBadge-${folio}" class="ml-1 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 hidden">0</span>
-      </button>
-    </div>
-  </div>
-
-  <div class="px-6 py-6">
-    <div class="relative mb-8">
-      <div class="timeline" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del transporte">
-        <div id="bar-${folio}" style="width:0%"></div>
-      </div>
-      <img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso">
-    </div>
-
-    <div class="mb-6 flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3">
-      <div>
-        <div class="text-xs text-gray-500">Tiempo</div>
-        <div class="text-[11px] text-gray-400">≥45 min amarillo · ≥1h 30m rojo</div>
-      </div>
-      <div id="timer-${folio}" class="text-2xl font-mono font-extrabold text-[var(--bmm-blue)]">00:00:00</div>
-    </div>
-
-    <div class="grid grid-cols-5 lg:grid-cols-10 gap-5">
-      ${["Llegada","Ingreso","Disuasión (E)","Patio (E)","Rampa","Fin Carga/Descarga","Liberación","Patio (S)","Disuasión (S)","Salida de Planta"].map((t, i) => `
-        <div class="text-center">
-          <div id="chip-${folio}-${i}" class="chip todo mx-auto">
-            <img src="${iconForStep(i)}" class="w-14 h-14" alt="${escapeHtml(t)}">
+        <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100">
+          <div class="flex items-center gap-3">
+            <img src="${truckIconFor(cita.tipoVisita)}" class="w-7 h-7" alt="Tipo de visita">
+            <div>
+              <div class="text-lg font-semibold">Folio: <span class="text-[var(--bmm-blue)]">${folio}</span></div>
+              <div class="text-xs text-gray-500">Línea: ${escapeHtml(cita.linea || cita.lineaTransporte || "-")} · Placas: ${escapeHtml(cita.placas || "-")} · TipoVisita: ${escapeHtml(cita.tipoVisita || "-")}</div>
+            </div>
           </div>
-          <div class="mt-2 font-semibold text-sm">${escapeHtml(t)}</div>
-          <div id="ts-${folio}-${i}" class="mt-1 text-xs text-gray-500"></div>
-          <div class="mt-2 space-x-2">${buttonsForStep(folio, i)}</div>
-          <div id="tag-${folio}-${i}" class="mt-1 text-[11px] text-blue-700"></div>
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1 text-sm font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full"><span id="estado-${folio}">En Proceso</span></span>
+            <button class="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-1" data-info="${folio}" aria-label="Ver información"><img src="img/ico_info.png" class="w-4 h-4" alt="Info"> Información</button>
+            <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] text-base font-semibold flex items-center gap-2" data-chat="${folio}">
+              <img src="img/chat.png" class="w-5 h-5" alt=""> Chat
+              <span id="chatBadge-${folio}" class="ml-1 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 hidden">0</span>
+            </button>
+          </div>
         </div>
-      `).join("")}
-    </div>
 
-    <div id="chatBox-${folio}" class="mt-5 hidden border-t pt-4" aria-live="polite">
-      <div class="flex items-center justify-between">
-        <div class="font-semibold">Chat del folio ${escapeHtml(folio)}</div>
-        <button class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm" data-chat-close="${folio}">Cerrar</button>
-      </div>
-      <div id="chatMsgs-${folio}" class="mt-2 max-h-56 overflow-auto space-y-2 bg-gray-50 p-3 rounded-lg border"></div>
-      <div class="mt-2 flex gap-2">
-        <label class="sr-only" for="chatInput-${folio}">Mensaje</label>
-        <input id="chatInput-${folio}" type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe un mensaje… (Enter para enviar)">
-        <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)] text-white" data-chat-send="${folio}">Enviar</button>
-      </div>
-    </div>
-  </div>`;
+        <div class="px-6 py-6">
+          <div class="relative mb-8">
+            <div class="timeline" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del transporte">
+              <div id="bar-${folio}" style="width:0%"></div>
+            </div>
+            <img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso">
+          </div>
+
+          <div class="mb-6 flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3">
+            <div>
+              <div class="text-xs text-gray-500">Tiempo</div>
+              <div class="text-[11px] text-gray-400">≥45 min amarillo · ≥1h 30m rojo</div>
+            </div>
+            <div id="timer-${folio}" class="text-2xl font-mono font-extrabold text-[var(--bmm-blue)]">00:00:00</div>
+          </div>
+
+          <div class="grid grid-cols-5 lg:grid-cols-10 gap-5">
+            ${["Llegada", "Ingreso", "Disuasión (E)", "Patio (E)", "Rampa", "Fin Descarga", "Liberación", "Patio (S)", "Disuasión (S)", "Salida de Planta"].map((t, i) => `
+              <div class="text-center">
+                <div id="chip-${folio}-${i}" class="chip todo mx-auto">
+                  <img src="${iconForStep(i)}" class="w-14 h-14" alt="${t}">
+                </div>
+                <div class="mt-2 font-semibold text-sm">${t}</div>
+                <div id="ts-${folio}-${i}" class="mt-1 text-xs text-gray-500"></div>
+                <div class="mt-2 space-x-2">${buttonsForStep(folio, i)}</div>
+                <div id="tag-${folio}-${i}" class="mt-1 text-[11px] text-blue-700"></div>
+              </div>
+            `).join("")}
+          </div>
+
+          <div id="chatBox-${folio}" class="mt-5 hidden border-t pt-4" aria-live="polite">
+            <div class="flex items-center justify-between">
+              <div class="font-semibold">Chat del folio ${folio}</div>
+              <button class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm" data-chat-close="${folio}">Cerrar</button>
+            </div>
+            <div id="chatMsgs-${folio}" class="mt-2 max-h-56 overflow-auto space-y-2 bg-gray-50 p-3 rounded-lg border"></div>
+            <div class="mt-2 flex gap-2">
+              <label class="sr-only" for="chatInput-${folio}">Mensaje</label>
+              <input id="chatInput-${folio}" type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe un mensaje… (Enter para enviar)">
+              <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)] text-white" data-chat-send="${folio}">Enviar</button>
+            </div>
+          </div>
+        </div>`;
       return el;
     }
 
     function toggleChat(folio, forceOpen = null) {
       const box = $("#chatBox-" + folio);
-      if (!box) return;
       const open = (forceOpen === null) ? box.classList.contains("hidden") : forceOpen;
       box.classList.toggle("hidden", !open);
       $("#chatBadge-" + folio)?.classList.add("hidden");
-      if (open) $("#chatInput-" + folio)?.focus();
+      $("#chatInput-" + folio)?.focus();
     }
 
     function attachCardHandlers(cardEl, folio, cita) {
@@ -1815,11 +1855,8 @@
             }
             case 3: {
               if (control.estado === "Cancelado") { act.disabled = false; break; }
-              const rSel = await openModalRampa();
-              if (!rSel) { act.disabled = false; break; }
-              const com = await pedirComentario(`Finalizar Patio (E) → ${rSel}`, "patioE_fin", "finalizar");
-              if (!com) break;
-
+              const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
+              const com = await pedirComentario(`Finalizar Patio (E) → ${rSel}`, "patioE_fin", "finalizar"); if (!com) break;
               const ts = nowISO();
               await updateDoc(cref, {
                 "pasos.patioE_fin": ts,
@@ -1830,7 +1867,6 @@
               });
               break;
             }
-
             case 4: {
               if (control.estado === "Cancelado") { act.disabled = false; break; }
 
@@ -1854,11 +1890,9 @@
               }
               break;
             }
-
             case 5: {
               if (control.estado === "Cancelado") { act.disabled = false; break; }
-              const com = await pedirComentario("Registrar Fin de Descarga", "finDescarga", "registrar");
-              if (!com) break;
+              const com = await pedirComentario("Registrar Fin de Descarga", "finDescarga", "registrar"); if (!com) break;
               if (!p.finDescarga) {
                 await updateDoc(cref, {
                   "pasos.finDescarga": nowISO(),
@@ -1868,12 +1902,9 @@
               }
               break;
             }
-
             case 6: {
               if (control.estado === "Cancelado") { act.disabled = false; break; }
-              const com = await pedirComentario("Registrar Liberación", "liberacion", "registrar");
-              if (!com) break;
-
+              const com = await pedirComentario("Registrar Liberación", "liberacion", "registrar"); if (!com) break;
               if (!p.liberacion) {
                 const ts = nowISO();
                 const startISO = p.cronometro_inicio;
@@ -1911,12 +1942,9 @@
               }
               break;
             }
-
             case 7: {
               if (control.estado === "Cancelado") { act.disabled = false; break; }
-              const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar");
-              if (!com) break;
-
+              const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar"); if (!com) break;
               if (!p.patioS_fin) {
                 await updateDoc(cref, {
                   "pasos.patioS_fin": nowISO(),
@@ -1926,13 +1954,10 @@
               }
               break;
             }
-
             case 8: {
               if (control.estado === "Cancelado") { act.disabled = false; break; }
               if (act.classList.contains("fin")) {
-                const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar");
-                if (!com) break;
-
+                const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar"); if (!com) break;
                 if (!p.disuasionS_fin) {
                   const ts = nowISO();
                   await updateDoc(cref, {
@@ -1943,9 +1968,7 @@
                   });
                 }
               } else {
-                const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar");
-                if (!com) break;
-
+                const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar"); if (!com) break;
                 if (!p.disuasionS_inicio) {
                   await updateDoc(cref, {
                     "pasos.disuasionS_inicio": nowISO(),
@@ -1956,7 +1979,6 @@
               }
               break;
             }
-
             case 9: {
               openModalCierre({ folio, estado: control.estado || "En Proceso" });
               act.disabled = false;
@@ -1970,118 +1992,152 @@
 
       cardEl.addEventListener("keydown", (e) => {
         const t = e.target;
-        if (t && t.id === "chatInput-" + folio && e.key === "Enter") {
-          e.preventDefault();
-          sendChatMsg(folio);
-        }
+        if (t && t.id === "chatInput-" + folio && e.key === "Enter") { e.preventDefault(); sendChatMsg(folio); }
       });
     }
 
-    // ✅ CIERRE -> guardar histórico + enviar PDF (Apps Script)
+    async function buildSheetsPayload({ actionType, folio, freshData, closedAtISO }) {
+      const cita = freshData.cita || {};
+      const comentarios = Array.isArray(freshData.comentarios) ? [...freshData.comentarios] : [];
+      comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
+
+      return {
+        type: "CONTROL_CIERRE",
+        actionType,
+        folio,
+        closedAtISO,
+        estado: freshData.estado || "",
+        usuarioAccion: currentUser?.nombre || "",
+        usuarioAccionEmail: currentUser?.email || "",
+        duracionRampaMs: freshData?.pasos?.duracion_rampa_ms ?? null,
+        duracionRampaHHMMSS: (typeof freshData?.pasos?.duracion_rampa_ms === "number")
+          ? formatDuration(freshData.pasos.duracion_rampa_ms)
+          : "",
+        cita: {
+          id: cita.id || "",
+          linea: cita.linea || "",
+          placas: cita.placas || "",
+          tipoTransporte: cita.tipoTransporte || "",
+          tipoVisita: cita.tipoVisita || "",
+          fecha: cita.fecha || "",
+          hora: cita.hora || "",
+          horaExtra: cita.horaExtra || "",
+          destino: cita.destino || "",
+          usuarioProveedor: cita.usuarioProveedor || ""
+        },
+        timeline: comentarios.map(c => ({
+          paso: c.paso || "",
+          pasoLabel: pasoLabel(c.paso || ""),
+          ts: c.ts || "",
+          usuario: c.usuario || "",
+          comentario: c.comentario || ""
+        }))
+      };
+    }
+
+    // =========================
+    // ✅ CIERRE: guarda histórico + sube PDF a Drive + Apps Script manda LINK por correo
+    // =========================
     $("#cierre-pdf").onclick = async () => {
       if (!cierre_ctx) return;
 
-      const folio = cierre_ctx.folio;
-      const cref = doc(db, "ControlTransportes", folio);
-      const snap = await getDoc(cref);
-      const control = snap.data() || {};
-      const card = cards.get(folio);
-      if (!card) { closeModalCierre(); return; }
+      const btn = $("#cierre-pdf");
+      btn.disabled = true;
 
-      const usuario = cierreOperador.value.trim();
-      const comentario = cierreComentario.value.trim();
-      if (!usuario || !comentario) { cierreError.classList.remove("hidden"); return; }
-      cierreError.classList.add("hidden");
-
-      const closedAtISO = nowISO();
-      const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
-      const comentariosPrev = control.comentarios || [];
-      const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
-
-      // 1) Cerrar en Firestore
-      await updateDoc(cref, {
-        "pasos.salidaPlanta": closedAtISO,
-        estado: estadoFinal,
-        activo: false,
-        "pasos.forceNextStep": null,
-        updatedAt: serverTimestamp(),
-        comentarios: newComentarios,
-        closedAtISO
-      });
-
-      await setCitaFinalizada(control.cita?.id);
-
-      // 2) Refrescar + guardar histórico
-      const freshSnap = await getDoc(cref);
-      const freshData = freshSnap.data() || control;
-
-      const chatMessages = await getChatMessages(folio);
-      await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
-
-      // 3) Generar PDF base64
-      let pdfBase64 = "";
       try {
-        pdfBase64 = await generatePDFBase64({ folio, controlData: freshData, chatMessages });
+        const folio = cierre_ctx.folio;
+        const cref = doc(db, "ControlTransportes", folio);
+        const snap = await getDoc(cref);
+        const control = snap.data() || {};
+        const card = cards.get(folio);
+        if (!card) { closeModalCierre(); return; }
+
+        const usuario = cierreOperador.value.trim();
+        const comentario = cierreComentario.value.trim();
+        if (!usuario || !comentario) { cierreError.classList.remove("hidden"); btn.disabled = false; return; }
+        cierreError.classList.add("hidden");
+
+        const closedAtISO = nowISO();
+        const estadoFinal = (control.estado === "Cancelado") ? "Cancelado" : "Finalizado";
+        const comentariosPrev = control.comentarios || [];
+        const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
+
+        // 1) Cerrar en Firestore
+        await updateDoc(cref, {
+          "pasos.salidaPlanta": closedAtISO,
+          estado: estadoFinal,
+          activo: false,
+          "pasos.forceNextStep": null,
+          updatedAt: serverTimestamp(),
+          comentarios: newComentarios,
+          closedAtISO
+        });
+
+        await setCitaFinalizada(control.cita?.id);
+
+        // 2) Refrescar datos, chat, guardar histórico
+        const freshSnap = await getDoc(cref);
+        const freshData = freshSnap.data() || control;
+
+        const chatMessages = await getChatMessages(folio);
+        await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
+
+        // 3) Log en Sheets (opcional, solo trazabilidad)
+        const payloadLog = await buildSheetsPayload({ actionType: "FinalizarYEnviarLINK", folio, freshData, closedAtISO });
+        await sendToSheetsViaForm(payloadLog);
+
+        // 4) Generar PDF base64
+        const pdfBase64 = await generatePDFBase64({ folio, controlData: freshData, chatMessages });
+
+        // 5) Subir a Drive + mandar correo con LINK (TODO en Apps Script)
+        const rid = newRid("UPLOAD");
+        await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
+          rid,
+          action: "UPLOAD_PDF_AND_EMAIL_LINK",
+          folderId: DRIVE_FOLDER_ID,
+          folio,
+          fileName: `Historial_${folio}.pdf`,
+          pdfBase64,
+          // metadata útil (por si quieres en el correo)
+          estado: freshData.estado || "",
+          closedAtISO,
+          enviadoPor: currentUser?.nombre || "",
+          enviadoPorEmail: currentUser?.email || ""
+        });
+
+        // Espera respuesta (Apps Script debe responder con postMessage)
+        const resp = await waitForRid(rid, 45000);
+
+        if (resp?.ok && resp?.fileUrl) {
+          $("#drive-link-wrap").classList.remove("hidden");
+          const a = $("#drive-link");
+          a.href = resp.fileUrl;
+          a.textContent = resp.fileUrl;
+          alert("Listo: PDF guardado en Drive y correo enviado con el link.");
+        } else {
+          // Si el backend no manda postMessage, igual pudo haber funcionado.
+          alert("Se envió la solicitud a Apps Script. Si no ves el link aquí, revisa Drive/correo (o habilita postMessage en el Apps Script).");
+        }
+
+        closeModalCierre();
       } catch (e) {
-        console.error("Error generando PDF:", e);
-        alert("No se pudo generar el PDF. Revisa consola (F12) y conexión.");
-        return;
+        console.error(e);
+        alert("Error al finalizar y enviar link. Revisa consola.");
+      } finally {
+        btn.disabled = false;
       }
-
-      // 4) Enviar PDF adjunto SOLO admins (Apps Script: sendControlHistorialToAdmins)
-      await callMailAPI("sendControlHistorialToAdmins", {
-        folio,
-        pdfBase64,
-        fileName: `Historial_${folio}.pdf`
-      });
-
-      // 5) Backup en Drive (1 admin recibe link)
-      await callMailAPI("sendControlHistorialLink", {
-        to: ADMIN_EMAILS[0],
-        folio,
-        pdfBase64,
-        fileName: `Historial_${folio}.pdf`,
-        motivo: "Backup Drive (cierre)",
-        enviadoPor: currentUser?.nombre || "",
-        enviadoPorEmail: currentUser?.email || ""
-      });
-
-      closeModalCierre();
-      alert("Listo: histórico guardado + PDF enviado a admins. (Y backup Drive generado)");
     };
 
-    // ============================================================
-    // ✅ Cargar activos (con fallback si falta índice compuesto)
-    // ============================================================
+    // =========================
+    // ✅ Load cards
+    // =========================
     async function loadActiveControls() {
       const cont = $("#cards-container");
-
-      // Query ideal (puede requerir índice compuesto: activo + createdAt)
-      const qIdeal = query(
-        collection(db, "ControlTransportes"),
-        where("activo", "==", true),
-        orderBy("createdAt", "desc")
-      );
-
-      let snap;
-      try {
-        snap = await getDocs(qIdeal);
-      } catch (e) {
-        console.warn("Query con orderBy(createdAt) falló (posible índice). Fallback sin orderBy.", e);
-        const qFallback = query(collection(db, "ControlTransportes"), where("activo", "==", true));
-        snap = await getDocs(qFallback);
-      }
+      const qRef = query(collection(db, "ControlTransportes"), where("activo", "==", true), orderBy("createdAt", "desc"));
+      const snap = await getDocs(qRef);
 
       let count = 0;
-
-      // Orden cliente si vino sin orderBy
-      const docs = snap.docs.slice().sort((a, b) => {
-        const av = a.data()?.createdAt?.seconds || 0;
-        const bv = b.data()?.createdAt?.seconds || 0;
-        return bv - av;
-      });
-
-      for (const d of docs) {
+      for (const d of snap.docs) {
         const data = d.data();
         const folio = d.id;
         if (cards.has(folio)) continue;
@@ -2099,27 +2155,22 @@
         syncUIFromData(folio, data);
         count++;
       }
-
       if (count > 0) $("#empty-state").classList.add("hidden");
     }
 
-    // ===== Agregar transporte =====
+    // =========================
+    // ✅ Add folio flow
+    // =========================
     $("#add-folio-btn").onclick = async () => {
       const folioInput = $("#folio-input");
-      const folio = (folioInput.value || "").trim().toUpperCase();
+      const folio = folioInput.value.trim().toUpperCase();
 
-      // acepta BMM-########
-      if (!/^BMM-\d{8}$/.test(folio)) {
-        alert("Folio inválido. Formato: BMM-19112501.");
-        return;
-      }
-
+      if (!/^BMM-\d{8}$/.test(folio)) { alert("Folio inválido. Formato: BMM-19112501."); return; }
       if (cards.has(folio)) { alert("Este folio ya está en pantalla."); return; }
 
       const cita = await getCitaByFolio(folio);
       if (!cita) { alert("No se encontró una cita activa con ese folio o ya fue finalizada/cancelada."); return; }
 
-      // Si ya existe ControlTransportes, solo lo pintamos
       if (cita.__yaExiste) {
         const docSnap = await getDoc(doc(db, "ControlTransportes", folio));
         const data = docSnap.data();
@@ -2145,7 +2196,6 @@
 
       if (decision.action === "accept") {
         $("#empty-state").classList.add("hidden");
-
         const cardEl = renderCardSkeleton(folio, cita);
         $("#cards-container").prepend(cardEl);
 
@@ -2164,66 +2214,52 @@
       if (decision.action === "cancel") {
         await cancelCita({ citaId: cita.id, folio, comentarioCancel: decision.comment });
 
-        const providerEmail = (cita.usuarioProveedor || "").trim();
-        const recipients = [providerEmail, ...ADMIN_EMAILS].filter(Boolean).join(",");
-
-        await callMailAPI("sendCitaCancelacion", {
-          to: recipients,
+        // En cancelación: aquí ya NO metemos correos en frontend.
+        // Mandamos a Apps Script para que él sepa a quién notificar.
+        const rid = newRid("CANCEL");
+        await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
+          rid,
+          action: "CITA_CANCELADA_EMAIL",
           folio,
-          motivo: decision.comment || "",
           citaId: cita.id || "",
-          datosCita: {
+          canceladoAtISO: nowISO(),
+          canceladoPor: currentUser?.nombre || "",
+          canceladoPorEmail: currentUser?.email || "",
+          canceladoComentario: decision.comment || "",
+          // info de la cita para el correo (sin emails aquí; Apps Script decide)
+          cita: JSON.stringify({
+            linea: cita.lineaTransporte || cita.linea || "",
+            placas: cita.placas || "",
+            tipoTransporte: cita.tipoTransporte || "",
+            tipoVisita: cita.tipoVisita || "",
             fecha: cita.fecha || "",
             hora: cita.hora || "",
             horaExtra: cita.horaExtra || "",
-            linea: cita.lineaTransporte || cita.linea || "",
-            lineaTransporte: cita.lineaTransporte || "",
-            placas: cita.placas || "",
-            tipoVisita: cita.tipoVisita || "",
-            tipoTransporte: cita.tipoTransporte || "",
-            destino: cita.destino || ""
-          }
+            destino: cita.destino || "",
+            usuarioProveedor: cita.usuarioProveedor || ""
+          })
         });
 
         folioInput.value = "";
         folioInput.focus();
-        alert("Cita cancelada. Se notificó a proveedor y admins.");
+        alert("Cita cancelada. Este folio ya no pasará.");
         return;
       }
-
-      // close / null
-      folioInput.focus();
     };
 
-    // ESC global para cerrar modales abiertos (bonus UX)
-    document.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-
-      // Cierre en orden de prioridad
-      const modals = [mCierre, mCom, mRampa, mPost, mDestino, mCita, $("#modal-info")].filter(Boolean);
-      for (const m of modals) {
-        if (!m.classList.contains("hidden")) {
-          // cerrar según modal
-          if (m === mCierre) return closeModalCierre();
-          if (m === mCom) return ($("#mc-cancel").click());
-          if (m === mRampa) return ($("#rampa-cancel").click());
-          if (m === mPost) { hideModal(mPost); mpost_resolve && mpost_resolve(null); mpost_resolve = null; return; }
-          if (m === mDestino) { hideModal(mDestino); md_resolve && md_resolve(null); md_resolve = null; return; }
-          if (m === mCita) { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "close" }); return closeModalCita(); }
-          if (m.id === "modal-info") return hideModal(m);
-        }
-      }
-    });
-
+    // =========================
+    // ✅ Init
+    // =========================
     (async function init() {
       if (!guardAccess()) return;
-
-      // refrescar currentUser por si cambió
-      currentUser = getCurrentUserFromStorage() || {};
+      try {
+        currentUser = JSON.parse(sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser") || "{}");
+      } catch { currentUser = {}; }
 
       setupSidebarNav();
       await loadActiveControls();
     })();
   </script>
 </body>
+
 </html>
