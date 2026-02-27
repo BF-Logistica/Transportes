@@ -49,7 +49,6 @@
       width: 250px
     }
 
-    /* ===== Modal Info nice layout ===== */
     .kv {
       display: flex;
       align-items: flex-start;
@@ -463,7 +462,7 @@
     </div>
   </div>
 
-  <!-- MODAL REGISTRO (solo usuario + comentario) -->
+  <!-- MODAL REGISTRO -->
   <div id="modal-com" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
@@ -528,8 +527,8 @@
           <ul class="list-disc pl-5 space-y-1">
             <li>Guardará el histórico (<span class="font-mono">ControlTransportesHistorico</span>).</li>
             <li>Generará PDF con logo, info, timeline y chat.</li>
-            <li>La información será almacenada en la base de datos. (Info + Timeline).</li>
             <li><b>Enviará el PDF por correo</b> a Administradores.</li>
+            <li><b>Y hará un backup en Drive</b> (1 admin recibirá link como prueba de guardado).</li>
           </ul>
         </div>
       </div>
@@ -543,10 +542,9 @@
     </div>
   </div>
 
-  <!-- MODAL INFO (FIX: scroll + layout) -->
+  <!-- MODAL INFO -->
   <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border border-gray-100">
-      <!-- Header sticky -->
       <div class="px-5 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
         <div class="min-w-0">
           <h3 class="text-lg sm:text-xl font-semibold truncate">Información del transporte</h3>
@@ -560,7 +558,6 @@
         </div>
       </div>
 
-      <!-- Body con scroll -->
       <div class="p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
         <div id="info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
       </div>
@@ -576,13 +573,51 @@
       onSnapshot, query, where, serverTimestamp, orderBy
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
+    // ============================================================
+    // ✅ CONFIG WEBAPP (Apps Script)
+    // ============================================================
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
+    const AUTH_TOKEN = "tk_logistica_bmm_2026"; // Debe coincidir con CONFIG.AUTH_TOKEN en Apps Script
 
-    // ✅ ADMIN EMAILS (definidos)
+    // ✅ ADMIN EMAILS (debe coincidir con Apps Script idealmente)
     const ADMIN_EMAILS = [
-      "admin1@tuempresa.com",
-      "admin2@tuempresa.com"
+      "mitzyguadalupe.rosado@beiersdorf.com",
+      "mitrosa@hotmail.com"
     ];
+
+    // ============================================================
+    // ✅ FIX CLAVE: Llamada REAL a Apps Script (JSON en text/plain)
+    // (Así Apps Script puede JSON.parse(postData.contents) aunque sea no-cors)
+    // ============================================================
+    async function callMailAPI(action, payload) {
+      if (!WEBAPP_URL || WEBAPP_URL.includes("PEGAR_AQUI")) {
+        console.warn("WEBAPP_URL no configurada");
+        return { ok: false, skipped: true };
+      }
+
+      const body = {
+        authToken: AUTH_TOKEN,
+        action,
+        payload: payload || {}
+      };
+
+      try {
+        // Nota: seguimos usando no-cors para evitar preflight/OPTIONS,
+        // pero enviamos JSON como text/plain para que Apps Script lo lea bien.
+        await fetch(WEBAPP_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(body),
+          keepalive: true
+        });
+
+        return { ok: true, sent: true, mode: "no-cors" };
+      } catch (e) {
+        console.warn("callMailAPI error:", e);
+        return { ok: false, error: String(e) };
+      }
+    }
 
     const firebaseConfig = {
       apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
@@ -592,6 +627,7 @@
       messagingSenderId: "1096949784709",
       appId: "1:1096949784709:web:1eec7a8afca5c3278f49ec"
     };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
@@ -607,20 +643,15 @@
     // ✅ CRONÓMETRO RAMPA (45m amarillo, 90m rojo)
     // =========================
     const activeTimers = {}; // folio -> intervalId
-
-    const THRESH_YELLOW_MS = 45 * 60 * 1000; // 45 min
-    const THRESH_RED_MS = 90 * 60 * 1000;    // 1h 30m
+    const THRESH_YELLOW_MS = 45 * 60 * 1000;
+    const THRESH_RED_MS = 90 * 60 * 1000;
 
     function formatDuration(ms) {
       const totalSeconds = Math.floor(ms / 1000);
       const h = Math.floor(totalSeconds / 3600);
       const m = Math.floor((totalSeconds % 3600) / 60);
       const s = totalSeconds % 60;
-      return [
-        h.toString().padStart(2, "0"),
-        m.toString().padStart(2, "0"),
-        s.toString().padStart(2, "0")
-      ].join(":");
+      return [h, m, s].map(n => n.toString().padStart(2, "0")).join(":");
     }
 
     function applyTimerColor(el, ms) {
@@ -877,66 +908,32 @@
       }
     }
 
-    async function sendToGoogleSheets(payload) {
-      if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
-        console.warn("GOOGLE_SHEET_WEBAPP_URL no configurada.");
-        return { ok: false, skipped: true };
-      }
-
-      try {
-        const params = new URLSearchParams();
-        params.set("payload", JSON.stringify(payload || {}));
-        params.set("type", (payload?.type ?? ""));
-        params.set("folio", (payload?.folio ?? ""));
-        params.set("actionType", (payload?.actionType ?? ""));
-        params.set("ts", new Date().toISOString());
-
-        await fetch(GOOGLE_SHEET_WEBAPP_URL, {
-          method: "POST",
-          mode: "no-cors",
-          body: params,
-          keepalive: true
-        });
-
-        return { ok: true, mode: "no-cors", sent: true };
-      } catch (e) {
-        console.warn("Error enviando a Google Sheets:", e);
-        return { ok: false, error: String(e) };
-      }
-    }
-
     // ==========================================================
     // ✅ FIX: INFO DEL PDF CON CAMPOS FIJOS (SIEMPRE APARECEN)
     // ==========================================================
     const TRANSPORTE_FIELDS = [
-      // Identificación
       ["Folio", "folio"],
       ["ID Cita", "id"],
       ["Estatus", "estatus"],
 
-      // Fecha / hora
       ["Fecha", "fecha"],
       ["Hora", "hora"],
       ["Hora extra", "horaExtra"],
 
-      // Proveedor / línea
       ["Línea transporte", "lineaTransporte"],
       ["Línea (fallback)", "linea"],
       ["Razón social", "razon"],
       ["Frontera", "frontera"],
       ["Correo proveedor", "usuarioProveedor"],
 
-      // Unidad / chofer
       ["Chofer", "chofer"],
       ["Placas", "placas"],
       ["Placas 2", "placas2"],
 
-      // Tipo / destino
       ["Tipo visita", "tipoVisita"],
       ["Tipo transporte", "tipoTransporte"],
       ["Destino", "destino"],
 
-      // Docs / seguridad
       ["Factura", "factura"],
       ["No. caja", "caja"],
       ["No. caja (deja)", "cajaDeja"],
@@ -945,21 +942,16 @@
       ["No. sello", "sello"],
       ["No. sello 2", "sello2"],
 
-      // Notas
       ["Notas / Comentarios (cita)", "notas"],
       ["Es domingo", "esDomingo"],
 
-      // Datos extras comunes (si existen en tu doc)
       ["Dirección fiscal", "direccionFiscal"],
       ["Dirección patios", "direccionPatios"],
       ["Teléfono contacto", "telefonoContacto"],
       ["Recolecta caja (detalle)", "recolectaCajaDetalle"]
     ];
 
-    function getByKey(obj, key) {
-      if (!obj) return undefined;
-      return obj[key];
-    }
+    function getByKey(obj, key) { return obj ? obj[key] : undefined; }
 
     function normalizeValueForPdf(v) {
       if (v === null || v === undefined) return "-";
@@ -969,17 +961,9 @@
     }
 
     function buildInfoRows(cita, folio) {
-      // Mantén compatibilidad: algunos campos están en "cita" del control,
-      // y otros podrían estar en el doc real. Aquí imprimimos todo aunque vaya vacío.
       const base = { ...(cita || {}) };
-
-      // Asegura que "folio" exista en el objeto para el schema
       base.folio = folio;
-
-      return TRANSPORTE_FIELDS.map(([label, key]) => {
-        const val = getByKey(base, key);
-        return [label, normalizeValueForPdf(val)];
-      });
+      return TRANSPORTE_FIELDS.map(([label, key]) => [label, normalizeValueForPdf(getByKey(base, key))]);
     }
 
     function pasoLabel(paso) {
@@ -1002,119 +986,6 @@
       return map[paso] || paso;
     }
 
-    async function generatePDFAndDownload({ folio, controlData, chatMessages }) {
-      const { jsPDF } = window.jspdf || {};
-      if (!jsPDF) {
-        alert("No se pudo cargar jsPDF. Revisa conexión a internet.");
-        return;
-      }
-
-      const docPdf = new jsPDF({ unit: "pt", format: "a4" });
-      const pageW = docPdf.internal.pageSize.getWidth();
-      const margin = 40;
-
-      const logoPath = "img/logo_bf.png";
-      try {
-        const img = await fetch(logoPath);
-        const blob = await img.blob();
-        const reader = new FileReader();
-        const dataUrl = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); });
-        docPdf.addImage(dataUrl, "PNG", margin, 24, 140, 34);
-      } catch { }
-
-      docPdf.setFont("helvetica", "bold");
-      docPdf.setFontSize(16);
-      docPdf.text("Historial de Transporte", pageW / 2, 48, { align: "center" });
-
-      docPdf.setFont("helvetica", "normal");
-      docPdf.setFontSize(10);
-      docPdf.text(`Generado: ${new Date().toLocaleString()}`, pageW - margin, 48, { align: "right" });
-
-      let y = 80;
-
-      docPdf.setFont("helvetica", "bold");
-      docPdf.setFontSize(12);
-      docPdf.text(`Folio: ${folio}`, margin, y);
-      docPdf.text(`Estado: ${controlData.estado || "-"}`, pageW - margin, y, { align: "right" });
-      y += 14;
-
-      docPdf.setFontSize(11);
-      const cita = controlData.cita || {};
-      const infoRows = buildInfoRows(cita, folio);
-
-      docPdf.autoTable({
-        startY: y + 10,
-        head: [["Campo", "Valor"]],
-        body: infoRows,
-        styles: { fontSize: 9, cellPadding: 6 },
-        headStyles: { fillColor: [13, 28, 132] },
-        margin: { left: margin, right: margin }
-      });
-
-      y = docPdf.lastAutoTable.finalY + 18;
-
-      const comentarios = Array.isArray(controlData.comentarios) ? [...controlData.comentarios] : [];
-      comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
-
-      const timelineBody = comentarios.map(c => ([
-        pasoLabel(c.paso),
-        c.ts ? new Date(c.ts).toLocaleString() : "",
-        c.usuario || "",
-        c.comentario || ""
-      ]));
-
-      docPdf.setFont("helvetica", "bold");
-      docPdf.setFontSize(12);
-      docPdf.text("Timeline (estación / fecha-hora / usuario / comentario)", margin, y);
-      docPdf.setFont("helvetica", "normal");
-
-      docPdf.autoTable({
-        startY: y + 10,
-        head: [["Estación", "Fecha/Hora", "Usuario", "Comentario"]],
-        body: timelineBody.length ? timelineBody : [["-", "-", "-", "-"]],
-        styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
-        headStyles: { fillColor: [16, 185, 129] },
-        columnStyles: {
-          0: { cellWidth: 120 },
-          1: { cellWidth: 120 },
-          2: { cellWidth: 110 },
-          3: { cellWidth: 180 }
-        },
-        margin: { left: margin, right: margin }
-      });
-
-      y = docPdf.lastAutoTable.finalY + 18;
-
-      const chat = Array.isArray(chatMessages) ? chatMessages : [];
-      docPdf.setFont("helvetica", "bold");
-      docPdf.setFontSize(12);
-      docPdf.text("Chat", margin, y);
-      docPdf.setFont("helvetica", "normal");
-
-      const chatBody = chat.map(m => ([
-        m.userName || "",
-        (m.createdAt?.seconds ? new Date(m.createdAt.seconds * 1000).toLocaleString() : ""),
-        m.text || ""
-      ]));
-
-      docPdf.autoTable({
-        startY: y + 10,
-        head: [["Usuario", "Fecha/Hora", "Mensaje"]],
-        body: chatBody.length ? chatBody : [["-", "-", "-"]],
-        styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
-        headStyles: { fillColor: [59, 130, 246] },
-        columnStyles: {
-          0: { cellWidth: 110 },
-          1: { cellWidth: 130 },
-          2: { cellWidth: 290 }
-        },
-        margin: { left: margin, right: margin }
-      });
-
-      docPdf.save(`Historial_${folio}.pdf`);
-    }
-
-    // ✅ NUEVO: generar PDF base64 para enviarlo por correo (sin descargar)
     async function generatePDFBase64({ folio, controlData, chatMessages }) {
       const { jsPDF } = window.jspdf || {};
       if (!jsPDF) throw new Error("jsPDF no disponible");
@@ -1217,7 +1088,6 @@
 
     async function saveToHistorico({ folio, controlData, chatMessages, closedAtISO }) {
       const dref = doc(db, "ControlTransportesHistorico", folio);
-
       const payload = {
         folio,
         estado: controlData.estado || "Finalizado",
@@ -1231,7 +1101,6 @@
         createdAt: controlData.createdAt || null,
         updatedAt: serverTimestamp()
       };
-
       await setDoc(dref, payload, { merge: true });
     }
 
@@ -1427,13 +1296,9 @@
       ];
 
       for (let i = 0; i <= 9; i++) {
-        if (stamps[i]) {
-          setChip(folio, i, "done", toLocal(stepTimes[i] || stamps[i]));
-        } else if (i === firstIncomplete) {
-          setChip(folio, i, "live", "");
-        } else {
-          setChip(folio, i, "todo", "");
-        }
+        if (stamps[i]) setChip(folio, i, "done", toLocal(stepTimes[i] || stamps[i]));
+        else if (i === firstIncomplete) setChip(folio, i, "live", "");
+        else setChip(folio, i, "todo", "");
       }
 
       if (p.disuasionE_destino) {
@@ -1649,7 +1514,7 @@
     $("#cierre-x").onclick = closeModalCierre;
     $("#cierre-cancel").onclick = closeModalCierre;
 
-    // ===== MODAL INFO (TODOS LOS CAMPOS DE CitasConfirmadas) =====
+    // ===== MODAL INFO =====
     async function fetchCitaConfirmadaByFolio(folio) {
       const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio));
       const snap = await getDocs(qRef);
@@ -1665,13 +1530,9 @@
       for (const [k, v] of Object.entries(obj || {})) {
         const key = prefix ? `${prefix}.${k}` : k;
 
-        if (isPlainObj(v)) {
-          out.push(...flattenForUI(v, key));
-        } else if (Array.isArray(v)) {
-          out.push([key, v.map(x => isPlainObj(x) ? JSON.stringify(x) : safeStr(x)).join(", ")]);
-        } else {
-          out.push([key, safeStr(v)]);
-        }
+        if (isPlainObj(v)) out.push(...flattenForUI(v, key));
+        else if (Array.isArray(v)) out.push([key, v.map(x => isPlainObj(x) ? JSON.stringify(x) : safeStr(x)).join(", ")]);
+        else out.push([key, safeStr(v)]);
       }
       return out;
     }
@@ -1684,27 +1545,14 @@
       grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
 
       let full = null;
-      try {
-        full = await fetchCitaConfirmadaByFolio(folio);
-      } catch (e) {
-        console.warn("Error leyendo CitasConfirmadas:", e);
-      }
+      try { full = await fetchCitaConfirmadaByFolio(folio); }
+      catch (e) { console.warn("Error leyendo CitasConfirmadas:", e); }
 
       const base = full || ({ folio, ...(fallbackCita || {}) });
-
       const { createdAt, updatedAt, ...clean } = base;
       let rows = flattenForUI(clean);
 
-      const priority = [
-        "folio", "fecha", "hora", "horaExtra",
-        "lineaTransporte", "linea",
-        "placas", "placas2",
-        "chofer", "destino", "frontera",
-        "tipoTransporte", "tipoVisita",
-        "razon", "factura", "sello", "sello2",
-        "citaProveedorId", "id", "estatus"
-      ];
-
+      const priority = ["folio", "fecha", "hora", "horaExtra", "lineaTransporte", "linea", "placas", "placas2", "chofer", "destino", "frontera", "tipoTransporte", "tipoVisita", "razon", "factura", "sello", "sello2", "citaProveedorId", "id", "estatus"];
       const norm = (s) => String(s || "").toLowerCase();
 
       rows.sort((a, b) => {
@@ -1731,9 +1579,7 @@
         search.oninput = () => {
           const q = search.value.trim().toLowerCase();
           if (!q) return render(rows);
-          const filtered = rows.filter(([k, v]) =>
-            String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)
-          );
+          const filtered = rows.filter(([k, v]) => String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q));
           render(filtered);
         };
       }
@@ -1793,9 +1639,7 @@
       mCita.classList.remove("hidden");
       mCita.classList.add("flex");
 
-      return new Promise((resolve) => {
-        mcita_ctx = { folio, cita, resolve };
-      });
+      return new Promise((resolve) => { mcita_ctx = { folio, cita, resolve }; });
     }
 
     function closeModalCita() {
@@ -1804,15 +1648,8 @@
       mCita.classList.remove("flex");
     }
 
-    mcitaX.onclick = () => {
-      if (mcita_ctx?.resolve) mcita_ctx.resolve({ action: "close" });
-      closeModalCita();
-    };
-
-    mcitaBtnAceptar.onclick = () => {
-      mcita_ctx?.resolve && mcita_ctx.resolve({ action: "accept" });
-      closeModalCita();
-    };
+    mcitaX.onclick = () => { if (mcita_ctx?.resolve) mcita_ctx.resolve({ action: "close" }); closeModalCita(); };
+    mcitaBtnAceptar.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "accept" }); closeModalCita(); };
 
     mcitaBtnCancelar.onclick = () => {
       mcitaCancelWrap.classList.remove("hidden");
@@ -1824,10 +1661,7 @@
 
     mcitaBtnConfirmCancel.onclick = () => {
       const comment = mcitaCancelComent.value.trim();
-      if (!comment) {
-        mcitaCancelErr.classList.remove("hidden");
-        return;
-      }
+      if (!comment) { mcitaCancelErr.classList.remove("hidden"); return; }
       mcitaCancelErr.classList.add("hidden");
       mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment });
       closeModalCita();
@@ -2205,46 +2039,7 @@
       });
     }
 
-    async function buildSheetsPayload({ actionType, folio, freshData, closedAtISO }) {
-      const cita = freshData.cita || {};
-      const comentarios = Array.isArray(freshData.comentarios) ? [...freshData.comentarios] : [];
-      comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
-
-      return {
-        type: "CONTROL_CIERRE",
-        actionType,
-        folio,
-        closedAtISO,
-        estado: freshData.estado || "",
-        usuarioAccion: currentUser?.nombre || "",
-        usuarioAccionEmail: currentUser?.email || "",
-        duracionRampaMs: freshData?.pasos?.duracion_rampa_ms ?? null,
-        duracionRampaHHMMSS: (typeof freshData?.pasos?.duracion_rampa_ms === "number")
-          ? formatDuration(freshData.pasos.duracion_rampa_ms)
-          : "",
-        cita: {
-          id: cita.id || "",
-          linea: cita.linea || "",
-          placas: cita.placas || "",
-          tipoTransporte: cita.tipoTransporte || "",
-          tipoVisita: cita.tipoVisita || "",
-          fecha: cita.fecha || "",
-          hora: cita.hora || "",
-          horaExtra: cita.horaExtra || "",
-          destino: cita.destino || "",
-          usuarioProveedor: cita.usuarioProveedor || ""
-        },
-        timeline: comentarios.map(c => ({
-          paso: c.paso || "",
-          pasoLabel: pasoLabel(c.paso || ""),
-          ts: c.ts || "",
-          usuario: c.usuario || "",
-          comentario: c.comentario || ""
-        }))
-      };
-    }
-
-    // ✅ NUEVO: cierre -> guardar histórico + enviar PDF por correo (Apps Script)
+    // ✅ CIERRE -> guardar histórico + enviar PDF (Apps Script)
     $("#cierre-pdf").onclick = async () => {
       if (!cierre_ctx) return;
 
@@ -2278,37 +2073,45 @@
 
       await setCitaFinalizada(control.cita?.id);
 
-      // 2) Refrescar datos, chat, guardar histórico
+      // 2) Refrescar + guardar histórico
       const freshSnap = await getDoc(cref);
       const freshData = freshSnap.data() || control;
 
       const chatMessages = await getChatMessages(folio);
       await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
 
-      // 3) Log a Sheets (trazabilidad)
-      const payloadLog = await buildSheetsPayload({ actionType: "FinalizarYEnviarPDF", folio, freshData, closedAtISO });
-      await sendToGoogleSheets(payloadLog);
+      // 3) Generar PDF base64
+      let pdfBase64 = "";
+      try {
+        pdfBase64 = await generatePDFBase64({ folio, controlData: freshData, chatMessages });
+      } catch (e) {
+        console.error("Error generando PDF:", e);
+        alert("No se pudo generar el PDF. Revisa consola (F12) y conexión.");
+        return;
+      }
 
-      // 4) Generar PDF base64
-      const pdfBase64 = await generatePDFBase64({ folio, controlData: freshData, chatMessages });
-
-      // 5) Enviar correo por Apps Script (case nuevo)
-      await sendToGoogleSheets({
-        type: "CONTROL_ENVIAR_PDF",
+      // 4) Enviar PDF adjunto SOLO admins (acción real)
+      await callMailAPI("sendControlHistorialToAdmins", {
         folio,
-        to: ADMIN_EMAILS,     // ✅ SOLO ADMIN
-        cc: [],               // ✅ SIN CC
-        subject: `Historial de Transporte ${folio}`,
-        body: `Se adjunta el historial del transporte ${folio}.`,
-        fileName: `Historial_${folio}.pdf`,
         pdfBase64,
+        fileName: `Historial_${folio}.pdf`
+      });
+
+      // 5) Backup en Drive (para confirmar que sí se guardó en tu carpeta)
+      //    OJO: tu Apps Script actual solo puede compartir a 1 viewer, así que lo mandamos a 1 admin.
+      //    En el siguiente paso lo hacemos "una vez y compartir a todos".
+      await callMailAPI("sendControlHistorialLink", {
+        to: ADMIN_EMAILS[0], // 1 admin recibe link
+        folio,
+        pdfBase64,
+        fileName: `Historial_${folio}.pdf`,
+        motivo: "Backup Drive (cierre)",
         enviadoPor: currentUser?.nombre || "",
-        enviadoPorEmail: currentUser?.email || "",
-        closedAtISO
+        enviadoPorEmail: currentUser?.email || ""
       });
 
       closeModalCierre();
-      alert("Listo: se guardó el histórico y se envió el PDF por correo.");
+      alert("Listo: histórico guardado + PDF enviado a admins. (Y backup Drive generado)");
     };
 
     async function loadActiveControls() {
@@ -2397,32 +2200,31 @@
       if (decision.action === "cancel") {
         await cancelCita({ citaId: cita.id, folio, comentarioCancel: decision.comment });
 
-        await sendToGoogleSheets({
-          type: "CITA_CANCELADA",
+        // ✅ FIX: correo cancelación a proveedor + admins usando tu Apps Script real
+        const providerEmail = (cita.usuarioProveedor || "").trim();
+        const recipients = [providerEmail, ...ADMIN_EMAILS].filter(Boolean).join(",");
+
+        await callMailAPI("sendCitaCancelacion", {
+          to: recipients,                 // Se manda a proveedor + admins
           folio,
+          motivo: decision.comment || "",
           citaId: cita.id || "",
-          canceladoAtISO: nowISO(),
-          canceladoPor: currentUser?.nombre || "",
-          canceladoPorEmail: currentUser?.email || "",
-          canceladoComentario: decision.comment || "",
-          to: [(cita.usuarioProveedor || "").trim()].filter(Boolean),
-          cc: ADMIN_EMAILS,
-          cita: {
-            linea: cita.lineaTransporte || cita.linea || "",
-            placas: cita.placas || "",
-            tipoTransporte: cita.tipoTransporte || "",
-            tipoVisita: cita.tipoVisita || "",
+          datosCita: {
             fecha: cita.fecha || "",
             hora: cita.hora || "",
             horaExtra: cita.horaExtra || "",
-            destino: cita.destino || "",
-            usuarioProveedor: cita.usuarioProveedor || ""
+            linea: cita.lineaTransporte || cita.linea || "",
+            lineaTransporte: cita.lineaTransporte || "",
+            placas: cita.placas || "",
+            tipoVisita: cita.tipoVisita || "",
+            tipoTransporte: cita.tipoTransporte || "",
+            destino: cita.destino || ""
           }
         });
 
         folioInput.value = "";
         folioInput.focus();
-        alert("Cita cancelada. Este folio ya no pasará.");
+        alert("Cita cancelada. Se notificó a proveedor y admins.");
         return;
       }
     };
@@ -2446,6 +2248,3 @@
 </body>
 
 </html>
-
-
-
