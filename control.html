@@ -404,7 +404,8 @@
           class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
           Aceptar (dar de alta)
         </button>
-        <button id="mcita-btn-cancelar" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
+        <button id="mcita-btn-cancelar"
+          class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
           Cancelar cita
         </button>
         <button id="mcita-btn-confirm-cancel"
@@ -896,38 +897,64 @@
       }
     }
 
-    // ✅ "Eliminar cita" (cancelación) = updateDoc (no deleteDoc) + auditoría
+    // =========================
+    // ✅ ELIMINAR CITA (soft-delete) — EXACTO estilo "Eliminar cita"
+    // =========================
+    // Reglas:
+    // 1) NO deleteDoc: solo updateDoc(estatus="CitaCancelada") + campos de auditoría
+    // 2) Enviar correo (best-effort) por Apps Script
+    // 3) Registrar en Sheets (best-effort)
+    // 4) Si existe referencia a CitasProveedor, también la cancela (best-effort)
     async function cancelCita({ citaId, folio, comentarioCancel, citaSnapshot = null }) {
-      if (!citaId) return;
+      if (!citaId) throw new Error("cancelCita: falta citaId");
+      const canceladoAtISO = nowISO();
 
-      // 1) Firestore (verdad fuente)
-      await updateDoc(doc(db, "CitasConfirmadas", citaId), {
+      const cancelMeta = {
         estatus: "CitaCancelada",
         canceladoAt: serverTimestamp(),
-        canceladoAtISO: nowISO(),
+        canceladoAtISO,
         canceladoPor: currentUser?.nombre || "",
         canceladoPorEmail: currentUser?.email || "",
         canceladoComentario: comentarioCancel || "",
         updatedAt: serverTimestamp()
-      });
+      };
 
-      // 2) Correo (Apps Script) - best effort (si falla, NO revierte)
+      // (1) Firestore: CitasConfirmadas es la fuente aquí (porque tu lookup es por CitasConfirmadas)
+      await updateDoc(doc(db, "CitasConfirmadas", citaId), cancelMeta);
+
+      // (1b) Best-effort: si tu documento trae el ID de la cita del proveedor, también cancelamos ahí
+      // soporta: citaProveedorId, citaProveedorDocId, proveedorCitaId (por si cambiaste el nombre)
+      const provId =
+        citaSnapshot?.citaProveedorId ||
+        citaSnapshot?.citaProveedorDocId ||
+        citaSnapshot?.proveedorCitaId ||
+        null;
+
+      if (provId) {
+        try {
+          await updateDoc(doc(db, "CitasProveedor", provId), cancelMeta);
+        } catch (e) {
+          console.warn("⚠️ No se pudo cancelar en CitasProveedor (no revierte):", e);
+        }
+      }
+
+      // (2) Correo (Apps Script) — best-effort
       try {
-        const rid = newRid("CANCEL");
+        const rid = newRid("CANCEL_MAIL");
         await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
           rid,
-          action: "sendCitaCancelacion", 
+          action: "sendCitaCancelacion",
           folio,
           citaId,
-          canceladoAtISO: nowISO(),
+          canceladoAtISO,
           canceladoPor: currentUser?.nombre || "",
           canceladoPorEmail: currentUser?.email || "",
           canceladoComentario: comentarioCancel || "",
-        
-          // OJO: manda también el correo del proveedor si tu script lo requiere
-          proveedorEmail: citaSnapshot?.usuarioProveedor || "",
-        
-          // datos extra por si el correo los imprime
+
+          // si tu script lo usa para mandar al proveedor:
+          proveedorEmail: citaSnapshot?.usuarioProveedorEmail || citaSnapshot?.proveedorEmail || "",
+
+          // datos para el template del correo
           fecha: citaSnapshot?.fecha || "",
           hora: citaSnapshot?.hora || "",
           tipoVisita: citaSnapshot?.tipoVisita || "",
@@ -936,23 +963,28 @@
           linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
         });
 
-        // (opcional) si tu Apps Script ya responde con postMessage, puedes esperar:
+        // Si tu Apps Script regresa postMessage, puedes esperar (opcional):
         // await waitForRid(rid, 30000);
       } catch (e) {
-        console.warn("⚠️ Cancelación: falló envío de correo (no se revierte cancelación).", e);
+        console.warn("⚠️ Cancelación: falló envío de correo (no se revierte la cancelación).", e);
       }
 
-      // 3) Registro (Sheets) - best effort (si falla, NO revierte)
+      // (3) Sheets — best-effort
       try {
-        await sendToSheetsViaForm({
+        const rid = newRid("CANCEL_SHEETS");
+        await postToAppsScriptViaForm(GOOGLE_SHEET_WEBAPP_URL, {
+          rid,
+          action: "appendRegistroCancelacion",
           type: "CITA_CANCELADA",
           folio,
           citaId,
-          canceladoAtISO: nowISO(),
-          canceladoPor: currentUser?.nombre || "",
-          canceladoPorEmail: currentUser?.email || "",
-          canceladoComentario: comentarioCancel || "",
-          cita: {
+          metadata: JSON.stringify({
+            canceladoAtISO,
+            canceladoPor: currentUser?.nombre || "",
+            canceladoPorEmail: currentUser?.email || "",
+            canceladoComentario: comentarioCancel || "",
+          }),
+          datosCita: JSON.stringify({
             linea: (citaSnapshot?.lineaTransporte || citaSnapshot?.linea || ""),
             placas: (citaSnapshot?.placas || ""),
             tipoTransporte: (citaSnapshot?.tipoTransporte || ""),
@@ -962,10 +994,13 @@
             horaExtra: (citaSnapshot?.horaExtra || ""),
             destino: (citaSnapshot?.destino || ""),
             usuarioProveedor: (citaSnapshot?.usuarioProveedor || "")
-          }
+          })
         });
+
+        // opcional:
+        // await waitForRid(rid, 20000);
       } catch (e) {
-        console.warn("⚠️ Cancelación: falló registro en Sheets (no se revierte cancelación).", e);
+        console.warn("⚠️ Cancelación: falló registro en Sheets (no se revierte la cancelación).", e);
       }
 
       console.log("✅ Cita cancelada (soft-delete):", folio);
@@ -983,7 +1018,7 @@
     }
 
     // =========================
-    // ✅ Sheets log via FORM (sin fetch)
+    // ✅ Sheets log via FORM (sin fetch) — (se queda para cierre/histórico)
     // =========================
     async function sendToSheetsViaForm(payload) {
       if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
@@ -1660,7 +1695,6 @@
       mcitaCancelComent.value = "";
       mcitaCancelErr.classList.add("hidden");
 
-      // reset botón confirm por si quedó en estado raro
       mcitaBtnConfirmCancel.disabled = false;
       mcitaBtnConfirmCancel.textContent = "Aceptar cancelación";
 
@@ -1675,7 +1709,6 @@
     mcitaX.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "close" }); closeModalCita(); };
     mcitaBtnAceptar.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "accept" }); closeModalCita(); };
 
-    // Al dar click en "Cancelar cita" solo abre el campo de motivo (como ya lo tenías)
     mcitaBtnCancelar.onclick = () => {
       mcitaCancelWrap.classList.remove("hidden");
       mcitaBtnConfirmCancel.classList.remove("hidden");
@@ -1684,22 +1717,18 @@
       mcitaCancelComent.focus();
     };
 
-    // ✅ AQUÍ es donde agregamos el método "Eliminar cita" (cancelación controlada)
+    // ✅ Confirmar cancelación (solo captura comment y dispara flujo)
     mcitaBtnConfirmCancel.onclick = async () => {
       const comment = mcitaCancelComent.value.trim();
       if (!comment) { mcitaCancelErr.classList.remove("hidden"); return; }
       mcitaCancelErr.classList.add("hidden");
 
-      // UX: bloquear para no doble-cancelar
       mcitaBtnConfirmCancel.disabled = true;
       const oldTxt = mcitaBtnConfirmCancel.textContent;
       mcitaBtnConfirmCancel.textContent = "Cancelando...";
 
       try {
-        // resolvemos acción "cancel" pero pasando el comment
         mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment });
-
-        // el flujo real se ejecuta abajo en el handler de add-folio-btn (decision.action === "cancel")
         closeModalCita();
       } catch (e) {
         console.error(e);
@@ -2290,7 +2319,7 @@
         return;
       }
 
-      // ✅ AQUÍ queda el método completo de "Eliminar cita" cuando el usuario presiona "Cancelar cita"
+      // ✅ ELIMINAR CITA: aquí ya corre el método completo (updateDoc + correo + sheets)
       if (decision.action === "cancel") {
         try {
           await cancelCita({
@@ -2328,4 +2357,3 @@
 </body>
 
 </html>
-
