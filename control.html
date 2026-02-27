@@ -522,14 +522,14 @@
                     <div class="font-semibold mb-1">¿Qué hará el sistema?</div>
                     <ul class="list-disc pl-5 space-y-1">
                         <li>Guardará el histórico (<span class="font-mono">ControlTransportesHistorico</span>).</li>
-                        <li>Generará PDF con logo, info, timeline y chat.</li>
-                        <li>Subirá el PDF a Drive.</li>
-                        <li><b>Enviará correo desde Apps Script con el LINK del PDF</b> (sin adjuntar).</li>
+                        <li>Generará un PDF con la información completa de la cita y bitácora.</li>
+                        <li>Subirá el PDF directamente a la carpeta de Drive vinculada.</li>
+                        <li><b>Enviará un correo automático a la lista PDF_EMAILS con el archivo adjunto.</b></li>
                     </ul>
                 </div>
 
                 <div id="drive-link-wrap" class="hidden rounded-lg border bg-blue-50 p-3 text-sm">
-                    <div class="font-semibold text-blue-900">Link generado</div>
+                    <div class="font-semibold text-blue-900">Link de Google Drive</div>
                     <a id="drive-link" href="#" target="_blank" rel="noopener"
                         class="text-blue-700 underline break-all">—</a>
                 </div>
@@ -539,7 +539,7 @@
                 <button id="cierre-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button>
                 <button id="cierre-pdf"
                     class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
-                    Finalizar y enviar LINK por correo
+                    Enviar Historial y Guardar
                 </button>
             </div>
         </div>
@@ -584,9 +584,6 @@
         const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
         const MAIL_DRIVE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
 
-        // ✅ Folder ID de Drive donde se guardan los PDFs
-        const DRIVE_FOLDER_ID = "17A5BW6jd0Dkl_k-b507YuNHltTp3ZUqS";
-
         const firebaseConfig = {
             apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
             authDomain: "logisticatransportesbmm.firebaseapp.com",
@@ -607,10 +604,7 @@
 
         let currentUser = null;
 
-        // =========================
-        // ✅ CRONÓMETRO RAMPA (45m amarillo, 90m rojo)
-        // =========================
-        const activeTimers = {}; // folio -> intervalId
+        const activeTimers = {};
         const THRESH_YELLOW_MS = 45 * 60 * 1000;
         const THRESH_RED_MS = 90 * 60 * 1000;
 
@@ -647,9 +641,6 @@
             }
         }
 
-        // =========================
-        // ✅ FORM + IFRAME POST (para evitar CORS en PDFs grandes)
-        // =========================
         function postToAppsScriptViaForm(url, dataObj = {}) {
             return new Promise((resolve) => {
                 const form = document.createElement("form");
@@ -671,16 +662,13 @@
             });
         }
 
-        // ✅ Esperar respuesta vía postMessage desde Apps Script
         const pendingByRid = new Map();
         window.addEventListener("message", (ev) => {
             const data = ev?.data;
             if (!data || typeof data !== "object") return;
             if (!data.rid) return;
-
             const pending = pendingByRid.get(data.rid);
             if (!pending) return;
-
             pendingByRid.delete(data.rid);
             pending.resolve(data);
         });
@@ -691,10 +679,7 @@
                     pendingByRid.delete(rid);
                     resolve({ ok: false, rid, error: "TIMEOUT" });
                 }, timeoutMs);
-
-                pendingByRid.set(rid, {
-                    resolve: (payload) => { clearTimeout(t); resolve(payload); }
-                });
+                pendingByRid.set(rid, { resolve: (payload) => { clearTimeout(t); resolve(payload); } });
             });
         }
 
@@ -702,9 +687,6 @@
             return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
         }
 
-        // =========================
-        // ✅ Roles / access
-        // =========================
         function normalizeRole(str) {
             return (str || "")
                 .toLowerCase()
@@ -712,6 +694,7 @@
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/\s+/g, "");
         }
+
         function guardAccess() {
             if (location.protocol === "file:") return true;
             try {
@@ -726,16 +709,8 @@
             }
 
             const normRol = normalizeRole(currentUser.rol || currentUser.role);
-
-            const isCoordinadorLogistico =
-                normRol === "coordinadorlogistico" ||
-                currentUser.roleKey === "UsuarioLogistico" ||
-                currentUser.collection === "UsuarioLogistico";
-
-            const isAdmin =
-                normRol === "administrador" ||
-                currentUser.roleKey === "UsuarioAdmin" ||
-                currentUser.collection === "UsuarioAdmin";
+            const isCoordinadorLogistico = normRol === "coordinadorlogistico" || currentUser.roleKey === "UsuarioLogistico" || currentUser.collection === "UsuarioLogistico";
+            const isAdmin = normRol === "administrador" || currentUser.roleKey === "UsuarioAdmin" || currentUser.collection === "UsuarioAdmin";
 
             if (!isCoordinadorLogistico && !isAdmin) {
                 alert("Acceso restringido a Coordinador Logístico o Administrador.");
@@ -806,9 +781,6 @@
             });
         })();
 
-        // =========================
-        // ✅ Firestore helpers
-        // =========================
         async function getCitaByFolio(folio) {
             const cDoc = await getDoc(doc(db, "ControlTransportes", folio));
             if (cDoc.exists()) { return { __yaExiste: true, ...cDoc.data() }; }
@@ -864,15 +836,12 @@
                         disuasionS_inicio: null,
                         disuasionS_fin: null,
                         salidaPlanta: null,
-
                         cronometro_inicio: null,
                         cronometro_fin: null,
                         duracion_rampa_ms: null,
-
                         forceNextStep: null,
                         cancel_origen: null,
                         cancel_ts: null,
-
                         rampa_enter_ts: null
                     },
                     comentarios: []
@@ -893,14 +862,9 @@
             }
         }
 
-        // =========================
-        // ✅ ELIMINAR CITA: Mismo código robusto que tenías en Citas
-        // =========================
-
-        // Función espejo de tu código para registrar la cancelación en Sheets
         async function appendRegistroCancelacion({ folio, citaId, canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario, cita }) {
             if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGA_AQUI")) {
-                console.warn("GOOGLE_SHEET_WEBAPP_URL no configurado. Se omitió append a Registro.");
+                console.warn("GOOGLE_SHEET_WEBAPP_URL no configurado.");
                 return;
             }
             try {
@@ -928,7 +892,7 @@
                     console.warn("Registro (Sheets) respondió con problema:", { status: res.status, raw, data });
                 }
             } catch (e) {
-                console.warn("No se pudo registrar en Sheets (Registro):", e);
+                console.warn("No se pudo registrar en Sheets:", e);
             }
         }
 
@@ -940,11 +904,6 @@
             const canceladoPorEmail = (currentUser && (currentUser.email || currentUser.correo)) ? (currentUser.email || currentUser.correo) : "";
             const canceladoAtISO = new Date().toISOString();
 
-            // ==========================================
-            // 1) FIRESTORE: ACTUALIZAR AMBAS COLECCIONES
-            // ==========================================
-
-            // A) Actualizar CitasConfirmadas (OBLIGATORIO para que el guardia ya no la vea)
             if (citaId) {
                 await updateDoc(doc(db, "CitasConfirmadas", citaId), {
                     estatus: "CitaCancelada",
@@ -956,13 +915,7 @@
                 });
             }
 
-            // B) Actualizar CitasProveedor (si existe el vínculo) para mantener sincronía general
-            const citaProveedorId =
-                citaSnapshot?.citaProveedorId ||
-                citaSnapshot?.idCitaProveedor ||
-                citaSnapshot?.proveedorCitaId ||
-                null;
-
+            const citaProveedorId = citaSnapshot?.citaProveedorId || citaSnapshot?.idCitaProveedor || citaSnapshot?.proveedorCitaId || null;
             if (citaProveedorId) {
                 try {
                     await updateDoc(doc(db, "CitasProveedor", citaProveedorId), {
@@ -978,9 +931,6 @@
                 }
             }
 
-            // ==========================================
-            // 2) CORREO (best effort)
-            // ==========================================
             const correoDestino = citaSnapshot?.usuarioProveedor || citaSnapshot?.correoProveedor || citaSnapshot?.proveedorEmail || citaSnapshot?.email || "";
             if (correoDestino) {
                 const payloadCancelEmail = {
@@ -1024,9 +974,6 @@
                 }
             }
 
-            // ==========================================
-            // 3) SHEETS LOG
-            // ==========================================
             await appendRegistroCancelacion({
                 folio: String(folio),
                 citaId: citaId,
@@ -1046,8 +993,6 @@
                     usuarioProveedor: correoDestino
                 }
             });
-
-            console.log("✅ Cita cancelada correctamente:", folio);
         }
 
         async function logBitacora(folio, entry) {
@@ -1061,9 +1006,6 @@
             }
         }
 
-        // =========================
-        // ✅ Sheets log via FORM (usado solo para FinalizarYEnviarLINK, sin fetch)
-        // =========================
         async function sendToSheetsViaForm(payload) {
             if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
                 console.warn("GOOGLE_SHEET_WEBAPP_URL no configurada.");
@@ -1079,7 +1021,7 @@
         }
 
         // =========================
-        // ✅ PDF helpers
+        // ✅ PDF Helpers 
         // =========================
         function buildInfoRows(cita, folio) {
             return [
@@ -1106,7 +1048,7 @@
                 patioE_fin: "Patio (E)",
                 rampa_inicio: "Rampa - Inicio",
                 rampa_cancel: "Rampa - Cancelado",
-                finDescarga: "Fin Carga/Descarga",
+                finDescarga: "Fin Descarga",
                 liberacion: "Liberación",
                 patioS_fin: "Patio (S)",
                 disuasionS_inicio: "Disuasión (S) - Inicio",
@@ -1236,21 +1178,11 @@
             await setDoc(dref, payload, { merge: true });
         }
 
-        // =========================
-        // ✅ UI/timeline
-        // =========================
         function iconForStep(i) {
             const icons = [
-                "img/ico_llegada.png",
-                "img/ico_ingreso.png",
-                "img/ico_parking.png",
-                "img/ico_patio.png",
-                "img/ico_rampa.png",
-                "img/ico_fdescarga.png",
-                "img/ico_party.png",
-                "img/ico_patio_out.png",
-                "img/ico_parking_out.png",
-                "img/ico_exit.png"
+                "img/ico_llegada.png", "img/ico_ingreso.png", "img/ico_parking.png", "img/ico_patio.png",
+                "img/ico_rampa.png", "img/ico_fdescarga.png", "img/ico_party.png", "img/ico_patio_out.png",
+                "img/ico_parking_out.png", "img/ico_exit.png"
             ];
             return icons[i] || "img/camion.png";
         }
@@ -1297,16 +1229,8 @@
             const estado = (data.estado || "En Proceso");
 
             const stamps = [
-                p.llegada,
-                p.ingreso,
-                (p.disuasionE_inicio && p.disuasionE_fin),
-                p.patioE_fin,
-                p.rampa_inicio,
-                p.finDescarga,
-                p.liberacion,
-                p.patioS_fin,
-                (p.disuasionS_inicio && p.disuasionS_fin),
-                p.salidaPlanta
+                p.llegada, p.ingreso, (p.disuasionE_inicio && p.disuasionE_fin), p.patioE_fin, p.rampa_inicio,
+                p.finDescarga, p.liberacion, p.patioS_fin, (p.disuasionS_inicio && p.disuasionS_fin), p.salidaPlanta
             ];
 
             if (typeof p.forceNextStep === "number" && !p.salidaPlanta) {
@@ -1327,7 +1251,6 @@
             const card = cards.get(folio);
             if (!card) return;
             const root = card.rootEl;
-
             const p = data.pasos || {};
             const estado = (data.estado || "En Proceso");
             const { firstIncomplete, stamps } = computeFirstIncomplete(data);
@@ -1396,16 +1319,8 @@
             const { firstIncomplete, stamps } = computeFirstIncomplete(data);
 
             const stepTimes = [
-                p.llegada,
-                p.ingreso,
-                p.disuasionE_inicio,
-                p.patioE_fin,
-                p.rampa_inicio,
-                p.finDescarga,
-                p.liberacion,
-                p.patioS_fin,
-                p.disuasionS_inicio,
-                p.salidaPlanta
+                p.llegada, p.ingreso, p.disuasionE_inicio, p.patioE_fin, p.rampa_inicio,
+                p.finDescarga, p.liberacion, p.patioS_fin, p.disuasionS_inicio, p.salidaPlanta
             ];
 
             for (let i = 0; i <= 9; i++) {
@@ -1415,12 +1330,8 @@
             }
 
             if (p.disuasionE_destino) {
-                setChip(
-                    folio, 2,
-                    (stamps[2] ? "done" : (firstIncomplete === 2 ? "live" : "todo")),
-                    p.disuasionE_fin ? toLocal(p.disuasionE_fin) : "",
-                    p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : "")
-                );
+                setChip(folio, 2, (stamps[2] ? "done" : (firstIncomplete === 2 ? "live" : "todo")),
+                    p.disuasionE_fin ? toLocal(p.disuasionE_fin) : "", p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : ""));
             }
             if (p.patio_rampa) $("#tag-" + folio + "-3").textContent = p.patio_rampa;
             if (p.postLiberacionDestino) $("#tag-" + folio + "-6").textContent = "→ " + (p.postLiberacionDestino === "DisuasionS" ? "Disuasión (S)" : p.postLiberacionDestino);
@@ -1437,17 +1348,13 @@
         function removeCardIfClosed(folio, data) {
             if (!data) return;
             if (data.activo !== false) return;
-
             const card = cards.get(folio);
             if (!card) return;
-
             try { card.unsub && card.unsub(); } catch { }
             try { card.chatUnsub && card.chatUnsub(); } catch { }
-
             stopTimer(folio);
             try { card.rootEl?.remove(); } catch { }
             cards.delete(folio);
-
             if (cards.size === 0) $("#empty-state").classList.remove("hidden");
         }
 
@@ -1458,14 +1365,8 @@
                 const data = snap.data();
                 const card = cards.get(folio);
                 if (!card) return;
-
                 card.data = data;
-
-                if (data.activo === false) {
-                    removeCardIfClosed(folio, data);
-                    return;
-                }
-
+                if (data.activo === false) { removeCardIfClosed(folio, data); return; }
                 syncUIFromData(folio, data);
                 $("#empty-state").classList.add("hidden");
             });
@@ -1515,7 +1416,6 @@
             });
         }
 
-        // ===== MODAL DESTINO =====
         const mDestino = $("#modal-destino"); let md_resolve = null;
         $$(".destop", mDestino).forEach(b => b.addEventListener("click", () => {
             mDestino.classList.add("hidden"); mDestino.classList.remove("flex");
@@ -1523,7 +1423,6 @@
         }));
         function openModalDestino() { mDestino.classList.remove("hidden"); mDestino.classList.add("flex"); return new Promise(res => md_resolve = res); }
 
-        // ===== MODAL POST =====
         const mPost = $("#modal-postlib"); let mpost_resolve = null;
         $$(".postlib", mPost).forEach(b => b.addEventListener("click", () => {
             mPost.classList.add("hidden"); mPost.classList.remove("flex");
@@ -1531,7 +1430,6 @@
         }));
         function openModalPostLiberacion() { mPost.classList.remove("hidden"); mPost.classList.add("flex"); return new Promise(res => mpost_resolve = res); }
 
-        // ===== MODAL RAMPA =====
         const mRampa = $("#modal-rampa"), rampaGrid = $("#rampa-grid"); let mr_resolve = null;
         $("#rampa-cancel").onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve(null); mr_resolve = null; };
         function openModalRampa() {
@@ -1547,36 +1445,16 @@
             return new Promise(res => mr_resolve = res);
         }
 
-        // ===== MODAL COMENTARIOS =====
-        const mCom = $("#modal-com"),
-            mcTitle = $("#mc-title"),
-            mcOperador = $("#mc-operador"),
-            mcComentario = $("#mc-comentario"),
-            mcError = $("#mc-error");
-
+        const mCom = $("#modal-com"), mcTitle = $("#mc-title"), mcOperador = $("#mc-operador"), mcComentario = $("#mc-comentario"), mcError = $("#mc-error");
         let mcom_resolve = null;
-
-        $("#mc-cancel").onclick = () => {
-            mCom.classList.add("hidden");
-            mCom.classList.remove("flex");
-            mcom_resolve && mcom_resolve({ ok: false });
-            mcom_resolve = null;
-        };
-
+        $("#mc-cancel").onclick = () => { mCom.classList.add("hidden"); mCom.classList.remove("flex"); mcom_resolve && mcom_resolve({ ok: false }); mcom_resolve = null; };
         $("#mc-ok").onclick = async () => {
-            if (!mcOperador.value.trim() || !mcComentario.value.trim()) {
-                mcError.classList.remove("hidden");
-                return;
-            }
+            if (!mcOperador.value.trim() || !mcComentario.value.trim()) { mcError.classList.remove("hidden"); return; }
             mcError.classList.add("hidden");
-
             const out = { usuario: mcOperador.value.trim(), comentario: mcComentario.value.trim() };
-            mCom.classList.add("hidden");
-            mCom.classList.remove("flex");
-            mcom_resolve && mcom_resolve({ ok: true, data: out });
-            mcom_resolve = null;
+            mCom.classList.add("hidden"); mCom.classList.remove("flex");
+            mcom_resolve && mcom_resolve({ ok: true, data: out }); mcom_resolve = null;
         };
-
         function openModalComentario(title) {
             mcTitle.textContent = title;
             mcOperador.value = currentUser?.nombre || "";
@@ -1587,15 +1465,8 @@
             return new Promise(res => mcom_resolve = res);
         }
 
-        // ===== MODAL CIERRE =====
-        const mCierre = $("#modal-cierre");
-        const cierreOperador = $("#cierre-operador");
-        const cierreComentario = $("#cierre-comentario");
-        const cierreError = $("#cierre-error");
-        const cierreModo = $("#cierre-modo");
-        const cierreSub = $("#cierre-sub");
+        const mCierre = $("#modal-cierre"), cierreOperador = $("#cierre-operador"), cierreComentario = $("#cierre-comentario"), cierreError = $("#cierre-error"), cierreModo = $("#cierre-modo"), cierreSub = $("#cierre-sub");
         let cierre_ctx = null;
-
         function openModalCierre({ folio, estado }) {
             cierreOperador.value = currentUser?.nombre || "";
             cierreComentario.value = "";
@@ -1604,18 +1475,16 @@
 
             cierreModo.value = (estado === "Cancelado") ? "Cierre por CANCELACIÓN" : "Cierre normal";
             cierreSub.textContent = (estado === "Cancelado")
-                ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar, guardar histórico y enviar LINK."
-                : "Registra Salida de Planta, guarda histórico y envía el LINK del PDF por correo.";
+                ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar, guardar histórico y enviar correo."
+                : "Registra Salida de Planta, guarda histórico y envía el PDF por correo.";
 
             cierre_ctx = { folio, estado };
-            mCierre.classList.remove("hidden");
-            mCierre.classList.add("flex");
+            mCierre.classList.remove("hidden"); mCierre.classList.add("flex");
         }
         function closeModalCierre() { cierre_ctx = null; mCierre.classList.add("hidden"); mCierre.classList.remove("flex"); }
         $("#cierre-x").onclick = closeModalCierre;
         $("#cierre-cancel").onclick = closeModalCierre;
 
-        // ===== MODAL INFO (TODOS LOS CAMPOS DE CitasConfirmadas) =====
         async function fetchCitaConfirmadaByFolio(folio) {
             const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio));
             const snap = await getDocs(qRef);
@@ -1626,7 +1495,6 @@
         function flattenForUI(obj, prefix = "") {
             const out = [];
             const isPlainObj = (v) => v && typeof v === "object" && !Array.isArray(v);
-
             for (const [k, v] of Object.entries(obj || {})) {
                 const key = prefix ? `${prefix}.${k}` : k;
                 if (isPlainObj(v)) out.push(...flattenForUI(v, key));
@@ -1636,10 +1504,7 @@
             return out;
         }
         async function openInfoByFolio(folio, fallbackCita = null) {
-            const grid = $("#info-grid");
-            const modal = $("#modal-info");
-            const search = $("#info-search");
-
+            const grid = $("#info-grid"), modal = $("#modal-info"), search = $("#info-search");
             grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
 
             let full = null;
@@ -1649,16 +1514,7 @@
             const { createdAt, updatedAt, ...clean } = base;
 
             let rows = flattenForUI(clean);
-
-            const priority = [
-                "folio", "fecha", "hora", "horaExtra",
-                "lineaTransporte", "linea",
-                "placas", "placas2",
-                "chofer", "destino", "frontera",
-                "tipoTransporte", "tipoVisita",
-                "razon", "factura", "sello", "sello2",
-                "citaProveedorId", "id", "estatus"
-            ];
+            const priority = ["folio", "fecha", "hora", "horaExtra", "lineaTransporte", "linea", "placas", "placas2", "chofer", "destino", "frontera", "tipoTransporte", "tipoVisita", "razon", "factura", "sello", "sello2", "citaProveedorId", "id", "estatus"];
             const norm = (s) => String(s || "").toLowerCase();
 
             rows.sort((a, b) => {
@@ -1671,10 +1527,7 @@
 
             const render = (list) => {
                 grid.innerHTML = list.map(([k, v]) => `
-          <div class="kv">
-            <div class="k">${escapeHtml(k)}</div>
-            <div class="v">${escapeHtml(safeStr(v) || "-")}</div>
-          </div>
+          <div class="kv"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(safeStr(v) || "-")}</div></div>
         `).join("");
             };
 
@@ -1685,92 +1538,48 @@
                 search.oninput = () => {
                     const q = search.value.trim().toLowerCase();
                     if (!q) return render(rows);
-                    const filtered = rows.filter(([k, v]) =>
-                        String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)
-                    );
+                    const filtered = rows.filter(([k, v]) => String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q));
                     render(filtered);
                 };
             }
-
-            modal.classList.remove("hidden");
-            modal.classList.add("flex");
+            modal.classList.remove("hidden"); modal.classList.add("flex");
             $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
         }
 
         // ====== MODAL CITA (GUARDIA DECIDE) ======
-        const mCita = $("#modal-cita");
-        const mcitaGrid = $("#mcita-grid");
-        const mcitaX = $("#mcita-x");
-        const mcitaBtnAceptar = $("#mcita-btn-aceptar");
-        const mcitaBtnCancelar = $("#mcita-btn-cancelar");
-        const mcitaBtnConfirmCancel = $("#mcita-btn-confirm-cancel");
-        const mcitaCancelWrap = $("#mcita-cancel-wrap");
-        const mcitaCancelComent = $("#mcita-cancel-coment");
-        const mcitaCancelErr = $("#mcita-cancel-err");
+        const mCita = $("#modal-cita"), mcitaGrid = $("#mcita-grid"), mcitaX = $("#mcita-x"), mcitaBtnAceptar = $("#mcita-btn-aceptar"), mcitaBtnCancelar = $("#mcita-btn-cancelar"), mcitaBtnConfirmCancel = $("#mcita-btn-confirm-cancel"), mcitaCancelWrap = $("#mcita-cancel-wrap"), mcitaCancelComent = $("#mcita-cancel-coment"), mcitaCancelErr = $("#mcita-cancel-err");
         let mcita_ctx = null;
-
         function renderCitaGrid(folio, cita) {
             const rows = [
-                ["Folio", folio],
-                ["Fecha", cita.fecha || "-"],
-                ["Hora", cita.hora || "-"],
-                ["Hora extra", cita.horaExtra || "-"],
-                ["Línea", cita.lineaTransporte || cita.linea || "-"],
-                ["Placas", cita.placas || "-"],
-                ["Tipo transporte", cita.tipoTransporte || "-"],
-                ["Tipo visita", cita.tipoVisita || "-"],
-                ["Destino", cita.destino || "-"],
-                ["Proveedor", cita.usuarioProveedor || "-"],
+                ["Folio", folio], ["Fecha", cita.fecha || "-"], ["Hora", cita.hora || "-"], ["Hora extra", cita.horaExtra || "-"], ["Línea", cita.lineaTransporte || cita.linea || "-"], ["Placas", cita.placas || "-"], ["Tipo transporte", cita.tipoTransporte || "-"], ["Tipo visita", cita.tipoVisita || "-"], ["Destino", cita.destino || "-"], ["Proveedor", cita.usuarioProveedor || "-"],
             ];
             mcitaGrid.innerHTML = rows.map(([k, v]) => `
-        <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border">
-          <span class="text-gray-600">${k}</span>
-          <span class="font-medium">${escapeHtml(v)}</span>
-        </div>
+        <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border"><span class="text-gray-600">${k}</span><span class="font-medium">${escapeHtml(v)}</span></div>
       `).join("");
         }
 
         function openModalCitaDecision({ folio, cita }) {
             renderCitaGrid(folio, cita);
-            mcitaCancelWrap.classList.add("hidden");
-            mcitaBtnConfirmCancel.classList.add("hidden");
-            mcitaBtnCancelar.classList.remove("hidden");
-            mcitaBtnAceptar.classList.remove("hidden");
-            mcitaCancelComent.value = "";
-            mcitaCancelErr.classList.add("hidden");
-
-            mcitaBtnConfirmCancel.disabled = false;
-            mcitaBtnConfirmCancel.textContent = "Aceptar cancelación";
-
-            mCita.classList.remove("hidden");
-            mCita.classList.add("flex");
-
+            mcitaCancelWrap.classList.add("hidden"); mcitaBtnConfirmCancel.classList.add("hidden"); mcitaBtnCancelar.classList.remove("hidden"); mcitaBtnAceptar.classList.remove("hidden"); mcitaCancelComent.value = ""; mcitaCancelErr.classList.add("hidden");
+            mcitaBtnConfirmCancel.disabled = false; mcitaBtnConfirmCancel.textContent = "Aceptar cancelación";
+            mCita.classList.remove("hidden"); mCita.classList.add("flex");
             return new Promise((resolve) => { mcita_ctx = { folio, cita, resolve }; });
         }
 
         function closeModalCita() { mcita_ctx = null; mCita.classList.add("hidden"); mCita.classList.remove("flex"); }
-
         mcitaX.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "close" }); closeModalCita(); };
         mcitaBtnAceptar.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "accept" }); closeModalCita(); };
-
         mcitaBtnCancelar.onclick = () => {
-            mcitaCancelWrap.classList.remove("hidden");
-            mcitaBtnConfirmCancel.classList.remove("hidden");
-            mcitaBtnCancelar.classList.add("hidden");
-            mcitaBtnAceptar.classList.add("hidden");
-            mcitaCancelComent.focus();
+            mcitaCancelWrap.classList.remove("hidden"); mcitaBtnConfirmCancel.classList.remove("hidden"); mcitaBtnCancelar.classList.add("hidden"); mcitaBtnAceptar.classList.add("hidden"); mcitaCancelComent.focus();
         };
 
-        // ✅ Confirmar cancelación
         mcitaBtnConfirmCancel.onclick = async () => {
             const comment = mcitaCancelComent.value.trim();
             if (!comment) { mcitaCancelErr.classList.remove("hidden"); return; }
             mcitaCancelErr.classList.add("hidden");
-
             mcitaBtnConfirmCancel.disabled = true;
             const oldTxt = mcitaBtnConfirmCancel.textContent;
             mcitaBtnConfirmCancel.textContent = "Cancelando...";
-
             try {
                 mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment });
                 closeModalCita();
@@ -1867,10 +1676,8 @@
             cardEl.addEventListener("click", async (e) => {
                 const btnChat = e.target.closest("[data-chat]");
                 if (btnChat) { toggleChat(folio, true); return; }
-
                 const btnChatSend = e.target.closest("[data-chat-send]");
                 if (btnChatSend) { await sendChatMsg(folio); return; }
-
                 const btnChatClose = e.target.closest("[data-chat-close]");
                 if (btnChatClose) { toggleChat(folio, false); return; }
 
@@ -1896,115 +1703,44 @@
                 }
 
                 async function markCancelAndJump(origen, pasoKeyForComment) {
-                    const com = await pedirComentario(
-                        origen === "DisuasionE" ? "Cancelar en Disuasión (E)" : "Cancelar en Rampa",
-                        pasoKeyForComment,
-                        "cancelar"
-                    );
+                    const com = await pedirComentario(origen === "DisuasionE" ? "Cancelar en Disuasión (E)" : "Cancelar en Rampa", pasoKeyForComment, "cancelar");
                     if (!com) return false;
-
                     const ts = nowISO();
                     const updates = {
-                        estado: "Cancelado",
-                        updatedAt: serverTimestamp(),
-                        "pasos.forceNextStep": 9,
-                        "pasos.cancel_origen": origen,
-                        "pasos.cancel_ts": ts,
+                        estado: "Cancelado", updatedAt: serverTimestamp(), "pasos.forceNextStep": 9, "pasos.cancel_origen": origen, "pasos.cancel_ts": ts,
                         comentarios: appendComment(comentariosPrev, pasoKeyForComment, com),
                     };
-
                     if (origen === "DisuasionE") {
-                        updates["pasos.disuasionE_inicio"] = p.disuasionE_inicio || ts;
-                        updates["pasos.disuasionE_fin"] = ts;
-                        updates["pasos.disuasionE_destino"] = "Cancelado";
+                        updates["pasos.disuasionE_inicio"] = p.disuasionE_inicio || ts; updates["pasos.disuasionE_fin"] = ts; updates["pasos.disuasionE_destino"] = "Cancelado";
                     } else {
                         updates["pasos.rampa_cancel"] = ts;
                     }
-
                     await updateDoc(cref, updates);
                     return true;
                 }
 
                 try {
                     switch (step) {
-                        case 0: {
-                            const com = await pedirComentario("Registrar Llegada", "llegada", "registrar");
-                            if (!com) break;
-                            if (!p.llegada) {
-                                await updateDoc(cref, {
-                                    "pasos.llegada": nowISO(),
-                                    comentarios: appendComment(comentariosPrev, "llegada", com),
-                                    updatedAt: serverTimestamp()
-                                });
-                            }
-                            break;
-                        }
-                        case 1: {
-                            const com = await pedirComentario("Registrar Ingreso", "ingreso", "registrar");
-                            if (!com) break;
-                            if (!p.ingreso) {
-                                await updateDoc(cref, {
-                                    "pasos.ingreso": nowISO(),
-                                    comentarios: appendComment(comentariosPrev, "ingreso", com),
-                                    updatedAt: serverTimestamp()
-                                });
-                            }
-                            break;
-                        }
+                        case 0: { const com = await pedirComentario("Registrar Llegada", "llegada", "registrar"); if (com && !p.llegada) await updateDoc(cref, { "pasos.llegada": nowISO(), comentarios: appendComment(comentariosPrev, "llegada", com), updatedAt: serverTimestamp() }); break; }
+                        case 1: { const com = await pedirComentario("Registrar Ingreso", "ingreso", "registrar"); if (com && !p.ingreso) await updateDoc(cref, { "pasos.ingreso": nowISO(), comentarios: appendComment(comentariosPrev, "ingreso", com), updatedAt: serverTimestamp() }); break; }
                         case 2: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
-
                             if (act.classList.contains("fin")) {
                                 const dest = await openModalDestino();
                                 if (!dest) { act.disabled = false; break; }
-
-                                if (dest === "Cancelar") {
-                                    await markCancelAndJump("DisuasionE", "disuasionE_cancel");
-                                    break;
-                                }
-
+                                if (dest === "Cancelar") { await markCancelAndJump("DisuasionE", "disuasionE_cancel"); break; }
                                 if (dest === "Rampa") {
-                                    const rSel = await openModalRampa();
-                                    if (!rSel) { act.disabled = false; break; }
-
-                                    const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar");
-                                    if (!com) break;
-
+                                    const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
+                                    const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar"); if (!com) break;
                                     const ts = nowISO();
-                                    await updateDoc(cref, {
-                                        "pasos.disuasionE_inicio": p.disuasionE_inicio || ts,
-                                        "pasos.disuasionE_fin": ts,
-                                        "pasos.disuasionE_destino": "Rampa",
-                                        "pasos.disuasionE_rampa": rSel,
-                                        "pasos.patioE_fin": ts,
-                                        "pasos.patio_rampa": rSel,
-                                        "pasos.rampa_enter_ts": p.rampa_enter_ts || ts,
-                                        comentarios: appendComment(comentariosPrev, "disuasionE_fin", com),
-                                        updatedAt: serverTimestamp()
-                                    });
+                                    await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || ts, "pasos.disuasionE_fin": ts, "pasos.disuasionE_destino": "Rampa", "pasos.disuasionE_rampa": rSel, "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, "pasos.rampa_enter_ts": p.rampa_enter_ts || ts, comentarios: appendComment(comentariosPrev, "disuasionE_fin", com), updatedAt: serverTimestamp() });
                                 } else {
-                                    const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar");
-                                    if (!com) break;
-
+                                    const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar"); if (!com) break;
                                     const ts = nowISO();
-                                    await updateDoc(cref, {
-                                        "pasos.disuasionE_inicio": p.disuasionE_inicio || ts,
-                                        "pasos.disuasionE_fin": ts,
-                                        "pasos.disuasionE_destino": "Patio",
-                                        comentarios: appendComment(comentariosPrev, "disuasionE_fin", com),
-                                        updatedAt: serverTimestamp()
-                                    });
+                                    await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || ts, "pasos.disuasionE_fin": ts, "pasos.disuasionE_destino": "Patio", comentarios: appendComment(comentariosPrev, "disuasionE_fin", com), updatedAt: serverTimestamp() });
                                 }
                             } else {
-                                const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar");
-                                if (!com) break;
-                                if (!p.disuasionE_inicio) {
-                                    await updateDoc(cref, {
-                                        "pasos.disuasionE_inicio": nowISO(),
-                                        comentarios: appendComment(comentariosPrev, "disuasionE_inicio", com),
-                                        updatedAt: serverTimestamp()
-                                    });
-                                }
+                                const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar"); if (com && !p.disuasionE_inicio) await updateDoc(cref, { "pasos.disuasionE_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionE_inicio", com), updatedAt: serverTimestamp() });
                             }
                             break;
                         }
@@ -2013,124 +1749,48 @@
                             const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
                             const com = await pedirComentario(`Finalizar Patio (E) → ${rSel}`, "patioE_fin", "finalizar"); if (!com) break;
                             const ts = nowISO();
-                            await updateDoc(cref, {
-                                "pasos.patioE_fin": ts,
-                                "pasos.patio_rampa": rSel,
-                                "pasos.rampa_enter_ts": p.rampa_enter_ts || ts,
-                                comentarios: appendComment(comentariosPrev, "patioE_fin", com),
-                                updatedAt: serverTimestamp()
-                            });
+                            await updateDoc(cref, { "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, "pasos.rampa_enter_ts": p.rampa_enter_ts || ts, comentarios: appendComment(comentariosPrev, "patioE_fin", com), updatedAt: serverTimestamp() });
                             break;
                         }
                         case 4: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
-
-                            if (act.classList.contains("cancel")) {
-                                await markCancelAndJump("Rampa", "rampa_cancel");
-                            } else {
-                                const com = await pedirComentario("Iniciar carga/descarga en Rampa", "rampa_inicio", "iniciar");
-                                if (!com) break;
-
-                                const ts = nowISO();
-                                const inicioCrono = p.cronometro_inicio || ts;
-
-                                await updateDoc(cref, {
-                                    "pasos.rampa_inicio": p.rampa_inicio || ts,
-                                    "pasos.cronometro_inicio": inicioCrono,
-                                    comentarios: appendComment(comentariosPrev, "rampa_inicio", com),
-                                    updatedAt: serverTimestamp()
-                                });
-
+                            if (act.classList.contains("cancel")) { await markCancelAndJump("Rampa", "rampa_cancel"); }
+                            else {
+                                const com = await pedirComentario("Iniciar carga/descarga en Rampa", "rampa_inicio", "iniciar"); if (!com) break;
+                                const ts = nowISO(); const inicioCrono = p.cronometro_inicio || ts;
+                                await updateDoc(cref, { "pasos.rampa_inicio": p.rampa_inicio || ts, "pasos.cronometro_inicio": inicioCrono, comentarios: appendComment(comentariosPrev, "rampa_inicio", com), updatedAt: serverTimestamp() });
                                 startTimer(folio, inicioCrono);
                             }
                             break;
                         }
                         case 5: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
-                            const com = await pedirComentario("Registrar Fin de Carga/Descarga", "finDescarga", "registrar"); if (!com) break;
-                            if (!p.finDescarga) {
-                                await updateDoc(cref, {
-                                    "pasos.finDescarga": nowISO(),
-                                    comentarios: appendComment(comentariosPrev, "finDescarga", com),
-                                    updatedAt: serverTimestamp()
-                                });
-                            }
-                            break;
+                            const com = await pedirComentario("Registrar Fin de Carga/Descarga", "finDescarga", "registrar"); if (com && !p.finDescarga) await updateDoc(cref, { "pasos.finDescarga": nowISO(), comentarios: appendComment(comentariosPrev, "finDescarga", com), updatedAt: serverTimestamp() }); break;
                         }
                         case 6: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
                             const com = await pedirComentario("Registrar Liberación", "liberacion", "registrar"); if (!com) break;
                             if (!p.liberacion) {
-                                const ts = nowISO();
-                                const startISO = p.cronometro_inicio;
-                                let durMs = null;
-
-                                if (startISO) {
-                                    const startMs = new Date(startISO).getTime();
-                                    if (Number.isFinite(startMs)) durMs = Date.now() - startMs;
-                                }
-
-                                await updateDoc(cref, {
-                                    "pasos.liberacion": ts,
-                                    "pasos.cronometro_fin": ts,
-                                    "pasos.duracion_rampa_ms": (typeof durMs === "number" ? durMs : null),
-                                    comentarios: appendComment(comentariosPrev, "liberacion", com),
-                                    updatedAt: serverTimestamp()
-                                });
-
-                                if (typeof durMs === "number") {
-                                    stopTimer(folio);
-                                    setTimerDisplay(folio, durMs);
-                                }
-
+                                const ts = nowISO(); const startISO = p.cronometro_inicio; let durMs = null;
+                                if (startISO) { const startMs = new Date(startISO).getTime(); if (Number.isFinite(startMs)) durMs = Date.now() - startMs; }
+                                await updateDoc(cref, { "pasos.liberacion": ts, "pasos.cronometro_fin": ts, "pasos.duracion_rampa_ms": (typeof durMs === "number" ? durMs : null), comentarios: appendComment(comentariosPrev, "liberacion", com), updatedAt: serverTimestamp() });
+                                if (typeof durMs === "number") { stopTimer(folio); setTimerDisplay(folio, durMs); }
                                 const dest = await openModalPostLiberacion();
-                                if (dest === "Patio") {
-                                    await updateDoc(cref, { "pasos.postLiberacionDestino": "Patio", updatedAt: serverTimestamp() });
-                                } else if (dest === "DisuasionS") {
-                                    const ts2 = nowISO();
-                                    await updateDoc(cref, {
-                                        "pasos.postLiberacionDestino": "DisuasionS",
-                                        "pasos.patioS_fin": ts2,
-                                        updatedAt: serverTimestamp()
-                                    });
-                                }
+                                if (dest === "Patio") { await updateDoc(cref, { "pasos.postLiberacionDestino": "Patio", updatedAt: serverTimestamp() }); }
+                                else if (dest === "DisuasionS") { const ts2 = nowISO(); await updateDoc(cref, { "pasos.postLiberacionDestino": "DisuasionS", "pasos.patioS_fin": ts2, updatedAt: serverTimestamp() }); }
                             }
                             break;
                         }
                         case 7: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
-                            const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar"); if (!com) break;
-                            if (!p.patioS_fin) {
-                                await updateDoc(cref, {
-                                    "pasos.patioS_fin": nowISO(),
-                                    comentarios: appendComment(comentariosPrev, "patioS_fin", com),
-                                    updatedAt: serverTimestamp()
-                                });
-                            }
-                            break;
+                            const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar"); if (com && !p.patioS_fin) await updateDoc(cref, { "pasos.patioS_fin": nowISO(), comentarios: appendComment(comentariosPrev, "patioS_fin", com), updatedAt: serverTimestamp() }); break;
                         }
                         case 8: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
                             if (act.classList.contains("fin")) {
-                                const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar"); if (!com) break;
-                                if (!p.disuasionS_fin) {
-                                    const ts = nowISO();
-                                    await updateDoc(cref, {
-                                        "pasos.disuasionS_inicio": p.disuasionS_inicio || ts,
-                                        "pasos.disuasionS_fin": ts,
-                                        comentarios: appendComment(comentariosPrev, "disuasionS_fin", com),
-                                        updatedAt: serverTimestamp()
-                                    });
-                                }
+                                const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar"); if (com && !p.disuasionS_fin) { const ts = nowISO(); await updateDoc(cref, { "pasos.disuasionS_inicio": p.disuasionS_inicio || ts, "pasos.disuasionS_fin": ts, comentarios: appendComment(comentariosPrev, "disuasionS_fin", com), updatedAt: serverTimestamp() }); }
                             } else {
-                                const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar"); if (!com) break;
-                                if (!p.disuasionS_inicio) {
-                                    await updateDoc(cref, {
-                                        "pasos.disuasionS_inicio": nowISO(),
-                                        comentarios: appendComment(comentariosPrev, "disuasionS_inicio", com),
-                                        updatedAt: serverTimestamp()
-                                    });
-                                }
+                                const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar"); if (com && !p.disuasionS_inicio) await updateDoc(cref, { "pasos.disuasionS_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionS_inicio", com), updatedAt: serverTimestamp() });
                             }
                             break;
                         }
@@ -2191,13 +1851,15 @@
         }
 
         // =========================
-        // ✅ CIERRE: guarda histórico + sube PDF a Drive + Apps Script manda LINK por correo
+        // ✅ BOTÓN FINALIZAR (GUARDA Y ENVÍA)
         // =========================
         $("#cierre-pdf").onclick = async () => {
             if (!cierre_ctx) return;
 
             const btn = $("#cierre-pdf");
             btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = "Procesando...";
 
             try {
                 const folio = cierre_ctx.folio;
@@ -2209,7 +1871,7 @@
 
                 const usuario = cierreOperador.value.trim();
                 const comentario = cierreComentario.value.trim();
-                if (!usuario || !comentario) { cierreError.classList.remove("hidden"); btn.disabled = false; return; }
+                if (!usuario || !comentario) { cierreError.classList.remove("hidden"); btn.disabled = false; btn.textContent = originalText; return; }
                 cierreError.classList.add("hidden");
 
                 const closedAtISO = nowISO();
@@ -2217,7 +1879,7 @@
                 const comentariosPrev = control.comentarios || [];
                 const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
 
-                // 1) Cerrar en Firestore
+                // 1) Cerrar en Firestore (Documento de control y estatus de cita)
                 await updateDoc(cref, {
                     "pasos.salidaPlanta": closedAtISO,
                     estado: estadoFinal,
@@ -2230,58 +1892,84 @@
 
                 await setCitaFinalizada(control.cita?.id);
 
-                // 2) Refrescar datos, chat, guardar histórico
+                // 2) Obtener la data más reciente
                 const freshSnap = await getDoc(cref);
                 const freshData = freshSnap.data() || control;
 
+                // ✅ 3) OBTENER TODA LA INFO ORIGINAL (Match entre CitasConfirmadas y CitasProveedor)
+                let fullCita = { ...(freshData.cita || {}) };
+                try {
+                    if (fullCita.id) {
+                        const confSnap = await getDoc(doc(db, "CitasConfirmadas", fullCita.id));
+                        if (confSnap.exists()) {
+                            const confData = confSnap.data();
+                            fullCita = { ...fullCita, ...confData }; // fusionar confirmada
+                            
+                            // Si tiene proveedor id, vamos por la data fuente
+                            const provId = confData.citaProveedorId || confData.idCitaProveedor || confData.proveedorCitaId;
+                            if (provId) {
+                                const provSnap = await getDoc(doc(db, "CitasProveedor", provId));
+                                if (provSnap.exists()) {
+                                    // Fusionar priorizando la confirmada, pero agregando campos faltantes del proveedor
+                                    fullCita = { ...provSnap.data(), ...fullCita }; 
+                                }
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn("No se pudieron cargar los detalles extra de la cita para el PDF", err);
+                }
+
+                // Se la inyectamos a freshData para que el PDF se nutra con la lista completa
+                freshData.cita = fullCita;
+
                 const chatMessages = await getChatMessages(folio);
+                
+                // 4) Guardar en ControlTransportesHistorico (Firebase)
                 await saveToHistorico({ folio, controlData: freshData, chatMessages, closedAtISO });
 
-                // 3) Log en Sheets
-                const payloadLog = await buildSheetsPayload({ actionType: "FinalizarYEnviarLINK", folio, freshData, closedAtISO });
+                // 5) Registro de cierre en Sheets
+                const payloadLog = await buildSheetsPayload({ actionType: "FinalizarYEnviarPDF", folio, freshData, closedAtISO });
                 await sendToSheetsViaForm(payloadLog);
 
-                // 4) Generar PDF base64
+                // 6) Generar el string Base64 del PDF
                 const pdfBase64 = await generatePDFBase64({ folio, controlData: freshData, chatMessages });
 
-                // 5) Subir a Drive + mandar correo con LINK
+                // 7) Solicitar subida a Drive y envío adjunto a Apps Script
                 const rid = newRid("UPLOAD");
                 await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
                     rid,
-                    action: "UPLOAD_PDF_AND_EMAIL_LINK",
-                    folderId: DRIVE_FOLDER_ID,
+                    action: "UPLOAD_AND_EMAIL_PDF",
                     folio,
                     fileName: `Historial_${folio}.pdf`,
-                    pdfBase64,
-                    estado: freshData.estado || "",
-                    closedAtISO,
-                    enviadoPor: currentUser?.nombre || "",
-                    enviadoPorEmail: currentUser?.email || ""
+                    pdfBase64
                 });
 
+                // Esperamos confirmación de Apps Script
                 const resp = await waitForRid(rid, 45000);
 
-                if (resp?.ok && resp?.fileUrl) {
+                if (resp?.ok && resp?.link) {
                     $("#drive-link-wrap").classList.remove("hidden");
                     const a = $("#drive-link");
-                    a.href = resp.fileUrl;
-                    a.textContent = resp.fileUrl;
-                    alert("Listo: PDF guardado en Drive y correo enviado con el link.");
+                    a.href = resp.link;
+                    a.textContent = resp.link;
+                    alert("¡Historial guardado exitosamente y PDF enviado adjunto por correo!");
                 } else {
-                    alert("Se envió la solicitud a Apps Script. Si no ves el link aquí, revisa Drive/correo (o habilita postMessage en el Apps Script).");
+                    alert("Se envió la solicitud de cierre. Por favor revisa en Drive o el Correo en un par de minutos para confirmar el guardado.");
                 }
 
                 closeModalCierre();
             } catch (e) {
                 console.error(e);
-                alert("Error al finalizar y enviar link. Revisa consola.");
+                alert("Hubo un error al finalizar. Revisa la consola.");
             } finally {
                 btn.disabled = false;
+                btn.textContent = originalText;
             }
         };
 
         // =========================
-        // ✅ Load cards
+        // ✅ Carga Inicial
         // =========================
         async function loadActiveControls() {
             const cont = $("#cards-container");
@@ -2310,9 +1998,6 @@
             if (count > 0) $("#empty-state").classList.add("hidden");
         }
 
-        // =========================
-        // ✅ Add folio flow (incluye "Eliminar cita")
-        // =========================
         $("#add-folio-btn").onclick = async () => {
             const addBtn = $("#add-folio-btn");
             addBtn.disabled = true;
@@ -2367,7 +2052,6 @@
                     return;
                 }
 
-                // ✅ ELIMINAR CITA: soft-delete + correo + sheets
                 if (decision.action === "cancel") {
                     try {
                         await cancelCita({
@@ -2392,9 +2076,6 @@
             }
         };
 
-        // =========================
-        // ✅ Init
-        // =========================
         (async function init() {
             if (!guardAccess()) return;
             try {
@@ -2408,5 +2089,3 @@
 </body>
 
 </html>
-
-
