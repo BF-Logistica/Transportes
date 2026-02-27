@@ -540,15 +540,36 @@
             return { ok: true, rid };
         }
 
-        // =========================
+// =========================
         // ✅ PDF Helpers 
         // =========================
         function buildInfoRows(cita, folio) {
             return [
-                ["Folio", folio], ["Línea", cita.linea || cita.lineaTransporte || ""], ["Placas", cita.placas || ""], ["Tipo transporte", cita.tipoTransporte || ""],
-                ["Tipo visita", cita.tipoVisita || ""], ["Fecha", cita.fecha || ""], ["Hora", cita.hora || ""], ["Hora extra", cita.horaExtra || ""],
-                ["Destino", cita.destino || ""], ["Proveedor", cita.usuarioProveedor || ""]
-            ].map(([k, v]) => ([k, (v === "" ? "-" : v)]));
+                ["Folio", folio],
+                ["Línea Transportista", cita.linea || cita.lineaTransporte || ""],
+                ["Chofer", cita.chofer || ""],
+                ["Placas", cita.placas || ""],
+                ["Placas 2", cita.placas2 || ""],
+                ["Tipo transporte", cita.tipoTransporte || ""],
+                ["Tipo visita", cita.tipoVisita || ""],
+                ["No. Pallets", cita.noPallets || ""],
+                ["Fecha", cita.fecha || ""],
+                ["Hora", cita.hora || ""],
+                ["Hora extra", cita.horaExtra || ""],
+                ["Destino", cita.destino || ""],
+                ["Frontera", cita.frontera || ""],
+                ["Factura", cita.factura || ""],
+                ["No. Caja", cita.caja || ""],
+                ["No. Caja 2", cita.caja2 || ""],
+                ["No. Sello", cita.sello || ""],
+                ["No. Sello 2", cita.sello2 || ""],
+                ["¿Recolecta caja?", cita.recolectaCaja || ""],
+                ["Caja que deja", cita.cajaDeja || ""],
+                ["Caja que recolecta", cita.cajaRecolecta || ""],
+                ["Es domingo", cita.esDomingo === true || cita.esDomingo === "true" ? "Sí" : "No"],
+                ["Notas / Comentarios", cita.notas || ""],
+                ["Correo Proveedor", cita.usuarioProveedor || cita.correoProveedor || ""]
+            ].map(([k, v]) => ([k, (v === "" || v === undefined || v === null) ? "-" : v]));
         }
 
         function pasoLabel(paso) {
@@ -1106,3 +1127,4 @@
 </body>
 
 </html>
+
