@@ -25,236 +25,54 @@
             --surface: #f3f4f6
         }
 
-        html,
+        html, body { height: 100% }
         body {
-            height: 100%
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            overflow: hidden;
+            margin: 0; padding: 0; box-sizing: border-box; overflow: hidden;
             font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            color: var(--text-main);
-            background-color: var(--surface)
+            color: var(--text-main); background-color: var(--surface)
         }
-
-        .sidebar-collapsed {
-            width: 80px
-        }
-
-        .sidebar-expanded {
-            width: 250px
-        }
+        .sidebar-collapsed { width: 80px }
+        .sidebar-expanded { width: 250px }
 
         /* ===== Modal Info nice layout ===== */
-        .kv {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: .75rem;
-            background: #f8fafc;
-            border: 1px solid #e5e7eb;
-            border-radius: .75rem;
-            padding: .6rem .75rem;
-        }
-
-        .kv .k {
-            color: #475569;
-            font-size: .78rem;
-            line-height: 1.1rem;
-            word-break: break-word;
-            max-width: 58%;
-        }
-
-        .kv .v {
-            font-weight: 600;
-            text-align: right;
-            line-height: 1.1rem;
-            word-break: break-word;
-            max-width: 42%;
-        }
-
-        .main-content-collapsed {
-            margin-left: 80px
-        }
-
-        .main-content-expanded {
-            margin-left: 250px
-        }
-
-        .menu-text {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-            white-space: nowrap;
-            transition: opacity .3s, width .3s
-        }
-
-        .sidebar-expanded .menu-text {
-            opacity: 1;
-            width: auto
-        }
-
-        .sidebar-collapsed .menu-text {
-            display: none
-        }
-
-        .sidebar-collapsed nav a {
-            justify-content: center;
-            padding-left: 0;
-            padding-right: 0
-        }
-
-        .nav-icon {
-            width: 32px;
-            height: 32px;
-            flex-shrink: 0;
-            object-fit: contain;
-            display: block
-        }
-
-        .sidebar-collapsed .nav-icon {
-            width: 40px;
-            height: 40px;
-            margin: 0 auto
-        }
-
-        .timeline {
-            height: 8px;
-            background: #e5e7eb;
-            border-radius: 999px;
-            position: relative;
-            overflow: hidden
-        }
-
-        .timeline>div {
-            height: 8px;
-            background: linear-gradient(90deg, #0ea5e9, #22c55e);
-            width: 0;
-            border-radius: 999px
-        }
-
-        .truck {
-            position: absolute;
-            top: -50px;
-            left: 0;
-            transform: translateX(-50%);
-            transition: left .35s ease
-        }
-
-        .chip {
-            width: 100px;
-            height: 100px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 6px 18px rgba(2, 6, 23, .08)
-        }
-
-        .chip img {
-            width: 56px;
-            height: 56px
-        }
-
-        .chip.done {
-            background: #10b981;
-            color: #fff
-        }
-
-        .chip.todo {
-            background: #fff;
-            color: #64748b;
-            border: 2px solid #e5e7eb
-        }
-
-        .chip.live {
-            background: rgba(250, 204, 21, .14);
-            color: #92400e;
-            border: 2px solid rgba(250, 204, 21, .55);
-            box-shadow: 0 4px 14px rgba(250, 204, 21, .25)
-        }
-
-        .modal-backdrop {
-            background: rgba(0, 0, 0, .5)
-        }
-
-        @view-transition {
-            navigation: auto
-        }
-
-        .btn {
-            padding: .45rem .75rem;
-            border-radius: .6rem;
-            font-size: .82rem;
-            font-weight: 600
-        }
-
-        .btn[disabled] {
-            opacity: .45;
-            pointer-events: none
-        }
-
-        .btn.mark {
-            background: #059669;
-            color: #fff
-        }
-
-        .btn.mark:hover {
-            background: #047857
-        }
-
-        .btn.fin {
-            background: #1d4ed8;
-            color: #fff;
-            margin-top: .6rem
-        }
-
-        .btn.fin:hover {
-            background: #1e40af
-        }
-
-        .btn.cancel {
-            background: #e5e7eb;
-            color: #111827;
-            margin-top: .6rem
-        }
-
-        .btn.cancel:hover {
-            background: #d1d5db
-        }
-
-        .btn.danger {
-            background: #dc2626;
-            color: #fff
-        }
-
-        .btn.danger:hover {
-            background: #b91c1c
-        }
-
-        @media (max-width:768px) {
-            .sidebar-expanded {
-                width: 210px
-            }
-
-            .main-content-expanded {
-                margin-left: 210px
-            }
-
-            header h1 {
-                font-size: 1.15rem
-            }
-        }
+        .kv { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: .75rem; padding: .6rem .75rem; }
+        .kv .k { color: #475569; font-size: .78rem; line-height: 1.1rem; word-break: break-word; max-width: 58%; }
+        .kv .v { font-weight: 600; text-align: right; line-height: 1.1rem; word-break: break-word; max-width: 42%; }
+        .main-content-collapsed { margin-left: 80px }
+        .main-content-expanded { margin-left: 250px }
+        .menu-text { opacity: 0; width: 0; overflow: hidden; white-space: nowrap; transition: opacity .3s, width .3s }
+        .sidebar-expanded .menu-text { opacity: 1; width: auto }
+        .sidebar-collapsed .menu-text { display: none }
+        .sidebar-collapsed nav a { justify-content: center; padding-left: 0; padding-right: 0 }
+        .nav-icon { width: 32px; height: 32px; flex-shrink: 0; object-fit: contain; display: block }
+        .sidebar-collapsed .nav-icon { width: 40px; height: 40px; margin: 0 auto }
+        .timeline { height: 8px; background: #e5e7eb; border-radius: 999px; position: relative; overflow: hidden }
+        .timeline>div { height: 8px; background: linear-gradient(90deg, #0ea5e9, #22c55e); width: 0; border-radius: 999px }
+        .truck { position: absolute; top: -50px; left: 0; transform: translateX(-50%); transition: left .35s ease }
+        .chip { width: 100px; height: 100px; border-radius: 999px; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 18px rgba(2, 6, 23, .08) }
+        .chip img { width: 56px; height: 56px }
+        .chip.done { background: #10b981; color: #fff }
+        .chip.todo { background: #fff; color: #64748b; border: 2px solid #e5e7eb }
+        .chip.live { background: rgba(250, 204, 21, .14); color: #92400e; border: 2px solid rgba(250, 204, 21, .55); box-shadow: 0 4px 14px rgba(250, 204, 21, .25) }
+        .modal-backdrop { background: rgba(0, 0, 0, .5) }
+        @view-transition { navigation: auto }
+        .btn { padding: .45rem .75rem; border-radius: .6rem; font-size: .82rem; font-weight: 600 }
+        .btn[disabled] { opacity: .45; pointer-events: none }
+        .btn.mark { background: #059669; color: #fff }
+        .btn.mark:hover { background: #047857 }
+        .btn.fin { background: #1d4ed8; color: #fff; margin-top: .6rem }
+        .btn.fin:hover { background: #1e40af }
+        .btn.cancel { background: #e5e7eb; color: #111827; margin-top: .6rem }
+        .btn.cancel:hover { background: #d1d5db }
+        .btn.danger { background: #dc2626; color: #fff }
+        .btn.danger:hover { background: #b91c1c }
+        @media (max-width:768px) { .sidebar-expanded { width: 210px } .main-content-expanded { margin-left: 210px } header h1 { font-size: 1.15rem } }
     </style>
 </head>
 
 <body>
     <div id="app" class="h-full flex">
-        <aside id="sidebar"
-            class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
+        <aside id="sidebar" class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
             <div class="p-4 flex items-center justify-between border-b border-gray-200">
                 <div class="hidden" id="sidebar-title-wrapper">
                     <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
@@ -263,76 +81,29 @@
                 <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
                     class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
             </div>
             <nav class="flex-1 p-4 overflow-y-auto" aria-label="Navegación principal">
                 <ul class="space-y-2">
-                    <li>
-                        <a data-page="menu.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Solicitudes</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a data-page="usuarios.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Usuarios</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a data-page="citas.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Control de Citas</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a data-page="control.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Control Transportes</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a data-page="estatus.html"
-                            class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" />
-                            </span>
-                            <span class="menu-text">Seguimiento en Vivo</span>
-                        </a>
-                    </li>
+                    <li><a data-page="menu.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" /></span><span class="menu-text">Solicitudes</span></a></li>
+                    <li><a data-page="usuarios.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/usuarios.png" alt="Usuarios" class="nav-icon" /></span><span class="menu-text">Usuarios</span></a></li>
+                    <li><a data-page="citas.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" /></span><span class="menu-text">Control de Citas</span></a></li>
+                    <li><a data-page="control.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors"><span class="nav-icon-wrapper"><img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" /></span><span class="menu-text">Control Transportes</span></a></li>
+                    <li><a data-page="estatus.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors"><span class="nav-icon-wrapper"><img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" /></span><span class="menu-text">Seguimiento en Vivo</span></a></li>
                 </ul>
             </nav>
         </aside>
 
-        <main id="main-content"
-            class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
-            <header
-                class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
+        <main id="main-content" class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
+            <header class="bg-white shadow-sm px-4 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200">
                 <div class="flex items-center gap-3 min-w-0">
                     <img src="img/bf_logo.png" alt="Beiersdorf" class="h-8 w-auto flex-shrink-0" />
                     <h1 class="text-xl sm:text-2xl font-semibold text-gray-800 truncate">Control de Transportes</h1>
                 </div>
-                <button id="logout-btn"
-                    class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
+                <button id="logout-btn" class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                     <span>Cerrar sesión</span>
                 </button>
             </header>
@@ -341,29 +112,19 @@
                 <div class="flex flex-wrap items-center gap-3">
                     <div class="flex-1 min-w-[260px]">
                         <label for="folio-input" class="sr-only">Folio BMM</label>
-                        <input id="folio-input" type="text" inputmode="latin" placeholder="Folio (ej. BMM-19112501)"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                        <input id="folio-input" type="text" inputmode="latin" placeholder="Folio (ej. BMM-19112501)" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
                     </div>
-
-                    <button id="add-folio-btn"
-                        class="px-4 py-2 bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white rounded-lg font-semibold">
+                    <button id="add-folio-btn" class="px-4 py-2 bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white rounded-lg font-semibold">
                         Agregar transporte
                     </button>
-
-                    <a href="control.html"
-                        class="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
-                        title="Histórico" aria-label="Ir al Histórico">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 8v4l3 3m6-3a9 9 0 11-3-6.7M21 3v6h-6" />
-                        </svg>
+                    <a href="control.html" class="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200" title="Histórico" aria-label="Ir al Histórico">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-3-6.7M21 3v6h-6" /></svg>
                     </a>
                 </div>
             </section>
 
             <section id="cards-container" class="flex-1 overflow-auto p-4 sm:p-6">
-                <div id="empty-state"
-                    class="h-[60vh] rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-500">
+                <div id="empty-state" class="h-[60vh] rounded-xl border border-dashed border-gray-300 bg-white flex items-center justify-center text-gray-500">
                     <div class="text-center">
                         <img src="img/camion.png" class="w-12 h-12 opacity-40 mx-auto mb-2" alt="Camión" />
                         <p class="text-lg font-medium">No hay transportes registrados</p>
@@ -377,112 +138,65 @@
     <div id="modal-cita" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                <div>
-                    <h3 class="text-xl font-semibold">Validación de cita</h3>
-                    <p class="text-sm text-gray-600">Confirma si se dará de alta o se cancelará.</p>
-                </div>
+                <div><h3 class="text-xl font-semibold">Validación de cita</h3><p class="text-sm text-gray-600">Confirma si se dará de alta o se cancelará.</p></div>
                 <button id="mcita-x" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
             </div>
-
             <div class="p-6">
                 <div id="mcita-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
-
                 <div id="mcita-cancel-wrap" class="mt-4 hidden">
-                    <label for="mcita-cancel-coment" class="text-xs font-semibold text-gray-600">
-                        Comentario de cancelación (obligatorio)
-                    </label>
-                    <textarea id="mcita-cancel-coment" rows="3" placeholder="Motivo por el cual se cancela la cita"
-                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
-                    <p id="mcita-cancel-err" class="mt-2 text-sm text-red-600 hidden">Escribe el comentario para
-                        cancelar.</p>
+                    <label for="mcita-cancel-coment" class="text-xs font-semibold text-gray-600">Comentario de cancelación (obligatorio)</label>
+                    <textarea id="mcita-cancel-coment" rows="3" placeholder="Motivo por el cual se cancela la cita" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
+                    <p id="mcita-cancel-err" class="mt-2 text-sm text-red-600 hidden">Escribe el comentario para cancelar.</p>
                 </div>
             </div>
-
             <div class="px-6 pb-6 flex flex-wrap gap-3 justify-end">
-                <button id="mcita-btn-aceptar"
-                    class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
-                    Aceptar (dar de alta)
-                </button>
-                <button id="mcita-btn-cancelar"
-                    class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">
-                    Cancelar cita
-                </button>
-                <button id="mcita-btn-confirm-cancel"
-                    class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold hidden">
-                    Aceptar cancelación
-                </button>
+                <button id="mcita-btn-aceptar" class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">Aceptar (dar de alta)</button>
+                <button id="mcita-btn-cancelar" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">Cancelar cita</button>
+                <button id="mcita-btn-confirm-cancel" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold hidden">Aceptar cancelación</button>
             </div>
         </div>
     </div>
 
     <div id="modal-destino" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-xl font-semibold">¿A dónde se dirige el transporte?</h3>
-                <p class="text-sm text-gray-600">Seleccione el destino:</p>
-            </div>
+            <div class="px-6 py-4 border-b border-gray-200"><h3 class="text-xl font-semibold">¿A dónde se dirige el transporte?</h3><p class="text-sm text-gray-600">Seleccione el destino:</p></div>
             <div class="p-6 flex gap-3">
-                <button data-accion="Rampa"
-                    class="destop grow px-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Rampa</button>
-                <button data-accion="Patio"
-                    class="destop grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
-                <button data-accion="Cancelar"
-                    class="destop grow px-5 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">Cancelar</button>
+                <button data-accion="Rampa" class="destop grow px-5 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">Rampa</button>
+                <button data-accion="Patio" class="destop grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
+                <button data-accion="Cancelar" class="destop grow px-5 py-3 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold">Cancelar</button>
             </div>
         </div>
     </div>
 
     <div id="modal-postlib" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-xl font-semibold">Destino posterior a liberación</h3>
-                <p class="text-sm text-gray-600">Solo aplica si va a Patio.</p>
-            </div>
+            <div class="px-6 py-4 border-b border-gray-200"><h3 class="text-xl font-semibold">Destino posterior a liberación</h3><p class="text-sm text-gray-600">Solo aplica si va a Patio.</p></div>
             <div class="p-6 flex gap-3">
-                <button data-accion="Patio"
-                    class="postlib grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
-                <button data-accion="DisuasionS"
-                    class="postlib grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Disuasión
-                    (S)</button>
+                <button data-accion="Patio" class="postlib grow px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold">Patio</button>
+                <button data-accion="DisuasionS" class="postlib grow px-5 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold">Disuasión (S)</button>
             </div>
         </div>
     </div>
 
     <div id="modal-rampa" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-xl font-semibold">Seleccione la Rampa</h3>
-            </div>
+            <div class="px-6 py-4 border-b border-gray-200"><h3 class="text-xl font-semibold">Seleccione la Rampa</h3></div>
             <div id="rampa-grid" class="p-6 grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
-            <div class="px-6 pb-6"><button id="rampa-cancel"
-                    class="w-full py-3 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button></div>
+            <div class="px-6 pb-6"><button id="rampa-cancel" class="w-full py-3 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button></div>
         </div>
     </div>
 
     <div id="modal-com" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 id="mc-title" class="text-xl font-semibold">Registro</h3>
-            </div>
+            <div class="px-6 py-4 border-b border-gray-200"><h3 id="mc-title" class="text-xl font-semibold">Registro</h3></div>
             <div class="p-6 space-y-3">
-                <div>
-                    <label for="mc-operador" class="text-xs font-semibold text-gray-600">Usuario que registra
-                        (obligatorio)</label>
-                    <input id="mc-operador" type="text" placeholder="Nombre y Apellido"
-                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]" />
-                </div>
-                <div>
-                    <label for="mc-comentario" class="text-xs font-semibold text-gray-600">Comentarios
-                        (obligatorio)</label>
-                    <textarea id="mc-comentario" rows="3" placeholder="Describe lo ocurrido"
-                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
-                </div>
+                <div><label for="mc-operador" class="text-xs font-semibold text-gray-600">Usuario que registra</label><input id="mc-operador" type="text" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]" /></div>
+                <div><label for="mc-comentario" class="text-xs font-semibold text-gray-600">Comentarios</label><textarea id="mc-comentario" rows="3" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea></div>
                 <p id="mc-error" class="text-sm text-red-600 hidden">Completa usuario y comentarios.</p>
             </div>
             <div class="px-6 pb-6 flex gap-3 justify-end">
                 <button id="mc-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
-                <button id="mc-ok"
-                    class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">Aceptar</button>
+                <button id="mc-ok" class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">Aceptar</button>
             </div>
         </div>
     </div>
@@ -492,53 +206,45 @@
             <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                 <div>
                     <h3 class="text-xl font-semibold">Cierre de transporte</h3>
-                    <p id="cierre-sub" class="text-sm text-gray-600">Registra la salida y genera el histórico.</p>
+                    <p id="cierre-sub" class="text-sm text-gray-600">Registra la salida y genera el historial.</p>
                 </div>
                 <button id="cierre-x" class="px-3 py-1 rounded-lg bg-gray-200 hover:bg-gray-300">Cerrar</button>
             </div>
             <div class="p-6 space-y-3">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label for="cierre-operador" class="text-xs font-semibold text-gray-600">Usuario
-                            (obligatorio)</label>
-                        <input id="cierre-operador" type="text" placeholder="Nombre y Apellido"
-                            class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]" />
+                        <label for="cierre-operador" class="text-xs font-semibold text-gray-600">Usuario (obligatorio)</label>
+                        <input id="cierre-operador" type="text" placeholder="Nombre y Apellido" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]" />
                     </div>
                     <div>
                         <label for="cierre-modo" class="text-xs font-semibold text-gray-600">Acción</label>
-                        <input id="cierre-modo" type="text" disabled
-                            class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700" />
+                        <input id="cierre-modo" type="text" disabled class="w-full mt-1 px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-700" />
                     </div>
                 </div>
                 <div>
-                    <label for="cierre-comentario" class="text-xs font-semibold text-gray-600">Comentarios
-                        (obligatorio)</label>
-                    <textarea id="cierre-comentario" rows="3" placeholder="Ej. Unidad sale de planta sin novedad"
-                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
+                    <label for="cierre-comentario" class="text-xs font-semibold text-gray-600">Comentarios (obligatorio)</label>
+                    <textarea id="cierre-comentario" rows="3" placeholder="Ej. Unidad sale de planta sin novedad" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[var(--bmm-blue)]"></textarea>
                 </div>
                 <p id="cierre-error" class="text-sm text-red-600 hidden">Completa usuario y comentarios.</p>
 
                 <div class="rounded-lg border bg-gray-50 p-3 text-sm text-gray-700">
                     <div class="font-semibold mb-1">¿Qué hará el sistema?</div>
                     <ul class="list-disc pl-5 space-y-1">
-                        <li>Guardará el histórico (<span class="font-mono">ControlTransportesHistorico</span>).</li>
-                        <li>Generará un PDF con la información completa de la cita y bitácora.</li>
-                        <li>Subirá el PDF directamente a la carpeta de Drive vinculada.</li>
-                        <li><b>Enviará un correo automático a la lista PDF_EMAILS con el archivo adjunto.</b></li>
+                        <li>Cerrar la bitácora en la Base de Datos.</li>
+                        <li>Generar un PDF con la información detallada (CitasConfirmadas).</li>
+                        <li><b>Enviar el Historial por correo (PDF Adjunto) a la lista autorizada.</b></li>
+                        <li>Subir una copia automática a Google Drive.</li>
                     </ul>
                 </div>
 
                 <div id="drive-link-wrap" class="hidden rounded-lg border bg-blue-50 p-3 text-sm">
                     <div class="font-semibold text-blue-900">Link de Google Drive</div>
-                    <a id="drive-link" href="#" target="_blank" rel="noopener"
-                        class="text-blue-700 underline break-all">—</a>
+                    <a id="drive-link" href="#" target="_blank" rel="noopener" class="text-blue-700 underline break-all">—</a>
                 </div>
-
             </div>
             <div class="px-6 pb-6 flex flex-wrap gap-3 justify-end">
                 <button id="cierre-cancel" class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300">Cancelar</button>
-                <button id="cierre-pdf"
-                    class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
+                <button id="cierre-pdf" class="px-4 py-2 rounded-lg bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white font-semibold">
                     Enviar Historial y Guardar
                 </button>
             </div>
@@ -547,24 +253,14 @@
 
     <div id="modal-info" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden border border-gray-100">
-            <div
-                class="px-5 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
-                <div class="min-w-0">
-                    <h3 class="text-lg sm:text-xl font-semibold truncate">Información del transporte</h3>
-                    <p class="text-xs text-gray-500">Vista completa de campos (CitasConfirmadas)</p>
-                </div>
-
+            <div class="px-5 sm:px-6 py-4 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
+                <div class="min-w-0"><h3 class="text-lg sm:text-xl font-semibold truncate">Información del transporte</h3></div>
                 <div class="flex items-center gap-2">
-                    <input id="info-search" type="text" placeholder="Buscar campo…"
-                        class="hidden sm:block px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
-                    <button id="mi-close"
-                        class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm font-semibold">Cerrar</button>
+                    <input id="info-search" type="text" placeholder="Buscar campo…" class="hidden sm:block px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
+                    <button id="mi-close" class="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-sm font-semibold">Cerrar</button>
                 </div>
             </div>
-
-            <div class="p-4 sm:p-6 max-h-[75vh] overflow-y-auto">
-                <div id="info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
-            </div>
+            <div class="p-4 sm:p-6 max-h-[75vh] overflow-y-auto"><div id="info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div></div>
         </div>
     </div>
 
@@ -641,6 +337,7 @@
             }
         }
 
+        // COMUNICACIÓN IFRAME PARA EL PDF (Para evitar fallos de CORS con strings larguísimos)
         function postToAppsScriptViaForm(url, dataObj = {}) {
             return new Promise((resolve) => {
                 const form = document.createElement("form");
@@ -673,7 +370,7 @@
             pending.resolve(data);
         });
 
-        function waitForRid(rid, timeoutMs = 30000) {
+        function waitForRid(rid, timeoutMs = 45000) {
             return new Promise((resolve) => {
                 const t = setTimeout(() => {
                     pendingByRid.delete(rid);
@@ -688,11 +385,7 @@
         }
 
         function normalizeRole(str) {
-            return (str || "")
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/\s+/g, "");
+            return (str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "");
         }
 
         function guardAccess() {
@@ -701,30 +394,16 @@
                 const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
                 currentUser = raw ? JSON.parse(raw) : null;
             } catch { currentUser = null; }
-
-            if (!currentUser) {
-                alert("Debes iniciar sesión.");
-                location.replace("login.html");
-                return false;
-            }
-
+            if (!currentUser) { alert("Debes iniciar sesión."); location.replace("login.html"); return false; }
             const normRol = normalizeRole(currentUser.rol || currentUser.role);
             const isCoordinadorLogistico = normRol === "coordinadorlogistico" || currentUser.roleKey === "UsuarioLogistico" || currentUser.collection === "UsuarioLogistico";
             const isAdmin = normRol === "administrador" || currentUser.roleKey === "UsuarioAdmin" || currentUser.collection === "UsuarioAdmin";
-
-            if (!isCoordinadorLogistico && !isAdmin) {
-                alert("Acceso restringido a Coordinador Logístico o Administrador.");
-                location.replace("login.html");
-                return false;
-            }
+            if (!isCoordinadorLogistico && !isAdmin) { alert("Acceso restringido a Coordinador Logístico o Administrador."); location.replace("login.html"); return false; }
             return true;
         }
 
         function getCurrentUserFromStorage() {
-            try {
-                const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
-                return raw ? JSON.parse(raw) : null;
-            } catch { return null; }
+            try { return JSON.parse(sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser")) || null; } catch { return null; }
         }
         function isAdminUser(user) {
             if (!user) return false;
@@ -742,24 +421,12 @@
             const user = getCurrentUserFromStorage();
             const admin = isAdminUser(user);
             const coord = isCoordLogUser(user);
-
             document.querySelectorAll('nav a[data-page]').forEach(link => {
                 const page = link.dataset.page;
                 let enable = false;
-
-                if (isFile) enable = true;
-                else if (admin) enable = true;
-                else if (coord) enable = (page === "control.html" || page === "estatus.html");
-
-                if (enable) {
-                    link.href = page;
-                    link.classList.remove("cursor-default", "opacity-80");
-                    link.classList.add("hover:bg-bmm-light");
-                } else {
-                    link.removeAttribute("href");
-                    link.classList.add("cursor-default", "opacity-80");
-                    link.classList.remove("hover:bg-bmm-light");
-                }
+                if (isFile) enable = true; else if (admin) enable = true; else if (coord) enable = (page === "control.html" || page === "estatus.html");
+                if (enable) { link.href = page; link.classList.remove("cursor-default", "opacity-80"); link.classList.add("hover:bg-bmm-light"); } 
+                else { link.removeAttribute("href"); link.classList.add("cursor-default", "opacity-80"); link.classList.remove("hover:bg-bmm-light"); }
             });
         }
 
@@ -774,21 +441,15 @@
                     main.classList.toggle("main-content-collapsed", isExpanded);
                 });
             }
-            $("#logout-btn").addEventListener("click", () => {
-                sessionStorage.clear();
-                localStorage.removeItem("currentUser");
-                location.replace("login.html");
-            });
+            $("#logout-btn").addEventListener("click", () => { sessionStorage.clear(); localStorage.removeItem("currentUser"); location.replace("login.html"); });
         })();
 
         async function getCitaByFolio(folio) {
             const cDoc = await getDoc(doc(db, "ControlTransportes", folio));
             if (cDoc.exists()) { return { __yaExiste: true, ...cDoc.data() }; }
-
             const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio));
             const snap = await getDocs(qRef);
             if (snap.empty) return null;
-
             const d = snap.docs[0];
             const data = d.data();
             const estatus = (data.estatus || "");
@@ -801,49 +462,13 @@
             const dsnap = await getDoc(dref);
             if (!dsnap.exists()) {
                 await setDoc(dref, {
-                    folio,
-                    estado: "En Proceso",
-                    activo: true,
-                    createdAt: serverTimestamp(),
-                    updatedAt: serverTimestamp(),
+                    folio, estado: "En Proceso", activo: true, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
                     cita: {
-                        id: cita.id || null,
-                        linea: cita.lineaTransporte || cita.linea || "",
-                        placas: cita.placas || "",
-                        tipoTransporte: cita.tipoTransporte || "",
-                        tipoVisita: cita.tipoVisita || "",
-                        fecha: cita.fecha || "",
-                        hora: cita.hora || "",
-                        horaExtra: cita.horaExtra || null,
-                        destino: cita.destino || "",
-                        usuarioProveedor: cita.usuarioProveedor || ""
+                        id: cita.id || null, linea: cita.lineaTransporte || cita.linea || "", placas: cita.placas || "",
+                        tipoTransporte: cita.tipoTransporte || "", tipoVisita: cita.tipoVisita || "", fecha: cita.fecha || "",
+                        hora: cita.hora || "", horaExtra: cita.horaExtra || null, destino: cita.destino || "", usuarioProveedor: cita.usuarioProveedor || ""
                     },
-                    pasos: {
-                        llegada: null,
-                        ingreso: null,
-                        disuasionE_inicio: null,
-                        disuasionE_fin: null,
-                        disuasionE_destino: null,
-                        disuasionE_rampa: null,
-                        patioE_fin: null,
-                        patio_rampa: null,
-                        rampa_inicio: null,
-                        rampa_cancel: null,
-                        finDescarga: null,
-                        liberacion: null,
-                        postLiberacionDestino: null,
-                        patioS_fin: null,
-                        disuasionS_inicio: null,
-                        disuasionS_fin: null,
-                        salidaPlanta: null,
-                        cronometro_inicio: null,
-                        cronometro_fin: null,
-                        duracion_rampa_ms: null,
-                        forceNextStep: null,
-                        cancel_origen: null,
-                        cancel_ts: null,
-                        rampa_enter_ts: null
-                    },
+                    pasos: { llegada: null, ingreso: null, disuasionE_inicio: null, disuasionE_fin: null, disuasionE_destino: null, disuasionE_rampa: null, patioE_fin: null, patio_rampa: null, rampa_inicio: null, rampa_cancel: null, finDescarga: null, liberacion: null, postLiberacionDestino: null, patioS_fin: null, disuasionS_inicio: null, disuasionS_fin: null, salidaPlanta: null, cronometro_inicio: null, cronometro_fin: null, duracion_rampa_ms: null, forceNextStep: null, cancel_origen: null, cancel_ts: null, rampa_enter_ts: null },
                     comentarios: []
                 });
             }
@@ -852,48 +477,20 @@
 
         async function setCitaFinalizada(citaId) {
             if (!citaId) return;
-            try {
-                await updateDoc(doc(db, "CitasConfirmadas", citaId), {
-                    estatus: "CitaFinalizada",
-                    updatedAt: serverTimestamp()
-                });
-            } catch (e) {
-                console.warn("No se pudo actualizar CitasConfirmadas:", e);
-            }
+            try { await updateDoc(doc(db, "CitasConfirmadas", citaId), { estatus: "CitaFinalizada", updatedAt: serverTimestamp() }); } catch (e) { console.warn("No se pudo actualizar CitasConfirmadas:", e); }
         }
 
         async function appendRegistroCancelacion({ folio, citaId, canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario, cita }) {
-            if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGA_AQUI")) {
-                console.warn("GOOGLE_SHEET_WEBAPP_URL no configurado.");
-                return;
-            }
+            if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGA_AQUI")) { console.warn("GOOGLE_SHEET_WEBAPP_URL no configurado."); return; }
             try {
                 const res = await fetch(GOOGLE_SHEET_WEBAPP_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({
-                        authToken: APPS_SCRIPT_AUTH_TOKEN,
-                        type: "CITA_CANCELADA",
-                        folio: folio || "",
-                        citaId,
-                        canceladoAtISO,
-                        canceladoPor,
-                        canceladoPorEmail,
-                        canceladoComentario,
-                        cita: cita || {}
-                    })
+                    method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ authToken: APPS_SCRIPT_AUTH_TOKEN, type: "CITA_CANCELADA", folio: folio || "", citaId, canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario, cita: cita || {} })
                 });
-
-                const raw = await res.text();
-                let data = null;
+                const raw = await res.text(); let data = null;
                 try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
-
-                if (!res.ok || (data && data.success === false)) {
-                    console.warn("Registro (Sheets) respondió con problema:", { status: res.status, raw, data });
-                }
-            } catch (e) {
-                console.warn("No se pudo registrar en Sheets:", e);
-            }
+                if (!res.ok || (data && data.success === false)) { console.warn("Registro (Sheets) respondió con problema:", { status: res.status, raw, data }); }
+            } catch (e) { console.warn("No se pudo registrar en Sheets:", e); }
         }
 
         async function cancelCita({ citaId, folio, comentarioCancel, citaSnapshot = null }) {
@@ -905,118 +502,41 @@
             const canceladoAtISO = new Date().toISOString();
 
             if (citaId) {
-                await updateDoc(doc(db, "CitasConfirmadas", citaId), {
-                    estatus: "CitaCancelada",
-                    canceladoAtISO,
-                    canceladoPor,
-                    canceladoPorEmail,
-                    canceladoComentario: comentarioCancel.trim(),
-                    updatedAt: serverTimestamp()
-                });
+                await updateDoc(doc(db, "CitasConfirmadas", citaId), { estatus: "CitaCancelada", canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario: comentarioCancel.trim(), updatedAt: serverTimestamp() });
             }
 
             const citaProveedorId = citaSnapshot?.citaProveedorId || citaSnapshot?.idCitaProveedor || citaSnapshot?.proveedorCitaId || null;
             if (citaProveedorId) {
-                try {
-                    await updateDoc(doc(db, "CitasProveedor", citaProveedorId), {
-                        estatus: "CitaCancelada",
-                        canceladoAtISO,
-                        canceladoPor,
-                        canceladoPorEmail,
-                        canceladoComentario: comentarioCancel.trim(),
-                        updatedAt: serverTimestamp()
-                    });
-                } catch (e) {
-                    console.warn("Aviso: No se pudo sincronizar la cancelación en CitasProveedor", e);
-                }
+                try { await updateDoc(doc(db, "CitasProveedor", citaProveedorId), { estatus: "CitaCancelada", canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario: comentarioCancel.trim(), updatedAt: serverTimestamp() }); } catch (e) { console.warn("Aviso: No se pudo sincronizar la cancelación en CitasProveedor", e); }
             }
 
             const correoDestino = citaSnapshot?.usuarioProveedor || citaSnapshot?.correoProveedor || citaSnapshot?.proveedorEmail || citaSnapshot?.email || "";
             if (correoDestino) {
                 const payloadCancelEmail = {
-                    to: correoDestino,
-                    folio: String(folio),
-                    citaId: citaId,
-                    motivo: comentarioCancel.trim(),
-                    datosCita: {
-                        linea: citaSnapshot?.lineaTransporte || citaSnapshot?.linea || "",
-                        placas: citaSnapshot?.placas || "",
-                        tipoTransporte: citaSnapshot?.tipoTransporte || "",
-                        tipoVisita: citaSnapshot?.tipoVisita || "",
-                        fecha: citaSnapshot?.fecha || "",
-                        hora: citaSnapshot?.hora || "",
-                        horaExtra: citaSnapshot?.horaExtra || "",
-                        destino: citaSnapshot?.destino || "",
-                        usuarioProveedor: correoDestino
-                    }
+                    to: correoDestino, folio: String(folio), citaId: citaId, motivo: comentarioCancel.trim(),
+                    datosCita: { linea: citaSnapshot?.lineaTransporte || citaSnapshot?.linea || "", placas: citaSnapshot?.placas || "", tipoTransporte: citaSnapshot?.tipoTransporte || "", tipoVisita: citaSnapshot?.tipoVisita || "", fecha: citaSnapshot?.fecha || "", hora: citaSnapshot?.hora || "", horaExtra: citaSnapshot?.horaExtra || "", destino: citaSnapshot?.destino || "", usuarioProveedor: correoDestino }
                 };
-
                 try {
-                    const res = await fetch(MAIL_DRIVE_WEBAPP_URL, {
-                        method: "POST",
-                        headers: { "Content-Type": "text/plain;charset=utf-8" },
-                        body: JSON.stringify({
-                            authToken: APPS_SCRIPT_AUTH_TOKEN,
-                            action: "sendCitaCancelacion",
-                            payload: payloadCancelEmail
-                        })
-                    });
-
-                    const raw = await res.text();
-                    let data = null;
-                    try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
-
-                    if (!res.ok || (data && data.success === false) || !data) {
-                        console.warn("Problema al enviar correo cancelación:", { status: res.status, raw, data });
-                    }
-                } catch (mailErr) {
-                    console.warn("Error al enviar correo cancelación:", mailErr);
-                }
+                    const res = await fetch(MAIL_DRIVE_WEBAPP_URL, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify({ authToken: APPS_SCRIPT_AUTH_TOKEN, action: "sendCitaCancelacion", payload: payloadCancelEmail }) });
+                    const raw = await res.text(); let data = null; try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
+                    if (!res.ok || (data && data.success === false) || !data) { console.warn("Problema al enviar correo cancelación:", { status: res.status, raw, data }); }
+                } catch (mailErr) { console.warn("Error al enviar correo cancelación:", mailErr); }
             }
 
             await appendRegistroCancelacion({
-                folio: String(folio),
-                citaId: citaId,
-                canceladoAtISO,
-                canceladoPor,
-                canceladoPorEmail,
-                canceladoComentario: comentarioCancel.trim(),
-                cita: {
-                    linea: citaSnapshot?.lineaTransporte || citaSnapshot?.linea || "",
-                    placas: citaSnapshot?.placas || "",
-                    tipoTransporte: citaSnapshot?.tipoTransporte || "",
-                    tipoVisita: citaSnapshot?.tipoVisita || "",
-                    fecha: citaSnapshot?.fecha || "",
-                    hora: citaSnapshot?.hora || "",
-                    horaExtra: citaSnapshot?.horaExtra || "",
-                    destino: citaSnapshot?.destino || "",
-                    usuarioProveedor: correoDestino
-                }
+                folio: String(folio), citaId: citaId, canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario: comentarioCancel.trim(),
+                cita: { linea: citaSnapshot?.lineaTransporte || citaSnapshot?.linea || "", placas: citaSnapshot?.placas || "", tipoTransporte: citaSnapshot?.tipoTransporte || "", tipoVisita: citaSnapshot?.tipoVisita || "", fecha: citaSnapshot?.fecha || "", hora: citaSnapshot?.hora || "", horaExtra: citaSnapshot?.horaExtra || "", destino: citaSnapshot?.destino || "", usuarioProveedor: correoDestino }
             });
         }
 
         async function logBitacora(folio, entry) {
-            try {
-                await addDoc(collection(db, "ControlTransportes", folio, "Bitacora"), {
-                    ...entry,
-                    createdAt: serverTimestamp()
-                });
-            } catch (e) {
-                console.warn("Bitácora error:", e);
-            }
+            try { await addDoc(collection(db, "ControlTransportes", folio, "Bitacora"), { ...entry, createdAt: serverTimestamp() }); } catch (e) { console.warn("Bitácora error:", e); }
         }
 
         async function sendToSheetsViaForm(payload) {
-            if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) {
-                console.warn("GOOGLE_SHEET_WEBAPP_URL no configurada.");
-                return { ok: false, skipped: true };
-            }
+            if (!GOOGLE_SHEET_WEBAPP_URL || GOOGLE_SHEET_WEBAPP_URL.includes("PEGAR_AQUI")) { console.warn("GOOGLE_SHEET_WEBAPP_URL no configurada."); return { ok: false, skipped: true }; }
             const rid = newRid("SHEETS");
-            await postToAppsScriptViaForm(GOOGLE_SHEET_WEBAPP_URL, {
-                rid,
-                action: "LOG_SHEETS",
-                payload: JSON.stringify(payload || {})
-            });
+            await postToAppsScriptViaForm(GOOGLE_SHEET_WEBAPP_URL, { rid, action: "LOG_SHEETS", payload: JSON.stringify(payload || {}) });
             return { ok: true, rid };
         }
 
@@ -1025,36 +545,14 @@
         // =========================
         function buildInfoRows(cita, folio) {
             return [
-                ["Folio", folio],
-                ["Línea", cita.linea || cita.lineaTransporte || ""],
-                ["Placas", cita.placas || ""],
-                ["Tipo transporte", cita.tipoTransporte || ""],
-                ["Tipo visita", cita.tipoVisita || ""],
-                ["Fecha", cita.fecha || ""],
-                ["Hora", cita.hora || ""],
-                ["Hora extra", cita.horaExtra || ""],
-                ["Destino", cita.destino || ""],
-                ["Proveedor", cita.usuarioProveedor || ""]
+                ["Folio", folio], ["Línea", cita.linea || cita.lineaTransporte || ""], ["Placas", cita.placas || ""], ["Tipo transporte", cita.tipoTransporte || ""],
+                ["Tipo visita", cita.tipoVisita || ""], ["Fecha", cita.fecha || ""], ["Hora", cita.hora || ""], ["Hora extra", cita.horaExtra || ""],
+                ["Destino", cita.destino || ""], ["Proveedor", cita.usuarioProveedor || ""]
             ].map(([k, v]) => ([k, (v === "" ? "-" : v)]));
         }
 
         function pasoLabel(paso) {
-            const map = {
-                llegada: "Llegada",
-                ingreso: "Ingreso",
-                disuasionE_inicio: "Disuasión (E) - Inicio",
-                disuasionE_fin: "Disuasión (E) - Fin",
-                disuasionE_cancel: "Disuasión (E) - Cancelado",
-                patioE_fin: "Patio (E)",
-                rampa_inicio: "Rampa - Inicio",
-                rampa_cancel: "Rampa - Cancelado",
-                finDescarga: "Fin Descarga",
-                liberacion: "Liberación",
-                patioS_fin: "Patio (S)",
-                disuasionS_inicio: "Disuasión (S) - Inicio",
-                disuasionS_fin: "Disuasión (S) - Fin",
-                salidaPlanta: "Salida de Planta"
-            };
+            const map = { llegada: "Llegada", ingreso: "Ingreso", disuasionE_inicio: "Disuasión (E) - Inicio", disuasionE_fin: "Disuasión (E) - Fin", disuasionE_cancel: "Disuasión (E) - Cancelado", patioE_fin: "Patio (E)", rampa_inicio: "Rampa - Inicio", rampa_cancel: "Rampa - Cancelado", finDescarga: "Fin Descarga", liberacion: "Liberación", patioS_fin: "Patio (S)", disuasionS_inicio: "Disuasión (S) - Inicio", disuasionS_fin: "Disuasión (S) - Fin", salidaPlanta: "Salida de Planta" };
             return map[paso] || paso;
         }
 
@@ -1067,92 +565,32 @@
             const margin = 40;
 
             const logoPath = "img/logo_bf.png";
-            try {
-                const img = await fetch(logoPath);
-                const blob = await img.blob();
-                const reader = new FileReader();
-                const dataUrl = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); });
-                docPdf.addImage(dataUrl, "PNG", margin, 24, 140, 34);
-            } catch { }
+            try { const img = await fetch(logoPath); const blob = await img.blob(); const reader = new FileReader(); const dataUrl = await new Promise(res => { reader.onload = () => res(reader.result); reader.readAsDataURL(blob); }); docPdf.addImage(dataUrl, "PNG", margin, 24, 140, 34); } catch { }
 
-            docPdf.setFont("helvetica", "bold");
-            docPdf.setFontSize(16);
-            docPdf.text("Historial de Transporte", pageW / 2, 48, { align: "center" });
-
-            docPdf.setFont("helvetica", "normal");
-            docPdf.setFontSize(10);
-            docPdf.text(`Generado: ${new Date().toLocaleString()}`, pageW - margin, 48, { align: "right" });
+            docPdf.setFont("helvetica", "bold"); docPdf.setFontSize(16); docPdf.text("Historial de Transporte", pageW / 2, 48, { align: "center" });
+            docPdf.setFont("helvetica", "normal"); docPdf.setFontSize(10); docPdf.text(`Generado: ${new Date().toLocaleString()}`, pageW - margin, 48, { align: "right" });
 
             let y = 80;
-
-            docPdf.setFont("helvetica", "bold");
-            docPdf.setFontSize(12);
-            docPdf.text(`Folio: ${folio}`, margin, y);
-            docPdf.text(`Estado: ${controlData.estado || "-"}`, pageW - margin, y, { align: "right" });
-            y += 14;
+            docPdf.setFont("helvetica", "bold"); docPdf.setFontSize(12); docPdf.text(`Folio: ${folio}`, margin, y); docPdf.text(`Estado: ${controlData.estado || "-"}`, pageW - margin, y, { align: "right" }); y += 14;
 
             const cita = controlData.cita || {};
             const infoRows = buildInfoRows(cita, folio);
 
-            docPdf.autoTable({
-                startY: y + 10,
-                head: [["Campo", "Valor"]],
-                body: infoRows,
-                styles: { fontSize: 9, cellPadding: 6 },
-                headStyles: { fillColor: [13, 28, 132] },
-                margin: { left: margin, right: margin }
-            });
-
+            docPdf.autoTable({ startY: y + 10, head: [["Campo", "Valor"]], body: infoRows, styles: { fontSize: 9, cellPadding: 6 }, headStyles: { fillColor: [13, 28, 132] }, margin: { left: margin, right: margin } });
             y = docPdf.lastAutoTable.finalY + 18;
 
             const comentarios = Array.isArray(controlData.comentarios) ? [...controlData.comentarios] : [];
             comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
+            const timelineBody = comentarios.map(c => ([pasoLabel(c.paso), c.ts ? new Date(c.ts).toLocaleString() : "", c.usuario || "", c.comentario || ""]));
 
-            const timelineBody = comentarios.map(c => ([
-                pasoLabel(c.paso),
-                c.ts ? new Date(c.ts).toLocaleString() : "",
-                c.usuario || "",
-                c.comentario || ""
-            ]));
-
-            docPdf.setFont("helvetica", "bold");
-            docPdf.setFontSize(12);
-            docPdf.text("Timeline (estación / fecha-hora / usuario / comentario)", margin, y);
-            docPdf.setFont("helvetica", "normal");
-
-            docPdf.autoTable({
-                startY: y + 10,
-                head: [["Estación", "Fecha/Hora", "Usuario", "Comentario"]],
-                body: timelineBody.length ? timelineBody : [["-", "-", "-", "-"]],
-                styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
-                headStyles: { fillColor: [16, 185, 129] },
-                columnStyles: { 0: { cellWidth: 120 }, 1: { cellWidth: 120 }, 2: { cellWidth: 110 }, 3: { cellWidth: 180 } },
-                margin: { left: margin, right: margin }
-            });
-
+            docPdf.setFont("helvetica", "bold"); docPdf.setFontSize(12); docPdf.text("Timeline (estación / fecha-hora / usuario / comentario)", margin, y); docPdf.setFont("helvetica", "normal");
+            docPdf.autoTable({ startY: y + 10, head: [["Estación", "Fecha/Hora", "Usuario", "Comentario"]], body: timelineBody.length ? timelineBody : [["-", "-", "-", "-"]], styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" }, headStyles: { fillColor: [16, 185, 129] }, columnStyles: { 0: { cellWidth: 120 }, 1: { cellWidth: 120 }, 2: { cellWidth: 110 }, 3: { cellWidth: 180 } }, margin: { left: margin, right: margin } });
             y = docPdf.lastAutoTable.finalY + 18;
 
             const chat = Array.isArray(chatMessages) ? chatMessages : [];
-            docPdf.setFont("helvetica", "bold");
-            docPdf.setFontSize(12);
-            docPdf.text("Chat", margin, y);
-            docPdf.setFont("helvetica", "normal");
-
-            const chatBody = chat.map(m => ([
-                m.userName || "",
-                (m.createdAt?.seconds ? new Date(m.createdAt.seconds * 1000).toLocaleString() : ""),
-                m.text || ""
-            ]));
-
-            docPdf.autoTable({
-                startY: y + 10,
-                head: [["Usuario", "Fecha/Hora", "Mensaje"]],
-                body: chatBody.length ? chatBody : [["-", "-", "-"]],
-                styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" },
-                headStyles: { fillColor: [59, 130, 246] },
-                columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 130 }, 2: { cellWidth: 290 } },
-                margin: { left: margin, right: margin }
-            });
+            docPdf.setFont("helvetica", "bold"); docPdf.setFontSize(12); docPdf.text("Chat", margin, y); docPdf.setFont("helvetica", "normal");
+            const chatBody = chat.map(m => ([m.userName || "", (m.createdAt?.seconds ? new Date(m.createdAt.seconds * 1000).toLocaleString() : ""), m.text || ""]));
+            docPdf.autoTable({ startY: y + 10, head: [["Usuario", "Fecha/Hora", "Mensaje"]], body: chatBody.length ? chatBody : [["-", "-", "-"]], styles: { fontSize: 8, cellPadding: 5, overflow: "linebreak" }, headStyles: { fillColor: [59, 130, 246] }, columnStyles: { 0: { cellWidth: 110 }, 1: { cellWidth: 130 }, 2: { cellWidth: 290 } }, margin: { left: margin, right: margin } });
 
             const dataUri = docPdf.output("datauristring");
             return (dataUri.split(",")[1] || "");
@@ -1160,52 +598,17 @@
 
         async function saveToHistorico({ folio, controlData, chatMessages, closedAtISO }) {
             const dref = doc(db, "ControlTransportesHistorico", folio);
-
-            const payload = {
-                folio,
-                estado: controlData.estado || "Finalizado",
-                closedAt: serverTimestamp(),
-                closedAtISO,
-                closedDate: closedAtISO.slice(0, 10),
-                cita: controlData.cita || {},
-                pasos: controlData.pasos || {},
-                comentarios: controlData.comentarios || [],
-                chat: chatMessages || [],
-                createdAt: controlData.createdAt || null,
-                updatedAt: serverTimestamp()
-            };
-
+            const payload = { folio, estado: controlData.estado || "Finalizado", closedAt: serverTimestamp(), closedAtISO, closedDate: closedAtISO.slice(0, 10), cita: controlData.cita || {}, pasos: controlData.pasos || {}, comentarios: controlData.comentarios || [], chat: chatMessages || [], createdAt: controlData.createdAt || null, updatedAt: serverTimestamp() };
             await setDoc(dref, payload, { merge: true });
         }
 
         function iconForStep(i) {
-            const icons = [
-                "img/ico_llegada.png", "img/ico_ingreso.png", "img/ico_parking.png", "img/ico_patio.png",
-                "img/ico_rampa.png", "img/ico_fdescarga.png", "img/ico_party.png", "img/ico_patio_out.png",
-                "img/ico_parking_out.png", "img/ico_exit.png"
-            ];
-            return icons[i] || "img/camion.png";
+            const icons = ["img/ico_llegada.png", "img/ico_ingreso.png", "img/ico_parking.png", "img/ico_patio.png", "img/ico_rampa.png", "img/ico_fdescarga.png", "img/ico_party.png", "img/ico_patio_out.png", "img/ico_parking_out.png", "img/ico_exit.png"]; return icons[i] || "img/camion.png";
         }
         function stepPercent(i) { return [4, 14, 24, 34, 44, 54, 64, 74, 84, 96][i] || 0; }
-        function truckIconFor(t) {
-            t = (t || "").toLowerCase();
-            if (t.includes("cargadescarga")) return "img/truck_cyd.png";
-            if (t.includes("descarga")) return "img/truck_descarga.png";
-            if (t.includes("carga")) return "img/truck_carga.png";
-            return "img/camion.png";
-        }
-        function setChip(folio, step, status, tsText, tagText) {
-            const chip = $("#chip-" + folio + "-" + step);
-            if (!chip) return;
-            chip.classList.remove("todo", "live", "done");
-            chip.classList.add(status);
-            if (tsText !== undefined) $("#ts-" + folio + "-" + step).textContent = tsText || "";
-            if (tagText !== undefined) $("#tag-" + folio + "-" + step).textContent = tagText || "";
-        }
-        function moveTruck(folio, step) {
-            $("#bar-" + folio).style.width = stepPercent(step) + "%";
-            $("#truck-" + folio).style.left = stepPercent(step) + "%";
-        }
+        function truckIconFor(t) { t = (t || "").toLowerCase(); if (t.includes("cargadescarga")) return "img/truck_cyd.png"; if (t.includes("descarga")) return "img/truck_descarga.png"; if (t.includes("carga")) return "img/truck_carga.png"; return "img/camion.png"; }
+        function setChip(folio, step, status, tsText, tagText) { const chip = $("#chip-" + folio + "-" + step); if (!chip) return; chip.classList.remove("todo", "live", "done"); chip.classList.add(status); if (tsText !== undefined) $("#ts-" + folio + "-" + step).textContent = tsText || ""; if (tagText !== undefined) $("#tag-" + folio + "-" + step).textContent = tagText || ""; }
+        function moveTruck(folio, step) { $("#bar-" + folio).style.width = stepPercent(step) + "%"; $("#truck-" + folio).style.left = stepPercent(step) + "%"; }
         function buttonsForStep(folio, step) {
             switch (step) {
                 case 0: return `<button class="btn mark" data-f="${folio}" data-step="0">Registrar</button>`;
@@ -1225,498 +628,166 @@
         const cards = new Map();
 
         function computeFirstIncomplete(data) {
-            const p = data.pasos || {};
-            const estado = (data.estado || "En Proceso");
-
-            const stamps = [
-                p.llegada, p.ingreso, (p.disuasionE_inicio && p.disuasionE_fin), p.patioE_fin, p.rampa_inicio,
-                p.finDescarga, p.liberacion, p.patioS_fin, (p.disuasionS_inicio && p.disuasionS_fin), p.salidaPlanta
-            ];
-
-            if (typeof p.forceNextStep === "number" && !p.salidaPlanta) {
-                return { firstIncomplete: p.forceNextStep, stamps, forced: true };
-            }
-            if (estado === "Cancelado" && !p.salidaPlanta) {
-                return { firstIncomplete: 9, stamps, forced: true };
-            }
-
-            let idx = stamps.findIndex(v => !v);
-            if (idx === -1) idx = stamps.length;
-            return { firstIncomplete: idx, stamps, forced: false };
+            const p = data.pasos || {}; const estado = (data.estado || "En Proceso");
+            const stamps = [p.llegada, p.ingreso, (p.disuasionE_inicio && p.disuasionE_fin), p.patioE_fin, p.rampa_inicio, p.finDescarga, p.liberacion, p.patioS_fin, (p.disuasionS_inicio && p.disuasionS_fin), p.salidaPlanta];
+            if (typeof p.forceNextStep === "number" && !p.salidaPlanta) { return { firstIncomplete: p.forceNextStep, stamps, forced: true }; }
+            if (estado === "Cancelado" && !p.salidaPlanta) { return { firstIncomplete: 9, stamps, forced: true }; }
+            let idx = stamps.findIndex(v => !v); if (idx === -1) idx = stamps.length; return { firstIncomplete: idx, stamps, forced: false };
         }
 
         function toLocal(iso) { try { return iso ? new Date(iso).toLocaleString() : ""; } catch { return ""; } }
 
         function applyButtonsPolicy(folio, data) {
-            const card = cards.get(folio);
-            if (!card) return;
-            const root = card.rootEl;
-            const p = data.pasos || {};
-            const estado = (data.estado || "En Proceso");
-            const { firstIncomplete, stamps } = computeFirstIncomplete(data);
-
-            for (let i = 0; i <= 9; i++) {
-                const btns = $$(`.btn[data-f="${folio}"][data-step="${i}"]`, root);
-                btns.forEach(b => { b.classList.add("hidden"); b.disabled = true; });
-            }
-
+            const card = cards.get(folio); if (!card) return; const root = card.rootEl; const p = data.pasos || {}; const estado = (data.estado || "En Proceso"); const { firstIncomplete, stamps } = computeFirstIncomplete(data);
+            for (let i = 0; i <= 9; i++) { const btns = $$(`.btn[data-f="${folio}"][data-step="${i}"]`, root); btns.forEach(b => { b.classList.add("hidden"); b.disabled = true; }); }
             if (firstIncomplete >= stamps.length) return;
-
-            if (estado === "Cancelado" && !p.salidaPlanta) {
-                const btns = $$(`.btn[data-f="${folio}"][data-step="9"]`, root);
-                btns.forEach(b => {
-                    b.classList.remove("hidden");
-                    b.disabled = false;
-                    b.textContent = "Finalizar (Cancelado)";
-                });
-                return;
-            }
-
-            const currentStep = firstIncomplete;
-            const btns = $$(`.btn[data-f="${folio}"][data-step="${currentStep}"]`, root);
-
+            if (estado === "Cancelado" && !p.salidaPlanta) { const btns = $$(`.btn[data-f="${folio}"][data-step="9"]`, root); btns.forEach(b => { b.classList.remove("hidden"); b.disabled = false; b.textContent = "Finalizar (Cancelado)"; }); return; }
+            const currentStep = firstIncomplete; const btns = $$(`.btn[data-f="${folio}"][data-step="${currentStep}"]`, root);
             if (currentStep === 2) {
-                const started = !!p.disuasionE_inicio;
-                const finished = !!p.disuasionE_fin;
-                btns.forEach(b => {
-                    const isFin = b.classList.contains("fin");
-                    if (!started && !finished && !isFin) { b.classList.remove("hidden"); b.disabled = false; }
-                    else if (started && !finished && isFin) { b.classList.remove("hidden"); b.disabled = false; }
-                });
+                const started = !!p.disuasionE_inicio; const finished = !!p.disuasionE_fin;
+                btns.forEach(b => { const isFin = b.classList.contains("fin"); if (!started && !finished && !isFin) { b.classList.remove("hidden"); b.disabled = false; } else if (started && !finished && isFin) { b.classList.remove("hidden"); b.disabled = false; } });
             } else if (currentStep === 8) {
-                const started = !!p.disuasionS_inicio;
-                const finished = !!p.disuasionS_fin;
-                btns.forEach(b => {
-                    const isFin = b.classList.contains("fin");
-                    if (!started && !finished && !isFin) { b.classList.remove("hidden"); b.disabled = false; }
-                    else if (started && !finished && isFin) { b.classList.remove("hidden"); b.disabled = false; }
-                });
-            } else {
-                btns.forEach(b => { b.classList.remove("hidden"); b.disabled = false; });
-            }
+                const started = !!p.disuasionS_inicio; const finished = !!p.disuasionS_fin;
+                btns.forEach(b => { const isFin = b.classList.contains("fin"); if (!started && !finished && !isFin) { b.classList.remove("hidden"); b.disabled = false; } else if (started && !finished && isFin) { b.classList.remove("hidden"); b.disabled = false; } });
+            } else { btns.forEach(b => { b.classList.remove("hidden"); b.disabled = false; }); }
         }
 
         function syncTimerFromData(folio, data) {
-            const p = data.pasos || {};
-            const startISO = p.cronometro_inicio;
-            const endISO = p.cronometro_fin;
-            const msSaved = p.duracion_rampa_ms;
-
-            if (endISO && (typeof msSaved === "number")) {
-                stopTimer(folio);
-                setTimerDisplay(folio, msSaved);
-                return;
-            }
+            const p = data.pasos || {}; const startISO = p.cronometro_inicio; const endISO = p.cronometro_fin; const msSaved = p.duracion_rampa_ms;
+            if (endISO && (typeof msSaved === "number")) { stopTimer(folio); setTimerDisplay(folio, msSaved); return; }
             if (startISO && !endISO) { startTimer(folio, startISO); return; }
-
-            stopTimer(folio);
-            setTimerDisplay(folio, 0);
+            stopTimer(folio); setTimerDisplay(folio, 0);
         }
 
         function syncUIFromData(folio, data) {
-            const p = data.pasos || {};
-            const estado = (data.estado || "En Proceso");
-            const { firstIncomplete, stamps } = computeFirstIncomplete(data);
-
-            const stepTimes = [
-                p.llegada, p.ingreso, p.disuasionE_inicio, p.patioE_fin, p.rampa_inicio,
-                p.finDescarga, p.liberacion, p.patioS_fin, p.disuasionS_inicio, p.salidaPlanta
-            ];
-
-            for (let i = 0; i <= 9; i++) {
-                if (stamps[i]) setChip(folio, i, "done", toLocal(stepTimes[i] || stamps[i]));
-                else if (i === firstIncomplete) setChip(folio, i, "live", "");
-                else setChip(folio, i, "todo", "");
-            }
-
-            if (p.disuasionE_destino) {
-                setChip(folio, 2, (stamps[2] ? "done" : (firstIncomplete === 2 ? "live" : "todo")),
-                    p.disuasionE_fin ? toLocal(p.disuasionE_fin) : "", p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : ""));
-            }
+            const p = data.pasos || {}; const estado = (data.estado || "En Proceso"); const { firstIncomplete, stamps } = computeFirstIncomplete(data);
+            const stepTimes = [p.llegada, p.ingreso, p.disuasionE_inicio, p.patioE_fin, p.rampa_inicio, p.finDescarga, p.liberacion, p.patioS_fin, p.disuasionS_inicio, p.salidaPlanta];
+            for (let i = 0; i <= 9; i++) { if (stamps[i]) setChip(folio, i, "done", toLocal(stepTimes[i] || stamps[i])); else if (i === firstIncomplete) setChip(folio, i, "live", ""); else setChip(folio, i, "todo", ""); }
+            if (p.disuasionE_destino) { setChip(folio, 2, (stamps[2] ? "done" : (firstIncomplete === 2 ? "live" : "todo")), p.disuasionE_fin ? toLocal(p.disuasionE_fin) : "", p.disuasionE_destino + (p.disuasionE_rampa ? ` • ${p.disuasionE_rampa}` : "")); }
             if (p.patio_rampa) $("#tag-" + folio + "-3").textContent = p.patio_rampa;
             if (p.postLiberacionDestino) $("#tag-" + folio + "-6").textContent = "→ " + (p.postLiberacionDestino === "DisuasionS" ? "Disuasión (S)" : p.postLiberacionDestino);
             if (p.rampa_cancel) $("#tag-" + folio + "-4").textContent = "Cancelado";
-
             let truckStep = (firstIncomplete >= stamps.length) ? (stamps.length - 1) : firstIncomplete;
             moveTruck(folio, truckStep);
-
             $("#estado-" + folio).textContent = estado;
-            applyButtonsPolicy(folio, data);
-            syncTimerFromData(folio, data);
+            applyButtonsPolicy(folio, data); syncTimerFromData(folio, data);
         }
 
         function removeCardIfClosed(folio, data) {
-            if (!data) return;
-            if (data.activo !== false) return;
-            const card = cards.get(folio);
-            if (!card) return;
-            try { card.unsub && card.unsub(); } catch { }
-            try { card.chatUnsub && card.chatUnsub(); } catch { }
-            stopTimer(folio);
-            try { card.rootEl?.remove(); } catch { }
-            cards.delete(folio);
+            if (!data) return; if (data.activo !== false) return; const card = cards.get(folio); if (!card) return;
+            try { card.unsub && card.unsub(); } catch { } try { card.chatUnsub && card.chatUnsub(); } catch { } stopTimer(folio); try { card.rootEl?.remove(); } catch { } cards.delete(folio);
             if (cards.size === 0) $("#empty-state").classList.remove("hidden");
         }
 
         function listenControlDoc(folio) {
             const dref = doc(db, "ControlTransportes", folio);
             return onSnapshot(dref, snap => {
-                if (!snap.exists()) return;
-                const data = snap.data();
-                const card = cards.get(folio);
-                if (!card) return;
-                card.data = data;
-                if (data.activo === false) { removeCardIfClosed(folio, data); return; }
-                syncUIFromData(folio, data);
-                $("#empty-state").classList.add("hidden");
+                if (!snap.exists()) return; const data = snap.data(); const card = cards.get(folio); if (!card) return; card.data = data;
+                if (data.activo === false) { removeCardIfClosed(folio, data); return; } syncUIFromData(folio, data); $("#empty-state").classList.add("hidden");
             });
         }
 
         function renderMsg(m) {
-            const who = escapeHtml(m.userName || "Coord");
-            const when = m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleString() : new Date().toLocaleString();
+            const who = escapeHtml(m.userName || "Coord"); const when = m.createdAt ? new Date(m.createdAt.seconds * 1000).toLocaleString() : new Date().toLocaleString();
             return `<div class="bg-white border border-gray-200 rounded-lg px-3 py-2"><div class="text-xs text-gray-500">${who} · ${when}</div><div class="text-sm">${escapeHtml(m.text || "")}</div></div>`;
         }
 
         function listenChat(folio) {
             const cref = collection(db, "ControlTransportes", folio, "Chat");
             return onSnapshot(query(cref), snap => {
-                const msgs = $("#chatMsgs-" + folio), badge = $("#chatBadge-" + folio);
-                const list = [];
-                snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-                list.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+                const msgs = $("#chatMsgs-" + folio), badge = $("#chatBadge-" + folio); const list = [];
+                snap.forEach(d => list.push({ id: d.id, ...d.data() })); list.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
                 if (msgs) { msgs.innerHTML = list.map(renderMsg).join(""); msgs.scrollTop = msgs.scrollHeight; }
-                if (badge) {
-                    badge.textContent = list.length || 0;
-                    const open = !$("#chatBox-" + folio).classList.contains("hidden");
-                    badge.classList.toggle("hidden", open || list.length === 0);
-                }
+                if (badge) { badge.textContent = list.length || 0; const open = !$("#chatBox-" + folio).classList.contains("hidden"); badge.classList.toggle("hidden", open || list.length === 0); }
             });
         }
 
         async function getChatMessages(folio) {
-            const cref = collection(db, "ControlTransportes", folio, "Chat");
-            const snap = await getDocs(query(cref));
-            const list = [];
-            snap.forEach(d => list.push({ id: d.id, ...d.data() }));
-            list.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
-            return list;
+            const cref = collection(db, "ControlTransportes", folio, "Chat"); const snap = await getDocs(query(cref)); const list = []; snap.forEach(d => list.push({ id: d.id, ...d.data() })); list.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0)); return list;
         }
 
         async function sendChatMsg(folio) {
-            const inp = $("#chatInput-" + folio);
-            const txt = inp?.value.trim();
-            if (!txt) return;
-            inp.value = "";
-            await addDoc(collection(db, "ControlTransportes", folio, "Chat"), {
-                text: txt,
-                userName: currentUser?.nombre || "Coord",
-                userEmail: currentUser?.email || "",
-                createdAt: serverTimestamp()
-            });
+            const inp = $("#chatInput-" + folio); const txt = inp?.value.trim(); if (!txt) return; inp.value = "";
+            await addDoc(collection(db, "ControlTransportes", folio, "Chat"), { text: txt, userName: currentUser?.nombre || "Coord", userEmail: currentUser?.email || "", createdAt: serverTimestamp() });
         }
 
-        const mDestino = $("#modal-destino"); let md_resolve = null;
-        $$(".destop", mDestino).forEach(b => b.addEventListener("click", () => {
-            mDestino.classList.add("hidden"); mDestino.classList.remove("flex");
-            md_resolve && md_resolve(b.dataset.accion); md_resolve = null;
-        }));
-        function openModalDestino() { mDestino.classList.remove("hidden"); mDestino.classList.add("flex"); return new Promise(res => md_resolve = res); }
-
-        const mPost = $("#modal-postlib"); let mpost_resolve = null;
-        $$(".postlib", mPost).forEach(b => b.addEventListener("click", () => {
-            mPost.classList.add("hidden"); mPost.classList.remove("flex");
-            mpost_resolve && mpost_resolve(b.dataset.accion); mpost_resolve = null;
-        }));
-        function openModalPostLiberacion() { mPost.classList.remove("hidden"); mPost.classList.add("flex"); return new Promise(res => mpost_resolve = res); }
-
-        const mRampa = $("#modal-rampa"), rampaGrid = $("#rampa-grid"); let mr_resolve = null;
-        $("#rampa-cancel").onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve(null); mr_resolve = null; };
+        const mDestino = $("#modal-destino"); let md_resolve = null; $$(".destop", mDestino).forEach(b => b.addEventListener("click", () => { mDestino.classList.add("hidden"); mDestino.classList.remove("flex"); md_resolve && md_resolve(b.dataset.accion); md_resolve = null; })); function openModalDestino() { mDestino.classList.remove("hidden"); mDestino.classList.add("flex"); return new Promise(res => md_resolve = res); }
+        const mPost = $("#modal-postlib"); let mpost_resolve = null; $$(".postlib", mPost).forEach(b => b.addEventListener("click", () => { mPost.classList.add("hidden"); mPost.classList.remove("flex"); mpost_resolve && mpost_resolve(b.dataset.accion); mpost_resolve = null; })); function openModalPostLiberacion() { mPost.classList.remove("hidden"); mPost.classList.add("flex"); return new Promise(res => mpost_resolve = res); }
+        const mRampa = $("#modal-rampa"), rampaGrid = $("#rampa-grid"); let mr_resolve = null; $("#rampa-cancel").onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve(null); mr_resolve = null; };
         function openModalRampa() {
             rampaGrid.innerHTML = "";
-            for (let i = 1; i <= 18; i++) {
-                const b = document.createElement("button");
-                b.className = "px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold";
-                b.textContent = "Rampa " + i;
-                b.onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve("Rampa " + i); mr_resolve = null; };
-                rampaGrid.appendChild(b);
-            }
-            mRampa.classList.remove("hidden"); mRampa.classList.add("flex");
-            return new Promise(res => mr_resolve = res);
+            for (let i = 1; i <= 18; i++) { const b = document.createElement("button"); b.className = "px-4 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"; b.textContent = "Rampa " + i; b.onclick = () => { mRampa.classList.add("hidden"); mRampa.classList.remove("flex"); mr_resolve && mr_resolve("Rampa " + i); mr_resolve = null; }; rampaGrid.appendChild(b); }
+            mRampa.classList.remove("hidden"); mRampa.classList.add("flex"); return new Promise(res => mr_resolve = res);
         }
 
-        const mCom = $("#modal-com"), mcTitle = $("#mc-title"), mcOperador = $("#mc-operador"), mcComentario = $("#mc-comentario"), mcError = $("#mc-error");
-        let mcom_resolve = null;
+        const mCom = $("#modal-com"), mcTitle = $("#mc-title"), mcOperador = $("#mc-operador"), mcComentario = $("#mc-comentario"), mcError = $("#mc-error"); let mcom_resolve = null;
         $("#mc-cancel").onclick = () => { mCom.classList.add("hidden"); mCom.classList.remove("flex"); mcom_resolve && mcom_resolve({ ok: false }); mcom_resolve = null; };
-        $("#mc-ok").onclick = async () => {
-            if (!mcOperador.value.trim() || !mcComentario.value.trim()) { mcError.classList.remove("hidden"); return; }
-            mcError.classList.add("hidden");
-            const out = { usuario: mcOperador.value.trim(), comentario: mcComentario.value.trim() };
-            mCom.classList.add("hidden"); mCom.classList.remove("flex");
-            mcom_resolve && mcom_resolve({ ok: true, data: out }); mcom_resolve = null;
-        };
-        function openModalComentario(title) {
-            mcTitle.textContent = title;
-            mcOperador.value = currentUser?.nombre || "";
-            mcComentario.value = "";
-            mcError.classList.add("hidden");
-            mCom.classList.remove("hidden");
-            mCom.classList.add("flex");
-            return new Promise(res => mcom_resolve = res);
-        }
+        $("#mc-ok").onclick = async () => { if (!mcOperador.value.trim() || !mcComentario.value.trim()) { mcError.classList.remove("hidden"); return; } mcError.classList.add("hidden"); const out = { usuario: mcOperador.value.trim(), comentario: mcComentario.value.trim() }; mCom.classList.add("hidden"); mCom.classList.remove("flex"); mcom_resolve && mcom_resolve({ ok: true, data: out }); mcom_resolve = null; };
+        function openModalComentario(title) { mcTitle.textContent = title; mcOperador.value = currentUser?.nombre || ""; mcComentario.value = ""; mcError.classList.add("hidden"); mCom.classList.remove("hidden"); mCom.classList.add("flex"); return new Promise(res => mcom_resolve = res); }
 
-        const mCierre = $("#modal-cierre"), cierreOperador = $("#cierre-operador"), cierreComentario = $("#cierre-comentario"), cierreError = $("#cierre-error"), cierreModo = $("#cierre-modo"), cierreSub = $("#cierre-sub");
-        let cierre_ctx = null;
+        const mCierre = $("#modal-cierre"), cierreOperador = $("#cierre-operador"), cierreComentario = $("#cierre-comentario"), cierreError = $("#cierre-error"), cierreModo = $("#cierre-modo"), cierreSub = $("#cierre-sub"); let cierre_ctx = null;
         function openModalCierre({ folio, estado }) {
-            cierreOperador.value = currentUser?.nombre || "";
-            cierreComentario.value = "";
-            cierreError.classList.add("hidden");
-            $("#drive-link-wrap").classList.add("hidden");
-
+            cierreOperador.value = currentUser?.nombre || ""; cierreComentario.value = ""; cierreError.classList.add("hidden"); $("#drive-link-wrap").classList.add("hidden");
             cierreModo.value = (estado === "Cancelado") ? "Cierre por CANCELACIÓN" : "Cierre normal";
-            cierreSub.textContent = (estado === "Cancelado")
-                ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar, guardar histórico y enviar correo."
-                : "Registra Salida de Planta, guarda histórico y envía el PDF por correo.";
-
-            cierre_ctx = { folio, estado };
-            mCierre.classList.remove("hidden"); mCierre.classList.add("flex");
+            cierreSub.textContent = (estado === "Cancelado") ? "Este transporte está Cancelado. Registra Salida de Planta para cerrar, guardar histórico y enviar correo." : "Registra Salida de Planta, guarda histórico y envía el PDF por correo.";
+            cierre_ctx = { folio, estado }; mCierre.classList.remove("hidden"); mCierre.classList.add("flex");
         }
         function closeModalCierre() { cierre_ctx = null; mCierre.classList.add("hidden"); mCierre.classList.remove("flex"); }
-        $("#cierre-x").onclick = closeModalCierre;
-        $("#cierre-cancel").onclick = closeModalCierre;
+        $("#cierre-x").onclick = closeModalCierre; $("#cierre-cancel").onclick = closeModalCierre;
 
-        async function fetchCitaConfirmadaByFolio(folio) {
-            const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio));
-            const snap = await getDocs(qRef);
-            if (snap.empty) return null;
-            const d = snap.docs[0];
-            return { id: d.id, ...d.data() };
-        }
-        function flattenForUI(obj, prefix = "") {
-            const out = [];
-            const isPlainObj = (v) => v && typeof v === "object" && !Array.isArray(v);
-            for (const [k, v] of Object.entries(obj || {})) {
-                const key = prefix ? `${prefix}.${k}` : k;
-                if (isPlainObj(v)) out.push(...flattenForUI(v, key));
-                else if (Array.isArray(v)) out.push([key, v.map(x => isPlainObj(x) ? JSON.stringify(x) : safeStr(x)).join(", ")]);
-                else out.push([key, safeStr(v)]);
-            }
-            return out;
-        }
+        async function fetchCitaConfirmadaByFolio(folio) { const qRef = query(collection(db, "CitasConfirmadas"), where("folio", "==", folio)); const snap = await getDocs(qRef); if (snap.empty) return null; const d = snap.docs[0]; return { id: d.id, ...d.data() }; }
+        function flattenForUI(obj, prefix = "") { const out = []; const isPlainObj = (v) => v && typeof v === "object" && !Array.isArray(v); for (const [k, v] of Object.entries(obj || {})) { const key = prefix ? `${prefix}.${k}` : k; if (isPlainObj(v)) out.push(...flattenForUI(v, key)); else if (Array.isArray(v)) out.push([key, v.map(x => isPlainObj(x) ? JSON.stringify(x) : safeStr(x)).join(", ")]); else out.push([key, safeStr(v)]); } return out; }
         async function openInfoByFolio(folio, fallbackCita = null) {
-            const grid = $("#info-grid"), modal = $("#modal-info"), search = $("#info-search");
-            grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
-
-            let full = null;
-            try { full = await fetchCitaConfirmadaByFolio(folio); } catch (e) { console.warn("Error leyendo CitasConfirmadas:", e); }
-
-            const base = full || ({ folio, ...(fallbackCita || {}) });
-            const { createdAt, updatedAt, ...clean } = base;
-
-            let rows = flattenForUI(clean);
-            const priority = ["folio", "fecha", "hora", "horaExtra", "lineaTransporte", "linea", "placas", "placas2", "chofer", "destino", "frontera", "tipoTransporte", "tipoVisita", "razon", "factura", "sello", "sello2", "citaProveedorId", "id", "estatus"];
-            const norm = (s) => String(s || "").toLowerCase();
-
-            rows.sort((a, b) => {
-                const ak = a[0], bk = b[0];
-                const ap = priority.indexOf(ak);
-                const bp = priority.indexOf(bk);
-                if (ap !== -1 || bp !== -1) return (ap === -1 ? 999 : ap) - (bp === -1 ? 999 : bp);
-                return norm(ak).localeCompare(norm(bk));
-            });
-
-            const render = (list) => {
-                grid.innerHTML = list.map(([k, v]) => `
-          <div class="kv"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(safeStr(v) || "-")}</div></div>
-        `).join("");
-            };
-
+            const grid = $("#info-grid"), modal = $("#modal-info"), search = $("#info-search"); grid.innerHTML = `<div class="text-gray-500">Cargando...</div>`;
+            let full = null; try { full = await fetchCitaConfirmadaByFolio(folio); } catch (e) { console.warn("Error leyendo CitasConfirmadas:", e); }
+            const base = full || ({ folio, ...(fallbackCita || {}) }); const { createdAt, updatedAt, ...clean } = base; let rows = flattenForUI(clean);
+            const priority = ["folio", "fecha", "hora", "horaExtra", "lineaTransporte", "linea", "placas", "placas2", "chofer", "destino", "frontera", "tipoTransporte", "tipoVisita", "razon", "factura", "sello", "sello2", "citaProveedorId", "id", "estatus"]; const norm = (s) => String(s || "").toLowerCase();
+            rows.sort((a, b) => { const ak = a[0], bk = b[0]; const ap = priority.indexOf(ak); const bp = priority.indexOf(bk); if (ap !== -1 || bp !== -1) return (ap === -1 ? 999 : ap) - (bp === -1 ? 999 : bp); return norm(ak).localeCompare(norm(bk)); });
+            const render = (list) => { grid.innerHTML = list.map(([k, v]) => `<div class="kv"><div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(safeStr(v) || "-")}</div></div>`).join(""); };
             render(rows);
-
-            if (search) {
-                search.value = "";
-                search.oninput = () => {
-                    const q = search.value.trim().toLowerCase();
-                    if (!q) return render(rows);
-                    const filtered = rows.filter(([k, v]) => String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q));
-                    render(filtered);
-                };
-            }
-            modal.classList.remove("hidden"); modal.classList.add("flex");
-            $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
+            if (search) { search.value = ""; search.oninput = () => { const q = search.value.trim().toLowerCase(); if (!q) return render(rows); const filtered = rows.filter(([k, v]) => String(k).toLowerCase().includes(q) || String(v).toLowerCase().includes(q)); render(filtered); }; }
+            modal.classList.remove("hidden"); modal.classList.add("flex"); $("#mi-close").onclick = () => { modal.classList.add("hidden"); modal.classList.remove("flex"); };
         }
 
-        // ====== MODAL CITA (GUARDIA DECIDE) ======
-        const mCita = $("#modal-cita"), mcitaGrid = $("#mcita-grid"), mcitaX = $("#mcita-x"), mcitaBtnAceptar = $("#mcita-btn-aceptar"), mcitaBtnCancelar = $("#mcita-btn-cancelar"), mcitaBtnConfirmCancel = $("#mcita-btn-confirm-cancel"), mcitaCancelWrap = $("#mcita-cancel-wrap"), mcitaCancelComent = $("#mcita-cancel-coment"), mcitaCancelErr = $("#mcita-cancel-err");
-        let mcita_ctx = null;
-        function renderCitaGrid(folio, cita) {
-            const rows = [
-                ["Folio", folio], ["Fecha", cita.fecha || "-"], ["Hora", cita.hora || "-"], ["Hora extra", cita.horaExtra || "-"], ["Línea", cita.lineaTransporte || cita.linea || "-"], ["Placas", cita.placas || "-"], ["Tipo transporte", cita.tipoTransporte || "-"], ["Tipo visita", cita.tipoVisita || "-"], ["Destino", cita.destino || "-"], ["Proveedor", cita.usuarioProveedor || "-"],
-            ];
-            mcitaGrid.innerHTML = rows.map(([k, v]) => `
-        <div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border"><span class="text-gray-600">${k}</span><span class="font-medium">${escapeHtml(v)}</span></div>
-      `).join("");
-        }
-
-        function openModalCitaDecision({ folio, cita }) {
-            renderCitaGrid(folio, cita);
-            mcitaCancelWrap.classList.add("hidden"); mcitaBtnConfirmCancel.classList.add("hidden"); mcitaBtnCancelar.classList.remove("hidden"); mcitaBtnAceptar.classList.remove("hidden"); mcitaCancelComent.value = ""; mcitaCancelErr.classList.add("hidden");
-            mcitaBtnConfirmCancel.disabled = false; mcitaBtnConfirmCancel.textContent = "Aceptar cancelación";
-            mCita.classList.remove("hidden"); mCita.classList.add("flex");
-            return new Promise((resolve) => { mcita_ctx = { folio, cita, resolve }; });
-        }
-
+        const mCita = $("#modal-cita"), mcitaGrid = $("#mcita-grid"), mcitaX = $("#mcita-x"), mcitaBtnAceptar = $("#mcita-btn-aceptar"), mcitaBtnCancelar = $("#mcita-btn-cancelar"), mcitaBtnConfirmCancel = $("#mcita-btn-confirm-cancel"), mcitaCancelWrap = $("#mcita-cancel-wrap"), mcitaCancelComent = $("#mcita-cancel-coment"), mcitaCancelErr = $("#mcita-cancel-err"); let mcita_ctx = null;
+        function renderCitaGrid(folio, cita) { const rows = [["Folio", folio], ["Fecha", cita.fecha || "-"], ["Hora", cita.hora || "-"], ["Hora extra", cita.horaExtra || "-"], ["Línea", cita.lineaTransporte || cita.linea || "-"], ["Placas", cita.placas || "-"], ["Tipo transporte", cita.tipoTransporte || "-"], ["Tipo visita", cita.tipoVisita || "-"], ["Destino", cita.destino || "-"], ["Proveedor", cita.usuarioProveedor || "-"]]; mcitaGrid.innerHTML = rows.map(([k, v]) => `<div class="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 border"><span class="text-gray-600">${k}</span><span class="font-medium">${escapeHtml(v)}</span></div>`).join(""); }
+        function openModalCitaDecision({ folio, cita }) { renderCitaGrid(folio, cita); mcitaCancelWrap.classList.add("hidden"); mcitaBtnConfirmCancel.classList.add("hidden"); mcitaBtnCancelar.classList.remove("hidden"); mcitaBtnAceptar.classList.remove("hidden"); mcitaCancelComent.value = ""; mcitaCancelErr.classList.add("hidden"); mcitaBtnConfirmCancel.disabled = false; mcitaBtnConfirmCancel.textContent = "Aceptar cancelación"; mCita.classList.remove("hidden"); mCita.classList.add("flex"); return new Promise((resolve) => { mcita_ctx = { folio, cita, resolve }; }); }
         function closeModalCita() { mcita_ctx = null; mCita.classList.add("hidden"); mCita.classList.remove("flex"); }
         mcitaX.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "close" }); closeModalCita(); };
         mcitaBtnAceptar.onclick = () => { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "accept" }); closeModalCita(); };
-        mcitaBtnCancelar.onclick = () => {
-            mcitaCancelWrap.classList.remove("hidden"); mcitaBtnConfirmCancel.classList.remove("hidden"); mcitaBtnCancelar.classList.add("hidden"); mcitaBtnAceptar.classList.add("hidden"); mcitaCancelComent.focus();
-        };
+        mcitaBtnCancelar.onclick = () => { mcitaCancelWrap.classList.remove("hidden"); mcitaBtnConfirmCancel.classList.remove("hidden"); mcitaBtnCancelar.classList.add("hidden"); mcitaBtnAceptar.classList.add("hidden"); mcitaCancelComent.focus(); };
+        mcitaBtnConfirmCancel.onclick = async () => { const comment = mcitaCancelComent.value.trim(); if (!comment) { mcitaCancelErr.classList.remove("hidden"); return; } mcitaCancelErr.classList.add("hidden"); mcitaBtnConfirmCancel.disabled = true; const oldTxt = mcitaBtnConfirmCancel.textContent; mcitaBtnConfirmCancel.textContent = "Cancelando..."; try { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment }); closeModalCita(); } catch (e) { console.error(e); mcitaBtnConfirmCancel.disabled = false; mcitaBtnConfirmCancel.textContent = oldTxt; mcitaCancelErr.textContent = "Error al intentar cancelar. Revisa consola."; mcitaCancelErr.classList.remove("hidden"); } };
 
-        mcitaBtnConfirmCancel.onclick = async () => {
-            const comment = mcitaCancelComent.value.trim();
-            if (!comment) { mcitaCancelErr.classList.remove("hidden"); return; }
-            mcitaCancelErr.classList.add("hidden");
-            mcitaBtnConfirmCancel.disabled = true;
-            const oldTxt = mcitaBtnConfirmCancel.textContent;
-            mcitaBtnConfirmCancel.textContent = "Cancelando...";
-            try {
-                mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment });
-                closeModalCita();
-            } catch (e) {
-                console.error(e);
-                mcitaBtnConfirmCancel.disabled = false;
-                mcitaBtnConfirmCancel.textContent = oldTxt;
-                mcitaCancelErr.textContent = "Error al intentar cancelar. Revisa consola.";
-                mcitaCancelErr.classList.remove("hidden");
-            }
-        };
-
-        // ===== UI: card =====
         function renderCardSkeleton(folio, cita) {
-            const el = document.createElement("div");
-            el.className = "mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden";
-            el.dataset.folio = folio;
+            const el = document.createElement("div"); el.className = "mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"; el.dataset.folio = folio;
             el.innerHTML = `
-        <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100">
-          <div class="flex items-center gap-3">
-            <img src="${truckIconFor(cita.tipoVisita)}" class="w-7 h-7" alt="Tipo de visita">
-            <div>
-              <div class="text-lg font-semibold">Folio: <span class="text-[var(--bmm-blue)]">${folio}</span></div>
-              <div class="text-xs text-gray-500">Línea: ${escapeHtml(cita.linea || cita.lineaTransporte || "-")} · Placas: ${escapeHtml(cita.placas || "-")} · TipoVisita: ${escapeHtml(cita.tipoVisita || "-")}</div>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1 text-sm font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full"><span id="estado-${folio}">En Proceso</span></span>
-            <button class="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-1" data-info="${folio}" aria-label="Ver información"><img src="img/ico_info.png" class="w-4 h-4" alt="Info"> Información</button>
-            <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] text-base font-semibold flex items-center gap-2" data-chat="${folio}">
-              <img src="img/chat.png" class="w-5 h-5" alt=""> Chat
-              <span id="chatBadge-${folio}" class="ml-1 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 hidden">0</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="px-6 py-6">
-          <div class="relative mb-8">
-            <div class="timeline" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del transporte">
-              <div id="bar-${folio}" style="width:0%"></div>
-            </div>
-            <img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso">
-          </div>
-
-          <div class="mb-6 flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3">
-            <div>
-              <div class="text-xs text-gray-500">Tiempo</div>
-              <div class="text-[11px] text-gray-400">≥45 min amarillo · ≥1h 30m rojo</div>
-            </div>
-            <div id="timer-${folio}" class="text-2xl font-mono font-extrabold text-[var(--bmm-blue)]">00:00:00</div>
-          </div>
-
-          <div class="grid grid-cols-5 lg:grid-cols-10 gap-5">
-            ${["Llegada", "Ingreso", "Disuasión (E)", "Patio (E)", "Rampa", "Fin Carga/Descarga", "Liberación", "Patio (S)", "Disuasión (S)", "Salida de Planta"].map((t, i) => `
-              <div class="text-center">
-                <div id="chip-${folio}-${i}" class="chip todo mx-auto">
-                  <img src="${iconForStep(i)}" class="w-14 h-14" alt="${t}">
-                </div>
-                <div class="mt-2 font-semibold text-sm">${t}</div>
-                <div id="ts-${folio}-${i}" class="mt-1 text-xs text-gray-500"></div>
-                <div class="mt-2 space-x-2">${buttonsForStep(folio, i)}</div>
-                <div id="tag-${folio}-${i}" class="mt-1 text-[11px] text-blue-700"></div>
-              </div>
-            `).join("")}
-          </div>
-
-          <div id="chatBox-${folio}" class="mt-5 hidden border-t pt-4" aria-live="polite">
-            <div class="flex items-center justify-between">
-              <div class="font-semibold">Chat del folio ${folio}</div>
-              <button class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm" data-chat-close="${folio}">Cerrar</button>
-            </div>
-            <div id="chatMsgs-${folio}" class="mt-2 max-h-56 overflow-auto space-y-2 bg-gray-50 p-3 rounded-lg border"></div>
-            <div class="mt-2 flex gap-2">
-              <label class="sr-only" for="chatInput-${folio}">Mensaje</label>
-              <input id="chatInput-${folio}" type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe un mensaje… (Enter para enviar)">
-              <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)] text-white" data-chat-send="${folio}">Enviar</button>
-            </div>
-          </div>
-        </div>`;
+        <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100"><div class="flex items-center gap-3"><img src="${truckIconFor(cita.tipoVisita)}" class="w-7 h-7" alt="Tipo de visita"><div><div class="text-lg font-semibold">Folio: <span class="text-[var(--bmm-blue)]">${folio}</span></div><div class="text-xs text-gray-500">Línea: ${escapeHtml(cita.linea || cita.lineaTransporte || "-")} · Placas: ${escapeHtml(cita.placas || "-")} · TipoVisita: ${escapeHtml(cita.tipoVisita || "-")}</div></div></div><div class="flex items-center gap-2"><span class="inline-flex items-center gap-1 text-sm font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full"><span id="estado-${folio}">En Proceso</span></span><button class="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-1" data-info="${folio}" aria-label="Ver información"><img src="img/ico_info.png" class="w-4 h-4" alt="Info"> Información</button><button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] text-base font-semibold flex items-center gap-2" data-chat="${folio}"><img src="img/chat.png" class="w-5 h-5" alt=""> Chat<span id="chatBadge-${folio}" class="ml-1 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 hidden">0</span></button></div></div>
+        <div class="px-6 py-6"><div class="relative mb-8"><div class="timeline" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del transporte"><div id="bar-${folio}" style="width:0%"></div></div><img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso"></div><div class="mb-6 flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3"><div><div class="text-xs text-gray-500">Tiempo</div><div class="text-[11px] text-gray-400">≥45 min amarillo · ≥1h 30m rojo</div></div><div id="timer-${folio}" class="text-2xl font-mono font-extrabold text-[var(--bmm-blue)]">00:00:00</div></div><div class="grid grid-cols-5 lg:grid-cols-10 gap-5">${["Llegada", "Ingreso", "Disuasión (E)", "Patio (E)", "Rampa", "Fin Carga/Descarga", "Liberación", "Patio (S)", "Disuasión (S)", "Salida de Planta"].map((t, i) => `<div class="text-center"><div id="chip-${folio}-${i}" class="chip todo mx-auto"><img src="${iconForStep(i)}" class="w-14 h-14" alt="${t}"></div><div class="mt-2 font-semibold text-sm">${t}</div><div id="ts-${folio}-${i}" class="mt-1 text-xs text-gray-500"></div><div class="mt-2 space-x-2">${buttonsForStep(folio, i)}</div><div id="tag-${folio}-${i}" class="mt-1 text-[11px] text-blue-700"></div></div>`).join("")}</div><div id="chatBox-${folio}" class="mt-5 hidden border-t pt-4" aria-live="polite"><div class="flex items-center justify-between"><div class="font-semibold">Chat del folio ${folio}</div><button class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm" data-chat-close="${folio}">Cerrar</button></div><div id="chatMsgs-${folio}" class="mt-2 max-h-56 overflow-auto space-y-2 bg-gray-50 p-3 rounded-lg border"></div><div class="mt-2 flex gap-2"><label class="sr-only" for="chatInput-${folio}">Mensaje</label><input id="chatInput-${folio}" type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe un mensaje… (Enter para enviar)"><button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)] text-white" data-chat-send="${folio}">Enviar</button></div></div></div>`;
             return el;
         }
 
-        function toggleChat(folio, forceOpen = null) {
-            const box = $("#chatBox-" + folio);
-            const open = (forceOpen === null) ? box.classList.contains("hidden") : forceOpen;
-            box.classList.toggle("hidden", !open);
-            $("#chatBadge-" + folio)?.classList.add("hidden");
-            $("#chatInput-" + folio)?.focus();
-        }
+        function toggleChat(folio, forceOpen = null) { const box = $("#chatBox-" + folio); const open = (forceOpen === null) ? box.classList.contains("hidden") : forceOpen; box.classList.toggle("hidden", !open); $("#chatBadge-" + folio)?.classList.add("hidden"); $("#chatInput-" + folio)?.focus(); }
 
         function attachCardHandlers(cardEl, folio, cita) {
             cardEl.querySelector(`[data-info="${folio}"]`).onclick = () => openInfoByFolio(folio, cita);
-
             cardEl.addEventListener("click", async (e) => {
-                const btnChat = e.target.closest("[data-chat]");
-                if (btnChat) { toggleChat(folio, true); return; }
-                const btnChatSend = e.target.closest("[data-chat-send]");
-                if (btnChatSend) { await sendChatMsg(folio); return; }
-                const btnChatClose = e.target.closest("[data-chat-close]");
-                if (btnChatClose) { toggleChat(folio, false); return; }
-
-                const act = e.target.closest(".btn");
-                if (!act) return;
-
-                const step = Number(act.dataset.step);
-                act.disabled = true;
-
-                const cref = doc(db, "ControlTransportes", folio);
-                const snap = await getDoc(cref);
-                const control = snap.data() || {};
-                const p = control.pasos || {};
-                const comentariosPrev = control.comentarios || [];
-                const appendComment = (arr, paso, data) => [...arr, { ...data, paso, ts: nowISO() }];
+                const btnChat = e.target.closest("[data-chat]"); if (btnChat) { toggleChat(folio, true); return; }
+                const btnChatSend = e.target.closest("[data-chat-send]"); if (btnChatSend) { await sendChatMsg(folio); return; }
+                const btnChatClose = e.target.closest("[data-chat-close]"); if (btnChatClose) { toggleChat(folio, false); return; }
+                const act = e.target.closest(".btn"); if (!act) return;
+                const step = Number(act.dataset.step); act.disabled = true;
+                const cref = doc(db, "ControlTransportes", folio); const snap = await getDoc(cref); const control = snap.data() || {}; const p = control.pasos || {}; const comentariosPrev = control.comentarios || []; const appendComment = (arr, paso, data) => [...arr, { ...data, paso, ts: nowISO() }];
 
                 async function pedirComentario(titulo, paso, accion) {
-                    const res = await openModalComentario(titulo);
-                    if (!res?.ok) { act.disabled = false; return null; }
-                    const { usuario, comentario } = res.data;
-                    await logBitacora(folio, { paso, accion, usuario, comentario, actorEmail: currentUser?.email || "" });
-                    return res.data;
+                    const res = await openModalComentario(titulo); if (!res?.ok) { act.disabled = false; return null; }
+                    const { usuario, comentario } = res.data; await logBitacora(folio, { paso, accion, usuario, comentario, actorEmail: currentUser?.email || "" }); return res.data;
                 }
 
                 async function markCancelAndJump(origen, pasoKeyForComment) {
-                    const com = await pedirComentario(origen === "DisuasionE" ? "Cancelar en Disuasión (E)" : "Cancelar en Rampa", pasoKeyForComment, "cancelar");
-                    if (!com) return false;
-                    const ts = nowISO();
-                    const updates = {
-                        estado: "Cancelado", updatedAt: serverTimestamp(), "pasos.forceNextStep": 9, "pasos.cancel_origen": origen, "pasos.cancel_ts": ts,
-                        comentarios: appendComment(comentariosPrev, pasoKeyForComment, com),
-                    };
-                    if (origen === "DisuasionE") {
-                        updates["pasos.disuasionE_inicio"] = p.disuasionE_inicio || ts; updates["pasos.disuasionE_fin"] = ts; updates["pasos.disuasionE_destino"] = "Cancelado";
-                    } else {
-                        updates["pasos.rampa_cancel"] = ts;
-                    }
-                    await updateDoc(cref, updates);
-                    return true;
+                    const com = await pedirComentario(origen === "DisuasionE" ? "Cancelar en Disuasión (E)" : "Cancelar en Rampa", pasoKeyForComment, "cancelar"); if (!com) return false;
+                    const ts = nowISO(); const updates = { estado: "Cancelado", updatedAt: serverTimestamp(), "pasos.forceNextStep": 9, "pasos.cancel_origen": origen, "pasos.cancel_ts": ts, comentarios: appendComment(comentariosPrev, pasoKeyForComment, com), };
+                    if (origen === "DisuasionE") { updates["pasos.disuasionE_inicio"] = p.disuasionE_inicio || ts; updates["pasos.disuasionE_fin"] = ts; updates["pasos.disuasionE_destino"] = "Cancelado"; } else { updates["pasos.rampa_cancel"] = ts; }
+                    await updateDoc(cref, updates); return true;
                 }
 
                 try {
@@ -1726,36 +797,23 @@
                         case 2: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
                             if (act.classList.contains("fin")) {
-                                const dest = await openModalDestino();
-                                if (!dest) { act.disabled = false; break; }
+                                const dest = await openModalDestino(); if (!dest) { act.disabled = false; break; }
                                 if (dest === "Cancelar") { await markCancelAndJump("DisuasionE", "disuasionE_cancel"); break; }
                                 if (dest === "Rampa") {
                                     const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
-                                    const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar"); if (!com) break;
-                                    const ts = nowISO();
+                                    const com = await pedirComentario("Finalizar Disuasión (E) → Rampa", "disuasionE_fin", "finalizar"); if (!com) break; const ts = nowISO();
                                     await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || ts, "pasos.disuasionE_fin": ts, "pasos.disuasionE_destino": "Rampa", "pasos.disuasionE_rampa": rSel, "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, "pasos.rampa_enter_ts": p.rampa_enter_ts || ts, comentarios: appendComment(comentariosPrev, "disuasionE_fin", com), updatedAt: serverTimestamp() });
                                 } else {
-                                    const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar"); if (!com) break;
-                                    const ts = nowISO();
+                                    const com = await pedirComentario("Finalizar Disuasión (E) → Patio", "disuasionE_fin", "finalizar"); if (!com) break; const ts = nowISO();
                                     await updateDoc(cref, { "pasos.disuasionE_inicio": p.disuasionE_inicio || ts, "pasos.disuasionE_fin": ts, "pasos.disuasionE_destino": "Patio", comentarios: appendComment(comentariosPrev, "disuasionE_fin", com), updatedAt: serverTimestamp() });
                                 }
-                            } else {
-                                const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar"); if (com && !p.disuasionE_inicio) await updateDoc(cref, { "pasos.disuasionE_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionE_inicio", com), updatedAt: serverTimestamp() });
-                            }
+                            } else { const com = await pedirComentario("Iniciar Disuasión (E)", "disuasionE_inicio", "iniciar"); if (com && !p.disuasionE_inicio) await updateDoc(cref, { "pasos.disuasionE_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionE_inicio", com), updatedAt: serverTimestamp() }); }
                             break;
                         }
-                        case 3: {
-                            if (control.estado === "Cancelado") { act.disabled = false; break; }
-                            const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; }
-                            const com = await pedirComentario(`Finalizar Patio (E) → ${rSel}`, "patioE_fin", "finalizar"); if (!com) break;
-                            const ts = nowISO();
-                            await updateDoc(cref, { "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, "pasos.rampa_enter_ts": p.rampa_enter_ts || ts, comentarios: appendComment(comentariosPrev, "patioE_fin", com), updatedAt: serverTimestamp() });
-                            break;
-                        }
+                        case 3: { if (control.estado === "Cancelado") { act.disabled = false; break; } const rSel = await openModalRampa(); if (!rSel) { act.disabled = false; break; } const com = await pedirComentario(`Finalizar Patio (E) → ${rSel}`, "patioE_fin", "finalizar"); if (!com) break; const ts = nowISO(); await updateDoc(cref, { "pasos.patioE_fin": ts, "pasos.patio_rampa": rSel, "pasos.rampa_enter_ts": p.rampa_enter_ts || ts, comentarios: appendComment(comentariosPrev, "patioE_fin", com), updatedAt: serverTimestamp() }); break; }
                         case 4: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
-                            if (act.classList.contains("cancel")) { await markCancelAndJump("Rampa", "rampa_cancel"); }
-                            else {
+                            if (act.classList.contains("cancel")) { await markCancelAndJump("Rampa", "rampa_cancel"); } else {
                                 const com = await pedirComentario("Iniciar carga/descarga en Rampa", "rampa_inicio", "iniciar"); if (!com) break;
                                 const ts = nowISO(); const inicioCrono = p.cronometro_inicio || ts;
                                 await updateDoc(cref, { "pasos.rampa_inicio": p.rampa_inicio || ts, "pasos.cronometro_inicio": inicioCrono, comentarios: appendComment(comentariosPrev, "rampa_inicio", com), updatedAt: serverTimestamp() });
@@ -1763,10 +821,7 @@
                             }
                             break;
                         }
-                        case 5: {
-                            if (control.estado === "Cancelado") { act.disabled = false; break; }
-                            const com = await pedirComentario("Registrar Fin de Carga/Descarga", "finDescarga", "registrar"); if (com && !p.finDescarga) await updateDoc(cref, { "pasos.finDescarga": nowISO(), comentarios: appendComment(comentariosPrev, "finDescarga", com), updatedAt: serverTimestamp() }); break;
-                        }
+                        case 5: { if (control.estado === "Cancelado") { act.disabled = false; break; } const com = await pedirComentario("Registrar Fin de Carga/Descarga", "finDescarga", "registrar"); if (com && !p.finDescarga) await updateDoc(cref, { "pasos.finDescarga": nowISO(), comentarios: appendComment(comentariosPrev, "finDescarga", com), updatedAt: serverTimestamp() }); break; }
                         case 6: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
                             const com = await pedirComentario("Registrar Liberación", "liberacion", "registrar"); if (!com) break;
@@ -1776,39 +831,22 @@
                                 await updateDoc(cref, { "pasos.liberacion": ts, "pasos.cronometro_fin": ts, "pasos.duracion_rampa_ms": (typeof durMs === "number" ? durMs : null), comentarios: appendComment(comentariosPrev, "liberacion", com), updatedAt: serverTimestamp() });
                                 if (typeof durMs === "number") { stopTimer(folio); setTimerDisplay(folio, durMs); }
                                 const dest = await openModalPostLiberacion();
-                                if (dest === "Patio") { await updateDoc(cref, { "pasos.postLiberacionDestino": "Patio", updatedAt: serverTimestamp() }); }
-                                else if (dest === "DisuasionS") { const ts2 = nowISO(); await updateDoc(cref, { "pasos.postLiberacionDestino": "DisuasionS", "pasos.patioS_fin": ts2, updatedAt: serverTimestamp() }); }
+                                if (dest === "Patio") { await updateDoc(cref, { "pasos.postLiberacionDestino": "Patio", updatedAt: serverTimestamp() }); } else if (dest === "DisuasionS") { const ts2 = nowISO(); await updateDoc(cref, { "pasos.postLiberacionDestino": "DisuasionS", "pasos.patioS_fin": ts2, updatedAt: serverTimestamp() }); }
                             }
                             break;
                         }
-                        case 7: {
-                            if (control.estado === "Cancelado") { act.disabled = false; break; }
-                            const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar"); if (com && !p.patioS_fin) await updateDoc(cref, { "pasos.patioS_fin": nowISO(), comentarios: appendComment(comentariosPrev, "patioS_fin", com), updatedAt: serverTimestamp() }); break;
-                        }
+                        case 7: { if (control.estado === "Cancelado") { act.disabled = false; break; } const com = await pedirComentario("Registrar Patio (S)", "patioS_fin", "registrar"); if (com && !p.patioS_fin) await updateDoc(cref, { "pasos.patioS_fin": nowISO(), comentarios: appendComment(comentariosPrev, "patioS_fin", com), updatedAt: serverTimestamp() }); break; }
                         case 8: {
                             if (control.estado === "Cancelado") { act.disabled = false; break; }
-                            if (act.classList.contains("fin")) {
-                                const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar"); if (com && !p.disuasionS_fin) { const ts = nowISO(); await updateDoc(cref, { "pasos.disuasionS_inicio": p.disuasionS_inicio || ts, "pasos.disuasionS_fin": ts, comentarios: appendComment(comentariosPrev, "disuasionS_fin", com), updatedAt: serverTimestamp() }); }
-                            } else {
-                                const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar"); if (com && !p.disuasionS_inicio) await updateDoc(cref, { "pasos.disuasionS_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionS_inicio", com), updatedAt: serverTimestamp() });
-                            }
+                            if (act.classList.contains("fin")) { const com = await pedirComentario("Finalizar Disuasión (S)", "disuasionS_fin", "finalizar"); if (com && !p.disuasionS_fin) { const ts = nowISO(); await updateDoc(cref, { "pasos.disuasionS_inicio": p.disuasionS_inicio || ts, "pasos.disuasionS_fin": ts, comentarios: appendComment(comentariosPrev, "disuasionS_fin", com), updatedAt: serverTimestamp() }); } }
+                            else { const com = await pedirComentario("Iniciar Disuasión (S)", "disuasionS_inicio", "iniciar"); if (com && !p.disuasionS_inicio) await updateDoc(cref, { "pasos.disuasionS_inicio": nowISO(), comentarios: appendComment(comentariosPrev, "disuasionS_inicio", com), updatedAt: serverTimestamp() }); }
                             break;
                         }
-                        case 9: {
-                            openModalCierre({ folio, estado: control.estado || "En Proceso" });
-                            act.disabled = false;
-                            break;
-                        }
+                        case 9: { openModalCierre({ folio, estado: control.estado || "En Proceso" }); act.disabled = false; break; }
                     }
-                } finally {
-                    if (step !== 9) act.disabled = false;
-                }
+                } finally { if (step !== 9) act.disabled = false; }
             });
-
-            cardEl.addEventListener("keydown", (e) => {
-                const t = e.target;
-                if (t && t.id === "chatInput-" + folio && e.key === "Enter") { e.preventDefault(); sendChatMsg(folio); }
-            });
+            cardEl.addEventListener("keydown", (e) => { const t = e.target; if (t && t.id === "chatInput-" + folio && e.key === "Enter") { e.preventDefault(); sendChatMsg(folio); } });
         }
 
         async function buildSheetsPayload({ actionType, folio, freshData, closedAtISO }) {
@@ -1817,36 +855,11 @@
             comentarios.sort((a, b) => String(a.ts || "").localeCompare(String(b.ts || "")));
 
             return {
-                type: "CONTROL_CIERRE",
-                actionType,
-                folio,
-                closedAtISO,
-                estado: freshData.estado || "",
-                usuarioAccion: currentUser?.nombre || "",
-                usuarioAccionEmail: currentUser?.email || "",
+                type: "CONTROL_CIERRE", actionType, folio, closedAtISO, estado: freshData.estado || "", usuarioAccion: currentUser?.nombre || "", usuarioAccionEmail: currentUser?.email || "",
                 duracionRampaMs: freshData?.pasos?.duracion_rampa_ms ?? null,
-                duracionRampaHHMMSS: (typeof freshData?.pasos?.duracion_rampa_ms === "number")
-                    ? formatDuration(freshData.pasos.duracion_rampa_ms)
-                    : "",
-                cita: {
-                    id: cita.id || "",
-                    linea: cita.linea || "",
-                    placas: cita.placas || "",
-                    tipoTransporte: cita.tipoTransporte || "",
-                    tipoVisita: cita.tipoVisita || "",
-                    fecha: cita.fecha || "",
-                    hora: cita.hora || "",
-                    horaExtra: cita.horaExtra || "",
-                    destino: cita.destino || "",
-                    usuarioProveedor: cita.usuarioProveedor || ""
-                },
-                timeline: comentarios.map(c => ({
-                    paso: c.paso || "",
-                    pasoLabel: pasoLabel(c.paso || ""),
-                    ts: c.ts || "",
-                    usuario: c.usuario || "",
-                    comentario: c.comentario || ""
-                }))
+                duracionRampaHHMMSS: (typeof freshData?.pasos?.duracion_rampa_ms === "number") ? formatDuration(freshData.pasos.duracion_rampa_ms) : "",
+                cita: { id: cita.id || "", linea: cita.linea || "", placas: cita.placas || "", tipoTransporte: cita.tipoTransporte || "", tipoVisita: cita.tipoVisita || "", fecha: cita.fecha || "", hora: cita.hora || "", horaExtra: cita.horaExtra || "", destino: cita.destino || "", usuarioProveedor: cita.usuarioProveedor || "" },
+                timeline: comentarios.map(c => ({ paso: c.paso || "", pasoLabel: pasoLabel(c.paso || ""), ts: c.ts || "", usuario: c.usuario || "", comentario: c.comentario || "" }))
             };
         }
 
@@ -1859,7 +872,7 @@
             const btn = $("#cierre-pdf");
             btn.disabled = true;
             const originalText = btn.textContent;
-            btn.textContent = "Procesando...";
+            btn.textContent = "Guardando y enviando correo...";
 
             try {
                 const folio = cierre_ctx.folio;
@@ -1879,7 +892,7 @@
                 const comentariosPrev = control.comentarios || [];
                 const newComentarios = [...comentariosPrev, { usuario, comentario, paso: "salidaPlanta", ts: closedAtISO }];
 
-                // 1) Cerrar en Firestore (Documento de control y estatus de cita)
+                // 1) Cerrar en Firestore
                 await updateDoc(cref, {
                     "pasos.salidaPlanta": closedAtISO,
                     estado: estadoFinal,
@@ -1896,21 +909,19 @@
                 const freshSnap = await getDoc(cref);
                 const freshData = freshSnap.data() || control;
 
-                // ✅ 3) OBTENER TODA LA INFO ORIGINAL (Match entre CitasConfirmadas y CitasProveedor)
+                // 3) Obtener la información completa para el PDF cruzando datos
                 let fullCita = { ...(freshData.cita || {}) };
                 try {
                     if (fullCita.id) {
                         const confSnap = await getDoc(doc(db, "CitasConfirmadas", fullCita.id));
                         if (confSnap.exists()) {
                             const confData = confSnap.data();
-                            fullCita = { ...fullCita, ...confData }; // fusionar confirmada
+                            fullCita = { ...fullCita, ...confData }; 
                             
-                            // Si tiene proveedor id, vamos por la data fuente
                             const provId = confData.citaProveedorId || confData.idCitaProveedor || confData.proveedorCitaId;
                             if (provId) {
                                 const provSnap = await getDoc(doc(db, "CitasProveedor", provId));
                                 if (provSnap.exists()) {
-                                    // Fusionar priorizando la confirmada, pero agregando campos faltantes del proveedor
                                     fullCita = { ...provSnap.data(), ...fullCita }; 
                                 }
                             }
@@ -1920,7 +931,7 @@
                     console.warn("No se pudieron cargar los detalles extra de la cita para el PDF", err);
                 }
 
-                // Se la inyectamos a freshData para que el PDF se nutra con la lista completa
+                // Inyectar datos completos para generar PDF
                 freshData.cita = fullCita;
 
                 const chatMessages = await getChatMessages(folio);
@@ -1935,11 +946,12 @@
                 // 6) Generar el string Base64 del PDF
                 const pdfBase64 = await generatePDFBase64({ folio, controlData: freshData, chatMessages });
 
-                // 7) Solicitar subida a Drive y envío adjunto a Apps Script
+                // 7) Enviar a Apps Script mediante IFRAME POST (para evitar bloqueos CORS por tamaño)
                 const rid = newRid("UPLOAD");
                 await postToAppsScriptViaForm(MAIL_DRIVE_WEBAPP_URL, {
                     rid,
                     action: "UPLOAD_AND_EMAIL_PDF",
+                    authToken: APPS_SCRIPT_AUTH_TOKEN,
                     folio,
                     fileName: `Historial_${folio}.pdf`,
                     pdfBase64
@@ -1948,14 +960,19 @@
                 // Esperamos confirmación de Apps Script
                 const resp = await waitForRid(rid, 45000);
 
-                if (resp?.ok && resp?.link) {
-                    $("#drive-link-wrap").classList.remove("hidden");
-                    const a = $("#drive-link");
-                    a.href = resp.link;
-                    a.textContent = resp.link;
-                    alert("¡Historial guardado exitosamente y PDF enviado adjunto por correo!");
+                if (resp?.ok) {
+                    if (resp.link) {
+                        $("#drive-link-wrap").classList.remove("hidden");
+                        const a = $("#drive-link");
+                        a.href = resp.link;
+                        a.textContent = resp.link;
+                    }
+                    
+                    let msg = "¡Historial guardado exitosamente y PDF enviado por correo!";
+                    if (resp.aviso) msg += `\n\n${resp.aviso}`;
+                    alert(msg);
                 } else {
-                    alert("Se envió la solicitud de cierre. Por favor revisa en Drive o el Correo en un par de minutos para confirmar el guardado.");
+                    alert("Se envió la solicitud de cierre. Por favor revisa el correo en un par de minutos para confirmar el envío.");
                 }
 
                 closeModalCierre();
