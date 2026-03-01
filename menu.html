@@ -156,6 +156,25 @@
                 font-size: 1.15rem;
             }
         }
+
+        /* Estilos para el logo inferior del sidebar */
+        .sidebar-footer-logo {
+            width: 45px; 
+            height: auto;
+            transition: width 0.3s ease;
+            filter: brightness(0) invert(1); 
+        }
+
+        
+        .sidebar-collapsed .sidebar-footer-logo {
+            width: 35px; 
+        }
+
+        
+        aside#sidebar {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 
@@ -233,6 +252,9 @@
                     </li>
                 </ul>
             </nav>
+            <div class="p-4 mt-auto border-t border-blue-800 flex justify-center items-center">
+                <img src="img/d_logo.png" alt="Logo Inferior" class="sidebar-footer-logo" />
+            </div>
         </aside>
 
         <!-- MAIN -->
@@ -1162,3 +1184,4 @@
 </body>
 
 </html>
+
