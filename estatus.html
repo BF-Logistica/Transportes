@@ -256,6 +256,25 @@
         right: 4px;
       }
     }
+
+    /* Estilos para el logo inferior del sidebar */
+        .sidebar-footer-logo {
+            width: 45px; 
+            height: auto;
+            transition: width 0.3s ease;
+            
+        }
+
+        
+        .sidebar-collapsed .sidebar-footer-logo {
+            width: 35px; 
+        }
+
+        
+        aside#sidebar {
+            display: flex;
+            flex-direction: column;
+        }
   </style>
 </head>
 
@@ -326,6 +345,9 @@
           </li>
         </ul>
       </nav>
+      <div class="p-4 mt-auto border-t border-blue-800 flex justify-center items-center">
+                <img src="img/logo_digital.png" alt="Logo Inferior" class="sidebar-footer-logo" />
+            </div>
     </aside>
 
     <main id="main-content" class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
@@ -1127,4 +1149,5 @@
 </body>
 
 </html>
+
 
