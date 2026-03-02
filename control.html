@@ -67,6 +67,24 @@
         .btn.danger { background: #dc2626; color: #fff }
         .btn.danger:hover { background: #b91c1c }
         @media (max-width:768px) { .sidebar-expanded { width: 210px } .main-content-expanded { margin-left: 210px } header h1 { font-size: 1.15rem } }
+    /* Estilos para el logo inferior del sidebar */
+        .sidebar-footer-logo {
+            width: 45px; 
+            height: auto;
+            transition: width 0.3s ease;
+            
+        }
+
+        
+        .sidebar-collapsed .sidebar-footer-logo {
+            width: 35px; 
+        }
+
+        
+        aside#sidebar {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 
@@ -94,6 +112,9 @@
                     <li><a data-page="estatus.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors"><span class="nav-icon-wrapper"><img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" /></span><span class="menu-text">Seguimiento en Vivo</span></a></li>
                 </ul>
             </nav>
+            <div class="p-4 mt-auto border-t border-blue-800 flex justify-center items-center">
+                <img src="img/logo_digital.png" alt="Logo Inferior" class="sidebar-footer-logo" />
+            </div>
         </aside>
 
         <main id="main-content" class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
@@ -1154,4 +1175,5 @@
 </body>
 
 </html>
+
 
