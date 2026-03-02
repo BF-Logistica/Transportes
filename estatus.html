@@ -296,7 +296,7 @@
       <nav class="flex-1 p-4 overflow-y-auto" aria-label="Navegación principal">
         <ul class="space-y-2">
           <li>
-            <a data-page="menu.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
+            <a data-page="menu" class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
               <span class="nav-icon-wrapper">
                 <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
               </span>
@@ -305,7 +305,7 @@
           </li>
 
           <li>
-            <a data-page="usuarios.html"
+            <a data-page="usuarios"
               class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
               <span class="nav-icon-wrapper">
                 <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
@@ -315,7 +315,7 @@
           </li>
 
           <li>
-            <a data-page="citas.html"
+            <a data-page="citas"
               class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
               <span class="nav-icon-wrapper">
                 <img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" />
@@ -325,7 +325,7 @@
           </li>
 
           <li>
-            <a data-page="control.html"
+            <a data-page="control"
               class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
               <span class="nav-icon-wrapper">
                 <img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" />
@@ -335,7 +335,7 @@
           </li>
 
           <li>
-            <a data-page="estatus.html"
+            <a data-page="estatus"
               class="flex items-center gap-3 p-3 rounded-lg bg-bmm-60 cursor-default opacity-80">
               <span class="nav-icon-wrapper">
                 <img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" />
@@ -548,7 +548,7 @@
           } else if (isAdmin) {
             enable = true;
           } else if (isCoord) {
-            if (page === "control.html" || page === "estatus.html") {
+            if (page === "control" || page === "estatus") {
               enable = true;
             }
           } else {
@@ -559,7 +559,7 @@
             link.href = page;
             link.classList.remove("cursor-default", "opacity-80");
             link.classList.add("hover-bg-bmm-light");
-            if (!page.includes("estatus.html")) {
+            if (!page.includes("estatus")) {
               link.classList.add("bg-bmm-60");
             }
           } else {
@@ -585,7 +585,7 @@
 
       if (!currentUser) {
         alert("Debes iniciar sesión.");
-        location.replace("login.html");
+        location.replace("login");
         return false;
       }
 
@@ -603,7 +603,7 @@
 
       if (!isCoordinadorLogistico && !isAdmin) {
         alert("Acceso restringido a Coordinador Logístico o Administrador.");
-        location.replace("login.html");
+        location.replace("login");
         return false;
       }
 
@@ -629,7 +629,7 @@
       $("#logout-btn").addEventListener("click", () => {
         sessionStorage.clear();
         localStorage.removeItem("currentUser");
-        location.replace("login.html");
+        location.replace("login");
       });
     })();
 
@@ -1149,5 +1149,6 @@
 </body>
 
 </html>
+
 
 
