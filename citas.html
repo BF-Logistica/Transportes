@@ -196,7 +196,7 @@
             <nav class="flex-1 p-4 overflow-y-auto">
                 <ul class="space-y-2">
                     <li>
-                        <a href="menu.html" data-page="menu.html"
+                        <a href="menu" data-page="menu"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
@@ -205,7 +205,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="usuarios.html" data-page="usuarios.html"
+                        <a href="usuarios" data-page="usuarios"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
@@ -214,7 +214,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="citas.html" data-page="citas.html"
+                        <a href="citas" data-page="citas"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
@@ -223,7 +223,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="control.html" data-page="control.html"
+                        <a href="control" data-page="control"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/control_transportes.png" alt="Citas pendientes" class="nav-icon" />
@@ -232,7 +232,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="estatus.html" data-page="estatus.html"
+                        <a href="estatus" data-page="estatus"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/estatus_transportes.png" alt="Seguimiento en vivo" class="nav-icon" />
@@ -1074,7 +1074,7 @@
 
             if (!isAdminUser(currentUser)) {
                 alert("Debes iniciar sesión como Administrador para acceder a esta página.");
-                window.location.replace("login.html");
+                window.location.replace("login");
                 return false;
             }
             return true;
@@ -1097,7 +1097,7 @@
                     } else if (admin) {
                         enable = true;
                     } else if (coord) {
-                        if (page === "control.html" || page === "estatus.html") {
+                        if (page === "control" || page === "estatus") {
                             enable = true;
                         }
                     } else {
@@ -2308,13 +2308,13 @@
             document.getElementById("logout-btn").addEventListener("click", () => {
                 sessionStorage.clear();
                 localStorage.removeItem("currentUser");
-                window.location.replace("login.html");
+                window.location.replace("login");
             });
 
             document.getElementById("cm-cancel-btn").addEventListener("click", closeCitaModal);
             document.getElementById("cm-accept-btn").addEventListener("click", acceptCita);
 
-            // ✅ CAMBIO 2: Eliminar -> abrir modal cancelación
+            
             document.getElementById("cm-delete-btn").addEventListener("click", () => {
                 openCancelModal();
             });
@@ -2420,6 +2420,7 @@
 </body>
 
 </html>
+
 
 
 
