@@ -202,7 +202,7 @@
             <nav class="flex-1 p-4 overflow-y-auto">
                 <ul class="space-y-2">
                     <li>
-                        <a href="menu.html"
+                        <a href="menu"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
@@ -212,7 +212,7 @@
                     </li>
 
                     <li>
-                        <a href="usuarios.html"
+                        <a href="usuarios"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
@@ -222,7 +222,7 @@
                     </li>
 
                     <li>
-                        <a href="citas.html"
+                        <a href="citas"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
@@ -232,7 +232,7 @@
                     </li>
 
                     <li>
-                        <a href="control.html"
+                        <a href="control"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/control_transportes.png" alt="Control de Transportes" class="nav-icon" />
@@ -242,7 +242,7 @@
                     </li>
 
                     <li>
-                        <a href="estatus.html"
+                        <a href="estatus"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
                             <span class="nav-icon-wrapper">
                                 <img src="img/estatus_transportes.png" alt="Estatus Transportes" class="nav-icon" />
@@ -550,7 +550,7 @@
                 .replace(/\s+/g, "");
         }
 
-        /* 🔐 AQUÍ EL CAMBIO: reglas de acceso para file://, Admin y Coordinador */
+        
         function enforceAdminAccess() {
             const isFileProtocol = window.location.protocol === "file:";
             if (isFileProtocol) {
@@ -562,7 +562,7 @@
 
             if (!currentUser) {
                 alert("Debes iniciar sesión para acceder a esta página.");
-                window.location.replace("login.html");
+                window.location.replace("login");
                 return false;
             }
 
@@ -574,12 +574,12 @@
 
             if (normRol === "coordinadorlogistico") {
                 alert("Tu rol solo puede acceder a Control Transportes y Seguimiento en Vivo.");
-                window.location.replace("control.html");
+                window.location.replace("control");
                 return false;
             }
 
             alert("No tienes permisos para acceder a esta página.");
-            window.location.replace("login.html");
+            window.location.replace("login");
             return false;
         }
 
@@ -938,7 +938,7 @@
             currentSolicitud = null;
 
             if (redirect) {
-                window.location.href = "menu.html";
+                window.location.href = "menu";
             }
         }
 
@@ -1035,7 +1035,7 @@
 
                 if (correoDestino) {
                     try {
-                        // ✅ MISMA LÓGICA QUE agendarcita.html (sin preflight / sin CORS)
+                        
                         const res = await fetch(APPS_SCRIPT_WEBAPP_URL, {
                             method: "POST",
                             headers: {
@@ -1174,7 +1174,7 @@
             document.getElementById("logout-btn").addEventListener("click", () => {
                 sessionStorage.clear();
                 localStorage.removeItem("currentUser");
-                window.location.replace("login.html");
+                window.location.replace("login");
             });
 
             initSDKs();
@@ -1184,6 +1184,7 @@
 </body>
 
 </html>
+
 
 
 
