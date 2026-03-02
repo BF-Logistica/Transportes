@@ -571,23 +571,23 @@
 
     function checkAccessGuard() {
       if (window.location.protocol === "file:") {
-        console.warn("Modo local: se omite validación de sesión y rol en agendarcita.html.");
+        console.warn("Modo local: se omite validación de sesión y rol en agendarcita.");
         return true;
       }
 
       currentUser = getStoredUser();
-      console.log("currentUser en agendarcita.html:", currentUser);
+      console.log("currentUser en agendarcita:", currentUser);
 
       if (!currentUser) {
         alert("Debes iniciar sesión para acceder a esta pantalla.");
-        window.location.replace("login.html");
+        window.location.replace("login");
         return false;
       }
 
       const rolNorm = ((currentUser.rol || currentUser.role || "").trim()).toLowerCase();
       if (rolNorm !== "proveedor") {
         alert("Para acceder a esta pantalla debes iniciar sesión como proveedor.");
-        window.location.replace("login.html");
+        window.location.replace("login");
         return false;
       }
       return true;
@@ -1297,7 +1297,7 @@
       document.getElementById("logout-btn").addEventListener("click", () => {
         sessionStorage.clear();
         localStorage.removeItem("currentUser");
-        window.location.replace("login.html");
+        window.location.replace("login");
       });
 
       document.getElementById("cita-form").addEventListener("submit", handleNuevaCita);
@@ -1312,6 +1312,7 @@
 </body>
 
 </html>
+
 
 
 
