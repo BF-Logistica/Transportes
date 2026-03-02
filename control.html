@@ -105,11 +105,11 @@
             </div>
             <nav class="flex-1 p-4 overflow-y-auto" aria-label="Navegación principal">
                 <ul class="space-y-2">
-                    <li><a data-page="menu.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" /></span><span class="menu-text">Solicitudes</span></a></li>
-                    <li><a data-page="usuarios.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/usuarios.png" alt="Usuarios" class="nav-icon" /></span><span class="menu-text">Usuarios</span></a></li>
-                    <li><a data-page="citas.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" /></span><span class="menu-text">Control de Citas</span></a></li>
-                    <li><a data-page="control.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors"><span class="nav-icon-wrapper"><img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" /></span><span class="menu-text">Control Transportes</span></a></li>
-                    <li><a data-page="estatus.html" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors"><span class="nav-icon-wrapper"><img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" /></span><span class="menu-text">Seguimiento en Vivo</span></a></li>
+                    <li><a data-page="menu" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" /></span><span class="menu-text">Solicitudes</span></a></li>
+                    <li><a data-page="usuarios" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/usuarios.png" alt="Usuarios" class="nav-icon" /></span><span class="menu-text">Usuarios</span></a></li>
+                    <li><a data-page="citas" class="flex items-center gap-3 p-3 rounded-lg bg-bmm/60 cursor-default opacity-80"><span class="nav-icon-wrapper"><img src="img/agendar_cita.png" alt="Control de Citas" class="nav-icon" /></span><span class="menu-text">Control de Citas</span></a></li>
+                    <li><a data-page="control" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors"><span class="nav-icon-wrapper"><img src="img/control_transportes.png" alt="Control Transportes" class="nav-icon" /></span><span class="menu-text">Control Transportes</span></a></li>
+                    <li><a data-page="estatus" class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors"><span class="nav-icon-wrapper"><img src="img/estatus_transportes.png" alt="Seguimiento en Vivo" class="nav-icon" /></span><span class="menu-text">Seguimiento en Vivo</span></a></li>
                 </ul>
             </nav>
             <div class="p-4 mt-auto border-t border-blue-800 flex justify-center items-center">
@@ -138,7 +138,7 @@
                     <button id="add-folio-btn" class="px-4 py-2 bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white rounded-lg font-semibold">
                         Agregar transporte
                     </button>
-                    <a href="control.html" class="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200" title="Histórico" aria-label="Ir al Histórico">
+                    <a href="control" class="inline-flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200" title="Histórico" aria-label="Ir al Histórico">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-3-6.7M21 3v6h-6" /></svg>
                     </a>
                 </div>
@@ -427,11 +427,11 @@
                 const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
                 currentUser = raw ? JSON.parse(raw) : null;
             } catch { currentUser = null; }
-            if (!currentUser) { alert("Debes iniciar sesión."); location.replace("login.html"); return false; }
+            if (!currentUser) { alert("Debes iniciar sesión."); location.replace("login"); return false; }
             const normRol = normalizeRole(currentUser.rol || currentUser.role);
             const isCoordinadorLogistico = normRol === "coordinadorlogistico" || currentUser.roleKey === "UsuarioLogistico" || currentUser.collection === "UsuarioLogistico";
             const isAdmin = normRol === "administrador" || currentUser.roleKey === "UsuarioAdmin" || currentUser.collection === "UsuarioAdmin";
-            if (!isCoordinadorLogistico && !isAdmin) { alert("Acceso restringido a Coordinador Logístico o Administrador."); location.replace("login.html"); return false; }
+            if (!isCoordinadorLogistico && !isAdmin) { alert("Acceso restringido a Coordinador Logístico o Administrador."); location.replace("login"); return false; }
             return true;
         }
 
@@ -457,7 +457,7 @@
             document.querySelectorAll('nav a[data-page]').forEach(link => {
                 const page = link.dataset.page;
                 let enable = false;
-                if (isFile) enable = true; else if (admin) enable = true; else if (coord) enable = (page === "control.html" || page === "estatus.html");
+                if (isFile) enable = true; else if (admin) enable = true; else if (coord) enable = (page === "control" || page === "estatus");
                 if (enable) { link.href = page; link.classList.remove("cursor-default", "opacity-80"); link.classList.add("hover:bg-bmm-light"); } 
                 else { link.removeAttribute("href"); link.classList.add("cursor-default", "opacity-80"); link.classList.remove("hover:bg-bmm-light"); }
             });
@@ -474,7 +474,7 @@
                     main.classList.toggle("main-content-collapsed", isExpanded);
                 });
             }
-            $("#logout-btn").addEventListener("click", () => { sessionStorage.clear(); localStorage.removeItem("currentUser"); location.replace("login.html"); });
+            $("#logout-btn").addEventListener("click", () => { sessionStorage.clear(); localStorage.removeItem("currentUser"); location.replace("login"); });
         })();
 
         async function getCitaByFolio(folio) {
@@ -1175,5 +1175,6 @@
 </body>
 
 </html>
+
 
 
