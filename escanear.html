@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparador de Códigos QR/Barra</title>
+    <!-- Incluimos la librería desde un CDN -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 500px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .card {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: white;
+            text-align: center;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .result-val {
+            font-weight: bold;
+            font-size: 1.2em;
+            word-break: break-all;
+            color: #2c3e50;
+        }
+
+        #status-msg {
+            margin-top: 20px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .match {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .mismatch {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Escáner Comparador</h2>
+
+    <!-- Contenedor de la cámara -->
+    <div id="reader"></div>
+
+    <div class="container">
+        <div class="card" id="card1">
+            <h3>Primer Escaneo</h3>
+            <div id="res1" class="result-val">---</div>
+        </div>
+        <div class="card" id="card2">
+            <h3>Segundo Escaneo</h3>
+            <div id="res2" class="result-val">---</div>
+        </div>
+    </div>
+
+    <div id="status-msg"></div>
+
+    <button onclick="resetear()">Limpiar y Reintentar</button>
+
+    <script>
+        let codigo1 = null;
+        let codigo2 = null;
+
+        // Configuramos la librería para que acepte TODOS los formatos (QR y Barras)
+        const html5QrCode = new Html5Qrcode("reader", {
+            formatsToSupport: [
+                Html5QrcodeSupportedFormats.QR_CODE,
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.CODE_128
+            ]
+        });
+
+        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+            // Si el primer código está vacío
+            if (!codigo1) {
+                codigo1 = decodedText;
+                document.getElementById("res1").innerText = codigo1;
+                document.getElementById("card1").style.borderColor = "#007bff";
+
+                // Pausamos brevemente para que no lea el mismo código de nuevo por error
+                pararEscaneo();
+                setTimeout(iniciarEscaneo, 2000);
+            }
+            // Si ya tenemos el primero, guardamos el segundo (aunque sea igual)
+            else if (!codigo2) {
+                codigo2 = decodedText;
+                document.getElementById("res2").innerText = codigo2;
+                validarCodigos();
+            }
+        };
+
+        // Configuración optimizada para cámara de PC y barras
+        const config = {
+            fps: 20, // Más frames por segundo para captar rápido
+            qrbox: { width: 300, height: 150 }, // Caja más alargada (ideal para barras)
+            aspectRatio: 1.0
+        };
+
+        function iniciarEscaneo() {
+            html5QrCode.start(
+                { facingMode: "environment" },
+                config,
+                qrCodeSuccessCallback
+            ).catch(err => {
+                console.error("Error al iniciar cámara: ", err);
+            });
+        }
+
+        function pararEscaneo() {
+            html5QrCode.stop().catch(err => console.log("Cámara ya detenida"));
+        }
+
+        function validarCodigos() {
+            const msg = document.getElementById("status-msg");
+            msg.style.display = "block";
+
+            if (codigo1 === codigo2) {
+                msg.innerText = "✅ ¡Los códigos coinciden!";
+                msg.className = "match";
+            } else {
+                msg.innerText = "❌ Los códigos son diferentes";
+                msg.className = "mismatch";
+            }
+            pararEscaneo();
+        }
+
+        function resetear() {
+            codigo1 = null;
+            codigo2 = null;
+            document.getElementById("res1").innerText = "---";
+            document.getElementById("res2").innerText = "---";
+            document.getElementById("card1").style.borderColor = "#ccc";
+            document.getElementById("status-msg").style.display = "none";
+            iniciarEscaneo();
+        }
+
+        iniciarEscaneo();
+    </script>
+</body>
+
+</html>
