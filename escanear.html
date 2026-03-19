@@ -274,14 +274,16 @@
         function procesarMaster(text) {
             // NART: Tolera rayas largas, guiones bajos, puntos y espacios.
             const nartMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-            // LOTE: Exactamente 8 dígitos, usualmente cerca de "Lote" o solo los 8 dígitos
-            const loteMatch = text.match(/(?:LOTE)\D*(\d{8})\b/i) || text.match(/\b\d{8}\b/);
-            // CANT: Número cerca de "CANTIDAD" o seguido de "UN"
-            const cantMatch = text.match(/(?:CANTIDAD)\D*([\d,.]+)/i) || text.match(/([\d,.]+)\s*UN/i);
+            
+            // LOTE: Exactamente 8 dígitos aislados
+            const loteMatch = text.match(/\b\d{8}\b/);
+            
+            // CANT: Busca *específicamente* el número antes de UN. (Solucionado)
+            const cantMatch = text.match(/([\d,.]+)\s*UN/i);
 
-            // Guardamos y formateamos (NART siempre a 12345-12345-12)
+            // Guardamos y formateamos
             masterData.nart = nartMatch ? nartMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
-            masterData.lote = loteMatch ? (loteMatch[1] || loteMatch[0]) : "No encontrado";
+            masterData.lote = loteMatch ? loteMatch[0] : "No encontrado";
             masterData.cant = cantMatch ? cantMatch[1].replace(/[,.]/g, '') : "No encontrado";
 
             actualizarUI('m');
@@ -291,7 +293,8 @@
         }
 
         function procesarProv(text) {
-            // Convertimos el texto del OCR a una cadena de SOLO NÚMEROS para la búsqueda del Plan A
+            // Preparamos los textos para el Plan A
+            const textoLimpioNum = text.replace(/[,.]/g, ''); // Quitamos comas para que 1,760 se lea 1760
             const soloNumerosTexto = text.replace(/\D/g, ''); 
 
             // ==========================================
@@ -302,11 +305,11 @@
             if (masterData.nart !== "No encontrado") {
                 const soloNumerosMasterNart = masterData.nart.replace(/\D/g, ''); // Deja solo los 12 digitos
                 if (soloNumerosTexto.includes(soloNumerosMasterNart)) {
-                    provData.nart = masterData.nart; // Asignamos con el formato correcto
+                    provData.nart = masterData.nart; 
                     nartEncontrado = true;
                 }
             }
-            // PLAN B: Búsqueda por Regex si el Plan A falló
+            // PLAN B: Búsqueda por Regex
             if (!nartEncontrado) {
                 const nMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
                 provData.nart = nMatch ? nMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
@@ -318,15 +321,20 @@
             let loteEncontrado = false;
             // PLAN A: Buscar exactamente el Lote del Master
             if (masterData.lote !== "No encontrado") {
-                if (soloNumerosTexto.includes(masterData.lote)) {
+                // Buscamos el lote exacto asegurando que no sea parte de un número más grande
+                if (textoLimpioNum.match(new RegExp("\\b" + masterData.lote + "\\b"))) {
+                    provData.lote = masterData.lote;
+                    loteEncontrado = true;
+                } else if (soloNumerosTexto.includes(masterData.lote)) {
+                    // Respaldo por si el OCR juntó el lote con alguna letra
                     provData.lote = masterData.lote;
                     loteEncontrado = true;
                 }
             }
-            // PLAN B: Búsqueda por Regex y Palabras Clave
+            // PLAN B: Regex estricto (SOLO LOTE O BATCH)
             if (!loteEncontrado) {
-                const lMatch = text.match(/(?:LOTE|BATCH|PRODUCCI[OÓ]N|PRODUCTION|OP)\D*(\d{6,8})\b/i) || text.match(/\b\d{6,8}\b/);
-                provData.lote = lMatch ? (lMatch[1] || lMatch[0]) : "No encontrado";
+                const lMatch = text.match(/(?:LOTE|BATCH)\D*(\d{6,8})\b/i);
+                provData.lote = lMatch ? lMatch[1] : "No encontrado";
             }
 
             // ==========================================
@@ -335,14 +343,15 @@
             let cantEncontrada = false;
             // PLAN A: Buscar exactamente la Cantidad del Master
             if (masterData.cant !== "No encontrado") {
-                if (soloNumerosTexto.includes(masterData.cant)) {
+                // Usamos delimitadores \b para asegurar que si buscas "25", no te apruebe un "1254"
+                if (textoLimpioNum.match(new RegExp("\\b" + masterData.cant + "\\b"))) {
                     provData.cant = masterData.cant;
                     cantEncontrada = true;
                 }
             }
-            // PLAN B: Búsqueda por Regex y Palabras Clave
+            // PLAN B: Regex estricto (SOLO UNITS o PIEZAS POR TARIMA)
             if (!cantEncontrada) {
-                const cMatch = text.match(/(?:UNITS|TARIMA|PALLET|CAJA|PIEZAS|CANT|CANTIDAD)\D*([\d,.]+)/i);
+                const cMatch = text.match(/(?:UNITS|PIEZAS POR TARIMA)\D*([\d,.]+)/i);
                 provData.cant = cMatch ? cMatch[1].replace(/[,.]/g, '') : "No encontrado";
             }
 
