@@ -22,6 +22,7 @@
             align-items: center;
             background: #f0f2f5;
             padding: 20px;
+            margin: 0;
         }
 
         .scanner-container {
@@ -32,18 +33,53 @@
             position: relative;
             overflow: hidden;
             margin-bottom: 20px;
+            aspect-ratio: 4 / 3;
         }
 
         video {
             width: 100%;
+            height: 100%;
+            object-fit: cover;
             display: block;
         }
 
-        canvas {
-            display: none;
+        /* Guía visual (Mira) */
+        .camera-guide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none; /* No interfiere con clics */
         }
 
-        /* Canvas oculto para procesar imagen */
+        .guide-box {
+            width: 80%;
+            height: 60%;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.3); /* Oscurece los bordes fuera de la guía */
+        }
+
+        .guide-box::before, .guide-box::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 4px solid var(--blue);
+        }
+
+        /* Esquinas de la mira */
+        .corner-tl { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
+        .corner-tr { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
+        .corner-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
+        .corner-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
+
+        canvas { display: none; }
 
         .controls {
             display: flex;
@@ -61,22 +97,10 @@
             transition: 0.3s;
         }
 
-        .btn-master {
-            background: var(--blue);
-        }
-
-        .btn-prov {
-            background: var(--gray);
-        }
-
-        .btn-reset {
-            background: #333;
-        }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
+        .btn-master { background: var(--blue); }
+        .btn-prov { background: var(--gray); }
+        .btn-reset { background: #333; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
 
         .results {
             display: flex;
@@ -94,48 +118,39 @@
             border-top: 5px solid #ccc;
         }
 
-        .card.active {
-            border-top-color: var(--blue);
-        }
-
-        .card h3 {
-            margin-top: 0;
-            font-size: 0.9rem;
-            color: #555;
-        }
+        .card.active { border-top-color: var(--blue); }
+        .card h3 { margin-top: 0; font-size: 0.9rem; color: #555; text-align: center; }
 
         .data-row {
             display: flex;
             justify-content: space-between;
             padding: 8px 0;
-            border-bottom: 1px f0f0f0;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        .label {
-            font-weight: bold;
-            color: #444;
-        }
-
-        .val {
-            font-family: monospace;
-            font-size: 1.1rem;
-        }
+        .label { font-weight: bold; color: #444; font-size: 0.8rem; }
+        .val { font-family: monospace; font-size: 1rem; color: #1a1a1a; }
 
         #loading {
             display: none;
             margin: 10px;
             color: var(--blue);
             font-weight: bold;
+            animation: blink 1s infinite;
         }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
 
         .status-badge {
             margin-top: 15px;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 15px;
+            border-radius: 8px;
             text-align: center;
             font-weight: bold;
             width: 100%;
+            max-width: 770px;
             display: none;
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -146,6 +161,15 @@
 
     <div class="scanner-container">
         <video id="video" autoplay playsinline></video>
+        <!-- Capa de Guía Visual -->
+        <div class="camera-guide">
+            <div class="guide-box">
+                <div class="corner-tl"></div>
+                <div class="corner-tr"></div>
+                <div class="corner-bl"></div>
+                <div class="corner-br"></div>
+            </div>
+        </div>
         <canvas id="canvas"></canvas>
     </div>
 
@@ -158,7 +182,6 @@
     </div>
 
     <div class="results">
-        <!-- Tarjeta MASTER -->
         <div class="card" id="cardMaster">
             <h3>DATOS MASTER</h3>
             <div class="data-row"><span class="label">NART:</span> <span id="m-nart" class="val">---</span></div>
@@ -166,7 +189,6 @@
             <div class="data-row"><span class="label">CANT:</span> <span id="m-cant" class="val">---</span></div>
         </div>
 
-        <!-- Tarjeta PROVEEDOR -->
         <div class="card" id="cardProv">
             <h3>DATOS PROVEEDOR</h3>
             <div class="data-row"><span class="label">NART:</span> <span id="p-nart" class="val">---</span></div>
@@ -185,53 +207,55 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        // Iniciar cámara
         async function initCamera() {
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
+                });
                 video.srcObject = stream;
             } catch (err) { alert("Error acceso cámara: " + err); }
         }
 
-        // Función principal de captura y procesamiento
         async function capturar(tipo) {
             document.getElementById('loading').style.display = 'block';
 
-            // 1. Tomar foto y Pre-procesar
+            // Captura el frame actual
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0);
 
-            // Filtro: Escala de grises y contraste para mejor OCR
+            // Pre-procesamiento: Blanco y negro + Contraste
             let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             let data = imgData.data;
             for (let i = 0; i < data.length; i += 4) {
                 let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                let contrast = 1.5; // Factor de contraste
+                let contrast = 1.7; 
                 avg = contrast * (avg - 128) + 128;
                 data[i] = data[i + 1] = data[i + 2] = avg;
             }
             ctx.putImageData(imgData, 0, 0);
 
-            // 2. Ejecutar OCR con Tesseract.js
-            const result = await Tesseract.recognize(canvas.toDataURL('image/jpeg'), 'spa');
-            const fullText = result.data.text.replace(/\s+/g, ' '); // Limpiar espacios extra
-            console.log("Texto detectado:", fullText);
+            try {
+                const result = await Tesseract.recognize(canvas.toDataURL('image/jpeg'), 'spa');
+                const fullText = result.data.text.replace(/\s+/g, ' ');
+                console.log("Texto detectado:", fullText);
 
-            if (tipo === 'master') {
-                procesarMaster(fullText);
-            } else {
-                procesarProv(fullText);
+                if (tipo === 'master') {
+                    procesarMaster(fullText);
+                } else {
+                    procesarProv(fullText);
+                }
+            } catch (e) {
+                console.error(e);
+                alert("Error procesando OCR");
             }
 
             document.getElementById('loading').style.display = 'none';
         }
 
         function procesarMaster(text) {
-            // Regex específicos para la MASTER
             const nartMatch = text.match(/\d{5}-\d{5}-\d{2}/);
-            const loteMatch = text.match(/\b\d{8}\b/); // 8 dígitos exactos
-            // Cantidad: buscar número antes de "UN" eliminando comas/puntos
+            const loteMatch = text.match(/\b\d{8}\b/);
             const cantMatch = text.match(/([\d,.]+)\s*UN/i);
 
             masterData.nart = nartMatch ? nartMatch[0] : "No encontrado";
@@ -241,12 +265,11 @@
             actualizarUI('m');
             document.getElementById('btnProv').disabled = false;
             document.getElementById('btnProv').style.background = 'var(--blue)';
+            document.getElementById('cardMaster').classList.add('active');
         }
 
         function procesarProv(text) {
-            // Lógica inteligente: Primero buscar coincidencia exacta con Master, si no, usar Regex
-
-            // --- VALIDAR NART ---
+            // NART
             if (masterData.nart !== "No encontrado" && text.includes(masterData.nart)) {
                 provData.nart = masterData.nart;
             } else {
@@ -254,24 +277,24 @@
                 provData.nart = nMatch ? nMatch[0] : "No encontrado";
             }
 
-            // --- VALIDAR LOTE ---
+            // LOTE
             if (masterData.lote !== "No encontrado" && text.includes(masterData.lote)) {
                 provData.lote = masterData.lote;
             } else {
-                const lMatch = text.match(/\b\d{6,8}\b/); // Proveedores pueden tener 6 a 8
+                const lMatch = text.match(/\b\d{6,8}\b/);
                 provData.lote = lMatch ? lMatch[0] : "No encontrado";
             }
 
-            // --- VALIDAR CANTIDAD ---
+            // CANTIDAD
             if (masterData.cant !== "No encontrado" && text.includes(masterData.cant)) {
                 provData.cant = masterData.cant;
             } else {
-                // Regex para buscar cantidad cerca de palabras clave de proveedor
-                const cMatch = text.match(/(?:CANT|PIEZAS|UNITS|PALLET|CAJA)\D*(\d+)/i);
-                provData.cant = cMatch ? cMatch[1] : "No encontrado";
+                const cMatch = text.match(/(?:CANT|PIEZAS|UNITS|PALLET|CAJA|TARIMA)\D*([\d,.]+)/i);
+                provData.cant = cMatch ? cMatch[1].replace(/[,.]/g, '') : "No encontrado";
             }
 
             actualizarUI('p');
+            document.getElementById('cardProv').classList.add('active');
             compararTodo();
         }
 
@@ -286,7 +309,6 @@
             const status = document.getElementById('global-status');
             status.style.display = 'block';
 
-            // Validación de los 3 campos
             const coinciden = (masterData.nart === provData.nart &&
                 masterData.lote === provData.lote &&
                 masterData.cant === provData.cant);
@@ -304,15 +326,10 @@
             }
         }
 
-        // Función optimizada para sonidos en carpeta local
         function reproducirSonido(esExito) {
-            // La ruta apunta a la carpeta Functions que mencionas
-            const ruta = esExito ? 'Transportes/functions/correct.mp3' : 'Transportes/functions/error.mp3';
+            const ruta = esExito ? 'functions/correct.mp3' : 'functions/error.mp3';
             const audio = new Audio(ruta);
-
-            audio.play().catch(err => {
-                console.warn("El navegador bloqueó el audio o no se encontró el archivo en: " + ruta);
-            });
+            audio.play().catch(err => console.warn("Audio bloqueado o no encontrado: " + ruta));
         }
 
         function resetear() {
