@@ -4,190 +4,322 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comparador de Códigos QR/Barra</title>
-    <!-- Incluimos la librería desde un CDN -->
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <title>OCR Validador de Etiquetas</title>
+    <!-- Librería OCR gratuita -->
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
     <style>
+        :root {
+            --blue: #007bff;
+            --success: #28a745;
+            --error: #dc3545;
+            --gray: #6c757d;
+        }
+
         body {
             font-family: sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
+            background: #f0f2f5;
             padding: 20px;
-            background-color: #f4f4f9;
         }
 
-        #reader {
+        .scanner-container {
             width: 100%;
             max-width: 500px;
-            border: 2px solid #333;
-            border-radius: 8px;
+            background: #000;
+            border-radius: 12px;
+            position: relative;
             overflow: hidden;
+            margin-bottom: 20px;
         }
 
-        .container {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
+        video {
             width: 100%;
-            max-width: 600px;
+            display: block;
+        }
+
+        canvas {
+            display: none;
+        }
+
+        /* Canvas oculto para procesar imagen */
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-master {
+            background: var(--blue);
+        }
+
+        .btn-prov {
+            background: var(--gray);
+        }
+
+        .btn-reset {
+            background: #333;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .results {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
         }
 
         .card {
             flex: 1;
-            padding: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
             background: white;
-            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #ccc;
+        }
+
+        .card.active {
+            border-top-color: var(--blue);
         }
 
         .card h3 {
             margin-top: 0;
-            font-size: 0.9em;
-            color: #666;
+            font-size: 0.9rem;
+            color: #555;
         }
 
-        .result-val {
-            font-weight: bold;
-            font-size: 1.2em;
-            word-break: break-all;
-            color: #2c3e50;
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px f0f0f0;
         }
 
-        #status-msg {
-            margin-top: 20px;
-            padding: 10px 20px;
-            border-radius: 5px;
+        .label {
             font-weight: bold;
+            color: #444;
+        }
+
+        .val {
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        #loading {
             display: none;
+            margin: 10px;
+            color: var(--blue);
+            font-weight: bold;
         }
 
-        .match {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .mismatch {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            cursor: pointer;
-            background: #007bff;
-            color: white;
-            border: none;
+        .status-badge {
+            margin-top: 15px;
+            padding: 10px;
             border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            width: 100%;
+            display: none;
         }
     </style>
 </head>
 
 <body>
 
-    <h2>Escáner Comparador</h2>
+    <h2>OCR Validador de Etiquetas</h2>
 
-    <!-- Contenedor de la cámara -->
-    <div id="reader"></div>
+    <div class="scanner-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+    </div>
 
-    <div class="container">
-        <div class="card" id="card1">
-            <h3>Primer Escaneo</h3>
-            <div id="res1" class="result-val">---</div>
+    <div id="loading">Procesando imagen (OCR)... por favor espera...</div>
+
+    <div class="controls">
+        <button id="btnMaster" class="btn-master" onclick="capturar('master')">1. Capturar Master</button>
+        <button id="btnProv" class="btn-prov" onclick="capturar('prov')" disabled>2. Capturar Proveedor</button>
+        <button class="btn-reset" onclick="resetear()">Limpiar</button>
+    </div>
+
+    <div class="results">
+        <!-- Tarjeta MASTER -->
+        <div class="card" id="cardMaster">
+            <h3>DATOS MASTER</h3>
+            <div class="data-row"><span class="label">NART:</span> <span id="m-nart" class="val">---</span></div>
+            <div class="data-row"><span class="label">LOTE:</span> <span id="m-lote" class="val">---</span></div>
+            <div class="data-row"><span class="label">CANT:</span> <span id="m-cant" class="val">---</span></div>
         </div>
-        <div class="card" id="card2">
-            <h3>Segundo Escaneo</h3>
-            <div id="res2" class="result-val">---</div>
+
+        <!-- Tarjeta PROVEEDOR -->
+        <div class="card" id="cardProv">
+            <h3>DATOS PROVEEDOR</h3>
+            <div class="data-row"><span class="label">NART:</span> <span id="p-nart" class="val">---</span></div>
+            <div class="data-row"><span class="label">LOTE:</span> <span id="p-lote" class="val">---</span></div>
+            <div class="data-row"><span class="label">CANT:</span> <span id="p-cant" class="val">---</span></div>
         </div>
     </div>
 
-    <div id="status-msg"></div>
-
-    <button onclick="resetear()">Limpiar y Reintentar</button>
+    <div id="global-status" class="status-badge"></div>
 
     <script>
-        let codigo1 = null;
-        let codigo2 = null;
+        let masterData = { nart: null, lote: null, cant: null };
+        let provData = { nart: null, lote: null, cant: null };
 
-        // Configuramos la librería para que acepte TODOS los formatos (QR y Barras)
-        const html5QrCode = new Html5Qrcode("reader", {
-            formatsToSupport: [
-                Html5QrcodeSupportedFormats.QR_CODE,
-                Html5QrcodeSupportedFormats.EAN_13,
-                Html5QrcodeSupportedFormats.EAN_8,
-                Html5QrcodeSupportedFormats.CODE_128
-            ]
-        });
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
 
-        const qrCodeSuccessCallback = (decodedText, decodedResult) => {
-            // Si el primer código está vacío
-            if (!codigo1) {
-                codigo1 = decodedText;
-                document.getElementById("res1").innerText = codigo1;
-                document.getElementById("card1").style.borderColor = "#007bff";
+        // Iniciar cámara
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream;
+            } catch (err) { alert("Error acceso cámara: " + err); }
+        }
 
-                // Pausamos brevemente para que no lea el mismo código de nuevo por error
-                pararEscaneo();
-                setTimeout(iniciarEscaneo, 2000);
+        // Función principal de captura y procesamiento
+        async function capturar(tipo) {
+            document.getElementById('loading').style.display = 'block';
+
+            // 1. Tomar foto y Pre-procesar
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+
+            // Filtro: Escala de grises y contraste para mejor OCR
+            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                let contrast = 1.5; // Factor de contraste
+                avg = contrast * (avg - 128) + 128;
+                data[i] = data[i + 1] = data[i + 2] = avg;
             }
-            // Si ya tenemos el primero, guardamos el segundo (aunque sea igual)
-            else if (!codigo2) {
-                codigo2 = decodedText;
-                document.getElementById("res2").innerText = codigo2;
-                validarCodigos();
+            ctx.putImageData(imgData, 0, 0);
+
+            // 2. Ejecutar OCR con Tesseract.js
+            const result = await Tesseract.recognize(canvas.toDataURL('image/jpeg'), 'spa');
+            const fullText = result.data.text.replace(/\s+/g, ' '); // Limpiar espacios extra
+            console.log("Texto detectado:", fullText);
+
+            if (tipo === 'master') {
+                procesarMaster(fullText);
+            } else {
+                procesarProv(fullText);
             }
-        };
 
-        // Configuración optimizada para cámara de PC y barras
-        const config = {
-            fps: 20, // Más frames por segundo para captar rápido
-            qrbox: { width: 300, height: 150 }, // Caja más alargada (ideal para barras)
-            aspectRatio: 1.0
-        };
+            document.getElementById('loading').style.display = 'none';
+        }
 
-        function iniciarEscaneo() {
-            html5QrCode.start(
-                { facingMode: "environment" },
-                config,
-                qrCodeSuccessCallback
-            ).catch(err => {
-                console.error("Error al iniciar cámara: ", err);
+        function procesarMaster(text) {
+            // Regex específicos para la MASTER
+            const nartMatch = text.match(/\d{5}-\d{5}-\d{2}/);
+            const loteMatch = text.match(/\b\d{8}\b/); // 8 dígitos exactos
+            // Cantidad: buscar número antes de "UN" eliminando comas/puntos
+            const cantMatch = text.match(/([\d,.]+)\s*UN/i);
+
+            masterData.nart = nartMatch ? nartMatch[0] : "No encontrado";
+            masterData.lote = loteMatch ? loteMatch[0] : "No encontrado";
+            masterData.cant = cantMatch ? cantMatch[1].replace(/[,.]/g, '') : "No encontrado";
+
+            actualizarUI('m');
+            document.getElementById('btnProv').disabled = false;
+            document.getElementById('btnProv').style.background = 'var(--blue)';
+        }
+
+        function procesarProv(text) {
+            // Lógica inteligente: Primero buscar coincidencia exacta con Master, si no, usar Regex
+
+            // --- VALIDAR NART ---
+            if (masterData.nart !== "No encontrado" && text.includes(masterData.nart)) {
+                provData.nart = masterData.nart;
+            } else {
+                const nMatch = text.match(/\d{5}-\d{5}-\d{2}/);
+                provData.nart = nMatch ? nMatch[0] : "No encontrado";
+            }
+
+            // --- VALIDAR LOTE ---
+            if (masterData.lote !== "No encontrado" && text.includes(masterData.lote)) {
+                provData.lote = masterData.lote;
+            } else {
+                const lMatch = text.match(/\b\d{6,8}\b/); // Proveedores pueden tener 6 a 8
+                provData.lote = lMatch ? lMatch[0] : "No encontrado";
+            }
+
+            // --- VALIDAR CANTIDAD ---
+            if (masterData.cant !== "No encontrado" && text.includes(masterData.cant)) {
+                provData.cant = masterData.cant;
+            } else {
+                // Regex para buscar cantidad cerca de palabras clave de proveedor
+                const cMatch = text.match(/(?:CANT|PIEZAS|UNITS|PALLET|CAJA)\D*(\d+)/i);
+                provData.cant = cMatch ? cMatch[1] : "No encontrado";
+            }
+
+            actualizarUI('p');
+            compararTodo();
+        }
+
+        function actualizarUI(prefix) {
+            const data = (prefix === 'm') ? masterData : provData;
+            document.getElementById(`${prefix}-nart`).innerText = data.nart;
+            document.getElementById(`${prefix}-lote`).innerText = data.lote;
+            document.getElementById(`${prefix}-cant`).innerText = data.cant;
+        }
+
+        function compararTodo() {
+            const status = document.getElementById('global-status');
+            status.style.display = 'block';
+
+            // Validación de los 3 campos
+            const coinciden = (masterData.nart === provData.nart &&
+                masterData.lote === provData.lote &&
+                masterData.cant === provData.cant);
+
+            if (coinciden) {
+                status.innerText = "✅ ¡COINCIDENCIA TOTAL!";
+                status.style.background = 'var(--success)';
+                status.style.color = 'white';
+                reproducirSonido(true);
+            } else {
+                status.innerText = "❌ DIFERENCIAS DETECTADAS";
+                status.style.background = 'var(--error)';
+                status.style.color = 'white';
+                reproducirSonido(false);
+            }
+        }
+
+        // Función optimizada para sonidos en carpeta local
+        function reproducirSonido(esExito) {
+            // La ruta apunta a la carpeta Functions que mencionas
+            const ruta = esExito ? 'Transportes/functions/correct.mp3' : 'Transportes/functions/error.mp3';
+            const audio = new Audio(ruta);
+
+            audio.play().catch(err => {
+                console.warn("El navegador bloqueó el audio o no se encontró el archivo en: " + ruta);
             });
         }
 
-        function pararEscaneo() {
-            html5QrCode.stop().catch(err => console.log("Cámara ya detenida"));
-        }
-
-        function validarCodigos() {
-            const msg = document.getElementById("status-msg");
-            msg.style.display = "block";
-
-            if (codigo1 === codigo2) {
-                msg.innerText = "✅ ¡Los códigos coinciden!";
-                msg.className = "match";
-            } else {
-                msg.innerText = "❌ Los códigos son diferentes";
-                msg.className = "mismatch";
-            }
-            pararEscaneo();
-        }
-
         function resetear() {
-            codigo1 = null;
-            codigo2 = null;
-            document.getElementById("res1").innerText = "---";
-            document.getElementById("res2").innerText = "---";
-            document.getElementById("card1").style.borderColor = "#ccc";
-            document.getElementById("status-msg").style.display = "none";
-            iniciarEscaneo();
+            location.reload();
         }
 
-        iniciarEscaneo();
+        initCamera();
     </script>
 </body>
 
