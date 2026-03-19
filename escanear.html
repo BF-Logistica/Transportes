@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCR Validador de Etiquetas</title>
-    <!-- Librería OCR gratuita -->
+    <title>OCR Validador de Etiquetas PRO</title>
     <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
     <style>
         :root {
@@ -34,16 +33,19 @@
             overflow: hidden;
             margin-bottom: 20px;
             aspect-ratio: 4 / 3;
+            /* Forzar relación aspecto */
+            border: 2px solid #ddd;
         }
 
         video {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            /* Llenar el contenedor */
             display: block;
         }
 
-        /* Guía visual (Mira) */
+        /* Mira telescópica / Guía visual */
         .camera-guide {
             position: absolute;
             top: 0;
@@ -53,32 +55,47 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            pointer-events: none; /* No interfiere con clics */
+            pointer-events: none;
         }
 
         .guide-box {
             width: 80%;
+            /* 80% del ancho del video */
             height: 60%;
+            /* 60% del alto del video */
             border: 2px dashed rgba(255, 255, 255, 0.5);
             border-radius: 8px;
             position: relative;
-            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.3); /* Oscurece los bordes fuera de la guía */
+            box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4);
+            /* Oscurecer bordes fuera de guía */
         }
 
-        .guide-box::before, .guide-box::after {
-            content: "";
+        .guide-box::before {
+            content: "CENTRAR ETIQUETA AQUÍ";
             position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 4px solid var(--blue);
+            bottom: -25px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            font-weight: bold;
         }
 
         /* Esquinas de la mira */
+        .corner-tl, .corner-tr, .corner-bl, .corner-br {
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            border: 5px solid var(--blue);
+        }
+
         .corner-tl { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
         .corner-tr { top: -2px; right: -2px; border-left: 0; border-bottom: 0; }
         .corner-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
         .corner-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
 
+        /* Canvas oculto para procesar imagen */
         canvas { display: none; }
 
         .controls {
@@ -95,6 +112,8 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.8rem;
         }
 
         .btn-master { background: var(--blue); }
@@ -129,7 +148,7 @@
         }
 
         .label { font-weight: bold; color: #444; font-size: 0.8rem; }
-        .val { font-family: monospace; font-size: 1rem; color: #1a1a1a; }
+        .val { font-family: monospace; font-size: 1rem; color: #1a1a1a; font-weight: bold;}
 
         #loading {
             display: none;
@@ -157,11 +176,10 @@
 
 <body>
 
-    <h2>OCR Validador de Etiquetas</h2>
+    <h2>OCR Validador de Etiquetas PRO</h2>
 
     <div class="scanner-container">
         <video id="video" autoplay playsinline></video>
-        <!-- Capa de Guía Visual -->
         <div class="camera-guide">
             <div class="guide-box">
                 <div class="corner-tl"></div>
@@ -207,37 +225,55 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
+        // Iniciar cámara con resolución ideal superior
         async function initCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } } 
+                    video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
                 });
                 video.srcObject = stream;
             } catch (err) { alert("Error acceso cámara: " + err); }
         }
 
+        // Función principal de captura y procesamiento (MEJORADA CON CROPPING)
         async function capturar(tipo) {
             document.getElementById('loading').style.display = 'block';
 
-            // Captura el frame actual
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
+            // 1. Tomar foto y CORTARLA según la guía visual
+            const videoW = video.videoWidth;
+            const videoH = video.videoHeight;
+            const guideBoxCssWidth = 0.8; // Guía CSS es 80% ancho
+            const guideBoxCssHeight = 0.6; // Guía CSS es 60% alto
 
-            // Pre-procesamiento: Blanco y negro + Contraste
+            // Calcular coordenadas de corte en el video real
+            const cropW = videoW * guideBoxCssWidth;
+            const cropH = videoH * guideBoxCssHeight;
+            const cropX = (videoW - cropW) / 2;
+            const cropY = (videoH - cropH) / 2;
+
+            // Establecer el canvas al tamaño del RECORTE, no del video completo
+            canvas.width = cropW;
+            canvas.height = cropH;
+            
+            // Dibuja solo la zona recortada al canvas: drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
+            ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+            // 2. Pre-procesamiento AGRESIVO: Umbralización estricta (B&W puro)
+            // Tesseract funciona mejor con blanco y negro puro, sin grises.
             let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            let data = imgData.data;
-            for (let i = 0; i < data.length; i += 4) {
-                let avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
-                let contrast = 1.7; 
-                avg = contrast * (avg - 128) + 128;
-                data[i] = data[i + 1] = data[i + 2] = avg;
+            let d = imgData.data;
+            for (let i = 0; i < d.length; i += 4) {
+                let avg = (d[i] + d[i + 1] + d[i + 2]) / 3;
+                let val = (avg > 130) ? 255 : 0; // Umbralización: >130 es blanco, <=130 es negro
+                d[i] = d[i + 1] = d[i + 2] = val;
             }
             ctx.putImageData(imgData, 0, 0);
 
+            // 3. Ejecutar OCR con Tesseract.js sobre el RECORTE nítido
             try {
                 const result = await Tesseract.recognize(canvas.toDataURL('image/jpeg'), 'spa');
-                const fullText = result.data.text.replace(/\s+/g, ' ');
+                // Regex mejorada: soporte para espacios opcionales alrededor del guion
+                const fullText = result.data.text.replace(/\s+/g, ' '); 
                 console.log("Texto detectado:", fullText);
 
                 if (tipo === 'master') {
@@ -254,42 +290,48 @@
         }
 
         function procesarMaster(text) {
-            const nartMatch = text.match(/\d{5}-\d{5}-\d{2}/);
-            const loteMatch = text.match(/\b\d{8}\b/);
+            // Regex mejoradas: Soporte para espacios opcionales alrededor de los guiones que el OCR a veces añade
+            const nartMatch = text.match(/\d{5}\s*-\s*\d{5}\s*-\s*\d{2}/);
+            const loteMatch = text.match(/\b\d{8}\b/); // 8 dígitos exactos
             const cantMatch = text.match(/([\d,.]+)\s*UN/i);
 
-            masterData.nart = nartMatch ? nartMatch[0] : "No encontrado";
+            masterData.nart = nartMatch ? nartMatch[0].replace(/\s/g, '') : "No encontrado";
             masterData.lote = loteMatch ? loteMatch[0] : "No encontrado";
+            // Limpiar cantidad de puntos y comas
             masterData.cant = cantMatch ? cantMatch[1].replace(/[,.]/g, '') : "No encontrado";
 
             actualizarUI('m');
+            // Habilitar botón proveedor
             document.getElementById('btnProv').disabled = false;
             document.getElementById('btnProv').style.background = 'var(--blue)';
             document.getElementById('cardMaster').classList.add('active');
         }
 
         function procesarProv(text) {
-            // NART
+            // Lógica inteligente de coincidencia
+
+            // --- VALIDAR NART ---
             if (masterData.nart !== "No encontrado" && text.includes(masterData.nart)) {
                 provData.nart = masterData.nart;
             } else {
-                const nMatch = text.match(/\d{5}-\d{5}-\d{2}/);
-                provData.nart = nMatch ? nMatch[0] : "No encontrado";
+                const nMatch = text.match(/\d{5}\s*-\s*\d{5}\s*-\s*\d{2}/);
+                provData.nart = nMatch ? nMatch[0].replace(/\s/g, '') : "No encontrado";
             }
 
-            // LOTE
+            // --- VALIDAR LOTE ---
             if (masterData.lote !== "No encontrado" && text.includes(masterData.lote)) {
                 provData.lote = masterData.lote;
             } else {
-                const lMatch = text.match(/\b\d{6,8}\b/);
+                const lMatch = text.match(/\b\d{6,8}\b/); // Proveedores pueden tener 6 a 8
                 provData.lote = lMatch ? lMatch[0] : "No encontrado";
             }
 
-            // CANTIDAD
+            // --- VALIDAR CANTIDAD ---
             if (masterData.cant !== "No encontrado" && text.includes(masterData.cant)) {
                 provData.cant = masterData.cant;
             } else {
-                const cMatch = text.match(/(?:CANT|PIEZAS|UNITS|PALLET|CAJA|TARIMA)\D*([\d,.]+)/i);
+                // Regex flexible para buscar cantidad cerca de palabras clave de proveedor
+                const cMatch = text.match(/(?:CANT|PIEZAS|UNITS|PALLET|CAJA)\D*([\d,.]+)/i);
                 provData.cant = cMatch ? cMatch[1].replace(/[,.]/g, '') : "No encontrado";
             }
 
@@ -326,6 +368,7 @@
             }
         }
 
+        // Función de audio optimizada
         function reproducirSonido(esExito) {
             const ruta = esExito ? 'functions/correct.mp3' : 'functions/error.mp3';
             const audio = new Audio(ruta);
