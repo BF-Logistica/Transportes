@@ -293,63 +293,74 @@
         }
 
         function procesarProv(text) {
-            // Preparamos los textos para el Plan A
-            const textoLimpioNum = text.replace(/[,.]/g, ''); // Quitamos comas para que 1,760 se lea 1760
+            // Preparamos los textos
+            const textoLimpioNum = text.replace(/[,.]/g, ''); // Quitamos comas/puntos para validación de cantidad
             const soloNumerosTexto = text.replace(/\D/g, ''); 
 
+            // 1. AUTO-DETECCIÓN DE PROVEEDOR
+            const esAlpla = text.match(/ALPLA/i); 
+
+            if (esAlpla) {
+                console.log("Proveedor detectado: ALPLA. Aplicando reglas específicas.");
+                
+                // === REGLAS ESPECÍFICAS PARA ALPLA ===
+
+                // NART (ALPLA): Busca cerca de "Cliente:" o el formato exacto tolerando guiones de distinto tamaño
+                const nMatchAlpla = text.match(/(?:Cliente[:\s]*|BEIERSDORF.*?)\s*(\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2})/i) || text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
+                provData.nart = nMatchAlpla ? (nMatchAlpla[1] || nMatchAlpla[0]).replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
+
+                // LOTE (ALPLA): Solo los números después de "ALMA" y antes del guion
+                // Ejemplo en tu foto: "Lote#: ALMA060326-10" -> Debe extraer "060326"
+                const lMatchAlpla = text.match(/Lote#?[:\s]*ALMA(\d+)-/i);
+                provData.lote = lMatchAlpla ? lMatchAlpla[1] : "No encontrado";
+
+                // CANTIDAD (ALPLA): Debajo de "Cant X Pallet:"
+                const cMatchAlpla = text.match(/(?:Cant\s*X\s*Pallet|Cant\s*x\s*Pallet)[:\s]*([\d,.]+)/i);
+                provData.cant = cMatchAlpla ? cMatchAlpla[1].replace(/[,.]/g, '') : "No encontrado";
+
+            } else {
+                console.log("Proveedor NO reconocido. Aplicando reglas generales.");
+                
+                // === REGLAS GENERALES (PLAN B) ===
+                
+                // NART (General)
+                const nMatchGen = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
+                provData.nart = nMatchGen ? nMatchGen[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
+
+                // Lote (General)
+                const lMatchGen = text.match(/(?:LOTE|BATCH)\D*(\d{6,8})\b/i);
+                provData.lote = lMatchGen ? lMatchGen[1] : "No encontrado";
+
+                // Cantidad (General)
+                const cMatchGen = text.match(/(?:UNITS|PIEZAS POR TARIMA)\D*([\d,.]+)/i);
+                provData.cant = cMatchGen ? cMatchGen[1].replace(/[,.]/g, '') : "No encontrado";
+            }
+
             // ==========================================
-            // 1. VALIDAR NART
+            // PLAN A: VERIFICACIÓN DEFINITIVA CONTRA MASTER (Para ambos casos: ALPLA o General)
+            // Esto asegura que si el Regex falló, pero el número está, lo demos por bueno.
             // ==========================================
-            let nartEncontrado = false;
-            // PLAN A: Buscar exactamente los números del NART del Master
-            if (masterData.nart !== "No encontrado") {
-                const soloNumerosMasterNart = masterData.nart.replace(/\D/g, ''); // Deja solo los 12 digitos
+            
+            // Verificación NART contra Master
+            if (masterData.nart !== "No encontrado" && provData.nart === "No encontrado") {
+                const soloNumerosMasterNart = masterData.nart.replace(/\D/g, ''); 
                 if (soloNumerosTexto.includes(soloNumerosMasterNart)) {
                     provData.nart = masterData.nart; 
-                    nartEncontrado = true;
                 }
             }
-            // PLAN B: Búsqueda por Regex (Misma tolerancia que en Master)
-            if (!nartEncontrado) {
-                const nMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-                provData.nart = nMatch ? nMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
-            }
 
-            // ==========================================
-            // 2. VALIDAR LOTE
-            // ==========================================
-            let loteEncontrado = false;
-            // PLAN A: Buscar exactamente el Lote del Master
-            if (masterData.lote !== "No encontrado") {
-                if (textoLimpioNum.match(new RegExp("\\b" + masterData.lote + "\\b"))) {
+            // Verificación Lote contra Master
+            if (masterData.lote !== "No encontrado" && provData.lote === "No encontrado") {
+                if (textoLimpioNum.match(new RegExp("\\b" + masterData.lote + "\\b")) || soloNumerosTexto.includes(masterData.lote)) {
                     provData.lote = masterData.lote;
-                    loteEncontrado = true;
-                } else if (soloNumerosTexto.includes(masterData.lote)) {
-                    provData.lote = masterData.lote;
-                    loteEncontrado = true;
                 }
             }
-            // PLAN B: Regex estricto (SOLO LOTE O BATCH)
-            if (!loteEncontrado) {
-                const lMatch = text.match(/(?:LOTE|BATCH)\D*(\d{6,8})\b/i);
-                provData.lote = lMatch ? lMatch[1] : "No encontrado";
-            }
 
-            // ==========================================
-            // 3. VALIDAR CANTIDAD
-            // ==========================================
-            let cantEncontrada = false;
-            // PLAN A: Buscar exactamente la Cantidad del Master
-            if (masterData.cant !== "No encontrado") {
+            // Verificación Cantidad contra Master
+            if (masterData.cant !== "No encontrado" && provData.cant === "No encontrado") {
                 if (textoLimpioNum.match(new RegExp("\\b" + masterData.cant + "\\b"))) {
                     provData.cant = masterData.cant;
-                    cantEncontrada = true;
                 }
-            }
-            // PLAN B: Regex estricto (SOLO UNITS o PIEZAS POR TARIMA)
-            if (!cantEncontrada) {
-                const cMatch = text.match(/(?:UNITS|PIEZAS POR TARIMA)\D*([\d,.]+)/i);
-                provData.cant = cMatch ? cMatch[1].replace(/[,.]/g, '') : "No encontrado";
             }
 
             actualizarUI('p');
