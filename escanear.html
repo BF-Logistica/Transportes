@@ -389,7 +389,7 @@
         }
 
         function reproducirSonido(esExito) {
-            const ruta = esExito ? 'Transportes/functions/correct.mp3' : 'Transportes/functions/error.mp3';
+            const ruta = esExito ? 'functions/correct.mp3' : 'functions/error.mp3';
             const audio = new Audio(ruta);
             audio.play().catch(err => console.warn("Audio bloqueado o no encontrado: " + ruta));
         }
