@@ -230,7 +230,7 @@
     <div id="debug-box"></div>
 
     <script>
-        let masterData = { nart: null, lote: null, cant: null };
+       let masterData = { nart: null, lote: null, cant: null };
         let provData = { nart: null, lote: null, cant: null };
 
         const video = document.getElementById('video');
@@ -239,6 +239,7 @@
 
         async function initCamera() {
             try {
+                // Pedimos alta resolución para asegurar lectura de letras pequeñas
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } } 
                 });
@@ -250,27 +251,38 @@
             document.getElementById('loading').style.display = 'block';
             document.getElementById('debug-box').style.display = 'none';
 
+            // 1. OBTENER DIMENSIONES REALES DEL VIDEO
             const videoW = video.videoWidth;
             const videoH = video.videoHeight;
-            const cropW = videoW * 0.9;
-            const cropH = videoH * 0.65;
+
+            // 2. CALCULAR EL RECORTE EXACTO SEGÚN EL CSS (90% ancho, 65% alto)
+            // Estas variables DEBEN coincidir con los porcentajes de .guide-box en tu CSS
+            const guideWidthRatio = 0.90; 
+            const guideHeightRatio = 0.65;
+
+            // El video tiene el estilo object-fit: cover, por lo que el cálculo del recorte 
+            // debe basarse en la porción de video que realmente se muestra en pantalla.
+            // Para simplificar y asegurar que solo toma el centro, calculamos directo sobre el feed interno:
+            const cropW = videoW * guideWidthRatio;
+            const cropH = videoH * guideHeightRatio;
             const cropX = (videoW - cropW) / 2;
             const cropY = (videoH - cropH) / 2;
 
             canvas.width = cropW;
             canvas.height = cropH;
+            
+            // Dibujamos SOLO la parte recortada
             ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
-            // NUEVO PRE-PROCESAMIENTO: Escala de grises + Alto Contraste (sin romper píxeles)
+            // 3. PRE-PROCESAMIENTO: Escala de grises + Alto Contraste suave
             let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             let d = imgData.data;
             for (let i = 0; i < d.length; i += 4) {
                 let avg = (d[i] + d[i + 1] + d[i + 2]) / 3;
-                let contrast = 1.8; // Aumentar contraste
+                let contrast = 1.8; 
                 let val = contrast * (avg - 128) + 128;
-                // Mantener los valores entre 0 y 255
                 val = Math.max(0, Math.min(255, val));
-                d[i] = d[i + 1] = d[i + 2] = val; // RGB iguales = Escala de grises
+                d[i] = d[i + 1] = d[i + 2] = val; 
             }
             ctx.putImageData(imgData, 0, 0);
 
@@ -313,26 +325,26 @@
             const textoLimpioNum = text.replace(/[,.]/g, ''); 
             const soloNumerosTexto = text.replace(/\D/g, ''); 
 
-            // DETECCIÓN ALPLA: Busca ALPLA o ALMA
+            // DETECCIÓN ALPLA: Nos basamos en su prefijo de lote (ALMA) o su nombre. 
             const esAlpla = text.match(/ALPLA|ALMA/i); 
 
             if (esAlpla) {
-                // === REGLAS PARA ALPLA (LEYENDO LA TABLA IZQUIERDA Y/O CÓDIGOS DE BARRAS) ===
-
-                // NART: El formato general \d{5}-\d{5}-\d{2} es infalible para el NART de Beiersdorf, esté donde esté.
+                // === REGLAS PARA ALPLA ===
+                
+                // NART: El formato NART es consistente. 
                 const nMatchAlpla = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
                 provData.nart = nMatchAlpla ? nMatchAlpla[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
 
-                // LOTE: Busca Lote#, luego ALMA, y extrae los números antes del guion
-                const lMatchAlpla = text.match(/ALMA\s*(\d+)\s*-/i);
+                // LOTE: Busca ALMA y toma los números hasta encontrar un guion o espacio.
+                const lMatchAlpla = text.match(/ALMA\s*(\d+)\s*[- ]/i);
                 provData.lote = lMatchAlpla ? lMatchAlpla[1] : "No encontrado";
 
-                // CANTIDAD: Busca cerca de "Cant X Pallet" o similar
-                const cMatchAlpla = text.match(/(?:Cant\s*[Xx]\s*Pallet|Pallet)\s*[:.]?\s*([\d,.]+)/i);
-                if (cMatchAlpla) {
+                // CANTIDAD: Busca cerca de la palabra Pallet. 
+                const cMatchAlpla = text.match(/(?:Cant\s*[Xx]\s*Pal[l]?et|Pal[l]?et)\s*[:.]?\s*([\d,.]+)/i);
+                if (cMatchAlpla && cMatchAlpla[1] !== "") {
                     provData.cant = cMatchAlpla[1].replace(/[,.]/g, '');
                 } else {
-                    // Respaldo de cantidad
+                    // Si no encuentra la palabra Pallet, intenta buscar el patrón de código de barras (37)
                     const cRespaldo = text.match(/37[)\]\}\s]*(\d{2,5})\b/i);
                     provData.cant = cRespaldo ? cRespaldo[1] : "No encontrado";
                 }
