@@ -218,14 +218,13 @@
     <div id="global-status" class="status-badge"></div>
 
     <script>
-        let masterData = { nart: null, lote: null, cant: null };
+let masterData = { nart: null, lote: null, cant: null };
         let provData = { nart: null, lote: null, cant: null };
 
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        // Iniciar cámara con resolución ideal superior
         async function initCamera() {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -235,46 +234,35 @@
             } catch (err) { alert("Error acceso cámara: " + err); }
         }
 
-        // Función principal de captura y procesamiento (MEJORADA CON CROPPING)
         async function capturar(tipo) {
             document.getElementById('loading').style.display = 'block';
 
-            // 1. Tomar foto y CORTARLA según la guía visual
+            // Recorte exacto de la guía visual
             const videoW = video.videoWidth;
             const videoH = video.videoHeight;
-            const guideBoxCssWidth = 0.8; // Guía CSS es 80% ancho
-            const guideBoxCssHeight = 0.6; // Guía CSS es 60% alto
-
-            // Calcular coordenadas de corte en el video real
-            const cropW = videoW * guideBoxCssWidth;
-            const cropH = videoH * guideBoxCssHeight;
+            const cropW = videoW * 0.8;
+            const cropH = videoH * 0.6;
             const cropX = (videoW - cropW) / 2;
             const cropY = (videoH - cropH) / 2;
 
-            // Establecer el canvas al tamaño del RECORTE, no del video completo
             canvas.width = cropW;
             canvas.height = cropH;
-            
-            // Dibuja solo la zona recortada al canvas: drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
             ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
-            // 2. Pre-procesamiento AGRESIVO: Umbralización estricta (B&W puro)
-            // Tesseract funciona mejor con blanco y negro puro, sin grises.
+            // Umbralización (Blanco y negro para máxima nitidez)
             let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             let d = imgData.data;
             for (let i = 0; i < d.length; i += 4) {
                 let avg = (d[i] + d[i + 1] + d[i + 2]) / 3;
-                let val = (avg > 130) ? 255 : 0; // Umbralización: >130 es blanco, <=130 es negro
+                let val = (avg > 130) ? 255 : 0; 
                 d[i] = d[i + 1] = d[i + 2] = val;
             }
             ctx.putImageData(imgData, 0, 0);
 
-            // 3. Ejecutar OCR con Tesseract.js sobre el RECORTE nítido
             try {
                 const result = await Tesseract.recognize(canvas.toDataURL('image/jpeg'), 'spa');
-                // Regex mejorada: soporte para espacios opcionales alrededor del guion
                 const fullText = result.data.text.replace(/\s+/g, ' '); 
-                console.log("Texto detectado:", fullText);
+                console.log("Texto OCR crudo:", fullText);
 
                 if (tipo === 'master') {
                     procesarMaster(fullText);
@@ -290,49 +278,52 @@
         }
 
         function procesarMaster(text) {
-            // Regex mejoradas: Soporte para espacios opcionales alrededor de los guiones que el OCR a veces añade
-            const nartMatch = text.match(/\d{5}\s*-\s*\d{5}\s*-\s*\d{2}/);
-            const loteMatch = text.match(/\b\d{8}\b/); // 8 dígitos exactos
-            const cantMatch = text.match(/([\d,.]+)\s*UN/i);
+            // NART: Tolera rayas largas, guiones bajos, puntos y espacios.
+            const nartMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
+            // LOTE: Exactamente 8 dígitos, usualmente cerca de "Lote"
+            const loteMatch = text.match(/(?:LOTE)\D*(\d{8})\b/i) || text.match(/\b\d{8}\b/);
+            // CANT: Número cerca de "CANTIDAD" o seguido de "UN"
+            const cantMatch = text.match(/(?:CANTIDAD)\D*([\d,.]+)/i) || text.match(/([\d,.]+)\s*UN/i);
 
-            masterData.nart = nartMatch ? nartMatch[0].replace(/\s/g, '') : "No encontrado";
-            masterData.lote = loteMatch ? loteMatch[0] : "No encontrado";
-            // Limpiar cantidad de puntos y comas
+            // Guardamos y formateamos
+            masterData.nart = nartMatch ? nartMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
+            masterData.lote = loteMatch ? (loteMatch[1] || loteMatch[0]) : "No encontrado";
             masterData.cant = cantMatch ? cantMatch[1].replace(/[,.]/g, '') : "No encontrado";
 
             actualizarUI('m');
-            // Habilitar botón proveedor
             document.getElementById('btnProv').disabled = false;
             document.getElementById('btnProv').style.background = 'var(--blue)';
             document.getElementById('cardMaster').classList.add('active');
         }
 
         function procesarProv(text) {
-            // Lógica inteligente de coincidencia
+            // 1. INTENTO POR EXPRESIONES REGULARES Y PALABRAS CLAVE
+            const nMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
+            provData.nart = nMatch ? nMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
 
-            // --- VALIDAR NART ---
-            if (masterData.nart !== "No encontrado" && text.includes(masterData.nart)) {
-                provData.nart = masterData.nart;
-            } else {
-                const nMatch = text.match(/\d{5}\s*-\s*\d{5}\s*-\s*\d{2}/);
-                provData.nart = nMatch ? nMatch[0].replace(/\s/g, '') : "No encontrado";
+            // Lote: Busca 6 a 8 dígitos cerca de nuestras palabras clave
+            const lMatch = text.match(/(?:LOTE|BATCH|PRODUCCI[OÓ]N|PRODUCTION|OP)\D*(\d{6,8})\b/i);
+            provData.lote = lMatch ? lMatch[1] : "No encontrado";
+
+            // Cantidad: Busca números cerca de nuestras palabras clave
+            const cMatch = text.match(/(?:UNITS|TARIMA|PALLET|CAJA|PIEZAS|CANT)\D*([\d,.]+)/i);
+            provData.cant = cMatch ? cMatch[1].replace(/[,.]/g, '') : "No encontrado";
+
+            // 2. INTENTO "PLAN B": Búsqueda directa ignorando letras
+            // Si el proveedor no usó nuestras palabras clave, pero el número EXACTO del master está ahí, lo tomamos.
+            const cleanText = text.replace(/\D/g, ''); // Convertimos todo el OCR a solo números
+
+            if (provData.nart === "No encontrado" && masterData.nart !== "No encontrado") {
+                const cleanMasterNart = masterData.nart.replace(/\D/g, ''); // ej: 152569002700
+                if (cleanText.includes(cleanMasterNart)) provData.nart = masterData.nart;
             }
 
-            // --- VALIDAR LOTE ---
-            if (masterData.lote !== "No encontrado" && text.includes(masterData.lote)) {
-                provData.lote = masterData.lote;
-            } else {
-                const lMatch = text.match(/\b\d{6,8}\b/); // Proveedores pueden tener 6 a 8
-                provData.lote = lMatch ? lMatch[0] : "No encontrado";
+            if (provData.lote === "No encontrado" && masterData.lote !== "No encontrado") {
+                if (cleanText.includes(masterData.lote)) provData.lote = masterData.lote;
             }
 
-            // --- VALIDAR CANTIDAD ---
-            if (masterData.cant !== "No encontrado" && text.includes(masterData.cant)) {
-                provData.cant = masterData.cant;
-            } else {
-                // Regex flexible para buscar cantidad cerca de palabras clave de proveedor
-                const cMatch = text.match(/(?:CANT|PIEZAS|UNITS|PALLET|CAJA)\D*([\d,.]+)/i);
-                provData.cant = cMatch ? cMatch[1].replace(/[,.]/g, '') : "No encontrado";
+            if (provData.cant === "No encontrado" && masterData.cant !== "No encontrado") {
+                if (cleanText.includes(masterData.cant)) provData.cant = masterData.cant;
             }
 
             actualizarUI('p');
@@ -368,9 +359,8 @@
             }
         }
 
-        // Función de audio optimizada
         function reproducirSonido(esExito) {
-            const ruta = esExito ? 'functions/correct.mp3' : 'functions/error.mp3';
+            const ruta = esExito ? 'Transportes/functions/correct.mp3' : 'Transportes/functions/error.mp3';
             const audio = new Audio(ruta);
             audio.play().catch(err => console.warn("Audio bloqueado o no encontrado: " + ruta));
         }
