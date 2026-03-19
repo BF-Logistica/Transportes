@@ -294,54 +294,61 @@
 
         function procesarProv(text) {
             // Preparamos los textos
-            const textoLimpioNum = text.replace(/[,.]/g, ''); // Quitamos comas/puntos para validación de cantidad
+            const textoLimpioNum = text.replace(/[,.]/g, ''); 
             const soloNumerosTexto = text.replace(/\D/g, ''); 
 
             // 1. AUTO-DETECCIÓN DE PROVEEDOR
             const esAlpla = text.match(/ALPLA/i); 
 
             if (esAlpla) {
-                console.log("Proveedor detectado: ALPLA. Aplicando reglas específicas.");
+                console.log("Proveedor detectado: ALPLA. Aplicando reglas de Código de Barras.");
                 
-                // === REGLAS ESPECÍFICAS PARA ALPLA ===
+                // === REGLAS ESPECÍFICAS PARA ALPLA (LEYENDO TEXTO BAJO CÓDIGOS DE BARRAS) ===
 
-                // NART (ALPLA): Busca cerca de "Cliente:" o el formato exacto tolerando guiones de distinto tamaño
-                const nMatchAlpla = text.match(/(?:Cliente[:\s]*|BEIERSDORF.*?)\s*(\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2})/i) || text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-                provData.nart = nMatchAlpla ? (nMatchAlpla[1] || nMatchAlpla[0]).replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
+                // NART: Busca (91) seguido del NART y se detiene en (. Ejemplo: (91)38612-60027-00(37)1760
+                // Tolera espacios u otros tipos de guiones que el OCR pueda inventar.
+                const nMatchAlpla = text.match(/\(91\)\s*(\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2})\s*\(/i);
+                if (nMatchAlpla) {
+                    provData.nart = nMatchAlpla[1].replace(/[-–—_~.\s]+/g, '-');
+                } else {
+                    // Respaldo por si los paréntesis fallaron
+                    const nRespaldo = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
+                    provData.nart = nRespaldo ? nRespaldo[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
+                }
 
-                // LOTE (ALPLA): Solo los números después de "ALMA" y antes del guion
-                // Ejemplo en tu foto: "Lote#: ALMA060326-10" -> Debe extraer "060326"
-                const lMatchAlpla = text.match(/Lote#?[:\s]*ALMA(\d+)-/i);
+                // LOTE: Busca (10)ALMA seguido del número y antes del guion. Ejemplo: (10)ALMA060326-10
+                const lMatchAlpla = text.match(/\(10\)ALMA(\d+)-/i);
                 provData.lote = lMatchAlpla ? lMatchAlpla[1] : "No encontrado";
 
-                // CANTIDAD (ALPLA): Debajo de "Cant X Pallet:"
-                const cMatchAlpla = text.match(/(?:Cant\s*X\s*Pallet|Cant\s*x\s*Pallet)[:\s]*([\d,.]+)/i);
-                provData.cant = cMatchAlpla ? cMatchAlpla[1].replace(/[,.]/g, '') : "No encontrado";
+                // CANTIDAD: Busca (37) seguido del número, que normalmente está al final del primer código de barras
+                const cMatchAlpla = text.match(/\(37\)\s*(\d+)/i);
+                if (cMatchAlpla) {
+                    provData.cant = cMatchAlpla[1];
+                } else {
+                    // Si falla el (37), busca en la tabla de la izquierda como respaldo
+                    const cRespaldo = text.match(/(?:Cant\s*X\s*Pallet|Cant\s*x\s*Pallet)[:\s]*([\d,.]+)/i);
+                    provData.cant = cRespaldo ? cRespaldo[1].replace(/[,.]/g, '') : "No encontrado";
+                }
 
             } else {
                 console.log("Proveedor NO reconocido. Aplicando reglas generales.");
                 
                 // === REGLAS GENERALES (PLAN B) ===
                 
-                // NART (General)
                 const nMatchGen = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
                 provData.nart = nMatchGen ? nMatchGen[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
 
-                // Lote (General)
                 const lMatchGen = text.match(/(?:LOTE|BATCH)\D*(\d{6,8})\b/i);
                 provData.lote = lMatchGen ? lMatchGen[1] : "No encontrado";
 
-                // Cantidad (General)
                 const cMatchGen = text.match(/(?:UNITS|PIEZAS POR TARIMA)\D*([\d,.]+)/i);
                 provData.cant = cMatchGen ? cMatchGen[1].replace(/[,.]/g, '') : "No encontrado";
             }
 
             // ==========================================
-            // PLAN A: VERIFICACIÓN DEFINITIVA CONTRA MASTER (Para ambos casos: ALPLA o General)
-            // Esto asegura que si el Regex falló, pero el número está, lo demos por bueno.
+            // PLAN A: VERIFICACIÓN DEFINITIVA CONTRA MASTER (Para ambos casos)
             // ==========================================
             
-            // Verificación NART contra Master
             if (masterData.nart !== "No encontrado" && provData.nart === "No encontrado") {
                 const soloNumerosMasterNart = masterData.nart.replace(/\D/g, ''); 
                 if (soloNumerosTexto.includes(soloNumerosMasterNart)) {
@@ -349,14 +356,12 @@
                 }
             }
 
-            // Verificación Lote contra Master
             if (masterData.lote !== "No encontrado" && provData.lote === "No encontrado") {
                 if (textoLimpioNum.match(new RegExp("\\b" + masterData.lote + "\\b")) || soloNumerosTexto.includes(masterData.lote)) {
                     provData.lote = masterData.lote;
                 }
             }
 
-            // Verificación Cantidad contra Master
             if (masterData.cant !== "No encontrado" && provData.cant === "No encontrado") {
                 if (textoLimpioNum.match(new RegExp("\\b" + masterData.cant + "\\b"))) {
                     provData.cant = masterData.cant;
