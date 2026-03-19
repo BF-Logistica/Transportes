@@ -33,7 +33,6 @@
             overflow: hidden;
             margin-bottom: 20px;
             aspect-ratio: 4 / 3;
-            /* Forzar relación aspecto */
             border: 2px solid #ddd;
         }
 
@@ -41,7 +40,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            /* Llenar el contenedor */
             display: block;
         }
 
@@ -60,14 +58,11 @@
 
         .guide-box {
             width: 80%;
-            /* 80% del ancho del video */
             height: 60%;
-            /* 60% del alto del video */
             border: 2px dashed rgba(255, 255, 255, 0.5);
             border-radius: 8px;
             position: relative;
             box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.4);
-            /* Oscurecer bordes fuera de guía */
         }
 
         .guide-box::before {
@@ -95,7 +90,6 @@
         .corner-bl { bottom: -2px; left: -2px; border-right: 0; border-top: 0; }
         .corner-br { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
 
-        /* Canvas oculto para procesar imagen */
         canvas { display: none; }
 
         .controls {
@@ -218,7 +212,7 @@
     <div id="global-status" class="status-badge"></div>
 
     <script>
-let masterData = { nart: null, lote: null, cant: null };
+        let masterData = { nart: null, lote: null, cant: null };
         let provData = { nart: null, lote: null, cant: null };
 
         const video = document.getElementById('video');
@@ -280,12 +274,12 @@ let masterData = { nart: null, lote: null, cant: null };
         function procesarMaster(text) {
             // NART: Tolera rayas largas, guiones bajos, puntos y espacios.
             const nartMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-            // LOTE: Exactamente 8 dígitos, usualmente cerca de "Lote"
+            // LOTE: Exactamente 8 dígitos, usualmente cerca de "Lote" o solo los 8 dígitos
             const loteMatch = text.match(/(?:LOTE)\D*(\d{8})\b/i) || text.match(/\b\d{8}\b/);
             // CANT: Número cerca de "CANTIDAD" o seguido de "UN"
             const cantMatch = text.match(/(?:CANTIDAD)\D*([\d,.]+)/i) || text.match(/([\d,.]+)\s*UN/i);
 
-            // Guardamos y formateamos
+            // Guardamos y formateamos (NART siempre a 12345-12345-12)
             masterData.nart = nartMatch ? nartMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
             masterData.lote = loteMatch ? (loteMatch[1] || loteMatch[0]) : "No encontrado";
             masterData.cant = cantMatch ? cantMatch[1].replace(/[,.]/g, '') : "No encontrado";
@@ -297,33 +291,59 @@ let masterData = { nart: null, lote: null, cant: null };
         }
 
         function procesarProv(text) {
-            // 1. INTENTO POR EXPRESIONES REGULARES Y PALABRAS CLAVE
-            const nMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-            provData.nart = nMatch ? nMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
+            // Convertimos el texto del OCR a una cadena de SOLO NÚMEROS para la búsqueda del Plan A
+            const soloNumerosTexto = text.replace(/\D/g, ''); 
 
-            // Lote: Busca 6 a 8 dígitos cerca de nuestras palabras clave
-            const lMatch = text.match(/(?:LOTE|BATCH|PRODUCCI[OÓ]N|PRODUCTION|OP)\D*(\d{6,8})\b/i);
-            provData.lote = lMatch ? lMatch[1] : "No encontrado";
-
-            // Cantidad: Busca números cerca de nuestras palabras clave
-            const cMatch = text.match(/(?:UNITS|TARIMA|PALLET|CAJA|PIEZAS|CANT)\D*([\d,.]+)/i);
-            provData.cant = cMatch ? cMatch[1].replace(/[,.]/g, '') : "No encontrado";
-
-            // 2. INTENTO "PLAN B": Búsqueda directa ignorando letras
-            // Si el proveedor no usó nuestras palabras clave, pero el número EXACTO del master está ahí, lo tomamos.
-            const cleanText = text.replace(/\D/g, ''); // Convertimos todo el OCR a solo números
-
-            if (provData.nart === "No encontrado" && masterData.nart !== "No encontrado") {
-                const cleanMasterNart = masterData.nart.replace(/\D/g, ''); // ej: 152569002700
-                if (cleanText.includes(cleanMasterNart)) provData.nart = masterData.nart;
+            // ==========================================
+            // 1. VALIDAR NART
+            // ==========================================
+            let nartEncontrado = false;
+            // PLAN A: Buscar exactamente los números del NART del Master
+            if (masterData.nart !== "No encontrado") {
+                const soloNumerosMasterNart = masterData.nart.replace(/\D/g, ''); // Deja solo los 12 digitos
+                if (soloNumerosTexto.includes(soloNumerosMasterNart)) {
+                    provData.nart = masterData.nart; // Asignamos con el formato correcto
+                    nartEncontrado = true;
+                }
+            }
+            // PLAN B: Búsqueda por Regex si el Plan A falló
+            if (!nartEncontrado) {
+                const nMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
+                provData.nart = nMatch ? nMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
             }
 
-            if (provData.lote === "No encontrado" && masterData.lote !== "No encontrado") {
-                if (cleanText.includes(masterData.lote)) provData.lote = masterData.lote;
+            // ==========================================
+            // 2. VALIDAR LOTE
+            // ==========================================
+            let loteEncontrado = false;
+            // PLAN A: Buscar exactamente el Lote del Master
+            if (masterData.lote !== "No encontrado") {
+                if (soloNumerosTexto.includes(masterData.lote)) {
+                    provData.lote = masterData.lote;
+                    loteEncontrado = true;
+                }
+            }
+            // PLAN B: Búsqueda por Regex y Palabras Clave
+            if (!loteEncontrado) {
+                const lMatch = text.match(/(?:LOTE|BATCH|PRODUCCI[OÓ]N|PRODUCTION|OP)\D*(\d{6,8})\b/i) || text.match(/\b\d{6,8}\b/);
+                provData.lote = lMatch ? (lMatch[1] || lMatch[0]) : "No encontrado";
             }
 
-            if (provData.cant === "No encontrado" && masterData.cant !== "No encontrado") {
-                if (cleanText.includes(masterData.cant)) provData.cant = masterData.cant;
+            // ==========================================
+            // 3. VALIDAR CANTIDAD
+            // ==========================================
+            let cantEncontrada = false;
+            // PLAN A: Buscar exactamente la Cantidad del Master
+            if (masterData.cant !== "No encontrado") {
+                if (soloNumerosTexto.includes(masterData.cant)) {
+                    provData.cant = masterData.cant;
+                    cantEncontrada = true;
+                }
+            }
+            // PLAN B: Búsqueda por Regex y Palabras Clave
+            if (!cantEncontrada) {
+                const cMatch = text.match(/(?:UNITS|TARIMA|PALLET|CAJA|PIEZAS|CANT|CANTIDAD)\D*([\d,.]+)/i);
+                provData.cant = cMatch ? cMatch[1].replace(/[,.]/g, '') : "No encontrado";
             }
 
             actualizarUI('p');
