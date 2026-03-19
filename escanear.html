@@ -66,7 +66,7 @@
         }
 
         .guide-box::before {
-            content: "CENTRAR CÓDIGOS DE BARRAS AQUÍ";
+            content: "CENTRAR TABLAS DE TEXTO AQUÍ";
             position: absolute;
             bottom: -25px;
             left: 0;
@@ -261,12 +261,16 @@
             canvas.height = cropH;
             ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
+            // NUEVO PRE-PROCESAMIENTO: Escala de grises + Alto Contraste (sin romper píxeles)
             let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             let d = imgData.data;
             for (let i = 0; i < d.length; i += 4) {
                 let avg = (d[i] + d[i + 1] + d[i + 2]) / 3;
-                let val = (avg > 130) ? 255 : 0; 
-                d[i] = d[i + 1] = d[i + 2] = val;
+                let contrast = 1.8; // Aumentar contraste
+                let val = contrast * (avg - 128) + 128;
+                // Mantener los valores entre 0 y 255
+                val = Math.max(0, Math.min(255, val));
+                d[i] = d[i + 1] = d[i + 2] = val; // RGB iguales = Escala de grises
             }
             ctx.putImageData(imgData, 0, 0);
 
@@ -309,35 +313,28 @@
             const textoLimpioNum = text.replace(/[,.]/g, ''); 
             const soloNumerosTexto = text.replace(/\D/g, ''); 
 
-            // 1. AUTO-DETECCIÓN ESTRUCTURAL DE ALPLA
-            // Buscamos la palabra ALPLA o los identificadores de sus códigos de barras: el número 91 cerca de un paréntesis, o la palabra ALMA.
-            const esAlpla = text.match(/ALPLA|91[)\]\}\s]|ALMA/i); 
+            // DETECCIÓN ALPLA: Busca ALPLA o ALMA
+            const esAlpla = text.match(/ALPLA|ALMA/i); 
 
             if (esAlpla) {
-                // === REGLAS ESPECÍFICAS PARA ALPLA BASADAS EN CÓDIGOS DE BARRAS ===
+                // === REGLAS PARA ALPLA (LEYENDO LA TABLA IZQUIERDA Y/O CÓDIGOS DE BARRAS) ===
 
-                // NART: Busca el '91' seguido de un carácter de cierre (como un paréntesis o corchete),
-                // luego atrapa todos los números/guiones, y SE DETIENE al encontrar el siguiente paréntesis abierto '('.
-                const nMatchAlpla = text.match(/91[)\]\}\s]*([0-9\s\-–—_~.]+)[(\[\{]/i);
-                if (nMatchAlpla) {
-                    provData.nart = nMatchAlpla[1].replace(/[-–—_~.\s]+/g, '-');
-                } else {
-                    // Respaldo
-                    const nRespaldo = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-                    provData.nart = nRespaldo ? nRespaldo[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
-                }
+                // NART: El formato general \d{5}-\d{5}-\d{2} es infalible para el NART de Beiersdorf, esté donde esté.
+                const nMatchAlpla = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
+                provData.nart = nMatchAlpla ? nMatchAlpla[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
 
-                // LOTE: Exactamente entre ALMA y el guion (-)
+                // LOTE: Busca Lote#, luego ALMA, y extrae los números antes del guion
                 const lMatchAlpla = text.match(/ALMA\s*(\d+)\s*-/i);
                 provData.lote = lMatchAlpla ? lMatchAlpla[1] : "No encontrado";
 
-                // CANTIDAD: Exactamente después del 37 y su paréntesis de cierre.
-                const cMatchAlpla = text.match(/37[)\]\}\s]*(\d+)/i);
+                // CANTIDAD: Busca cerca de "Cant X Pallet" o similar
+                const cMatchAlpla = text.match(/(?:Cant\s*[Xx]\s*Pallet|Pallet)\s*[:.]?\s*([\d,.]+)/i);
                 if (cMatchAlpla) {
-                    provData.cant = cMatchAlpla[1];
+                    provData.cant = cMatchAlpla[1].replace(/[,.]/g, '');
                 } else {
-                    const cRespaldo = text.match(/(?:Cant\s*X\s*Pallet|Cant\s*x\s*Pallet|Pallet)[:\s]*([\d,.]+)/i);
-                    provData.cant = cRespaldo ? cRespaldo[1].replace(/[,.]/g, '') : "No encontrado";
+                    // Respaldo de cantidad
+                    const cRespaldo = text.match(/37[)\]\}\s]*(\d{2,5})\b/i);
+                    provData.cant = cRespaldo ? cRespaldo[1] : "No encontrado";
                 }
 
             } else {
