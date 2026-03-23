@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCR Validador de Etiquetas PRO</title>
+    <title>OCR</title>
     <style>
         :root {
             --blue: #007bff;
@@ -21,6 +21,11 @@
             background: #f0f2f5;
             padding: 20px;
             margin: 0;
+        }
+
+        .header-logo {
+            text-align: center;
+            margin-bottom: 10px;
         }
 
         .scanner-container {
@@ -42,7 +47,6 @@
             display: block;
         }
 
-        /* Mira telescópica / Guía visual */
         .camera-guide {
             position: absolute;
             top: 0;
@@ -65,7 +69,7 @@
         }
 
         .guide-box::before {
-            content: "CENTRAR TABLAS DE TEXTO AQUÍ";
+            content: "CENTRAR ETIQUETA AQUÍ";
             position: absolute;
             bottom: -25px;
             left: 0;
@@ -76,7 +80,6 @@
             font-weight: bold;
         }
 
-        /* Esquinas de la mira */
         .corner-tl,
         .corner-tr,
         .corner-bl,
@@ -145,10 +148,6 @@
             background: var(--gray);
         }
 
-        .btn-reset {
-            background: #333;
-        }
-
         button:disabled {
             background: #ccc;
             cursor: not-allowed;
@@ -176,29 +175,35 @@
 
         .card h3 {
             margin-top: 0;
-            font-size: 0.9rem;
-            color: #555;
+            font-size: 1rem;
+            color: var(--blue);
             text-align: center;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 10px;
         }
 
         .data-row {
             display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
             border-bottom: 1px solid #f0f0f0;
         }
 
         .label {
             font-weight: bold;
-            color: #444;
-            font-size: 0.8rem;
+            color: #666;
+            font-size: 0.75rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
         .val {
             font-family: monospace;
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: #1a1a1a;
             font-weight: bold;
+            text-align: center;
         }
 
         #loading {
@@ -216,15 +221,20 @@
         }
 
         .status-badge {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 8px;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 9999;
+            padding: 30px 20px;
+            border-radius: 12px;
             text-align: center;
             font-weight: bold;
-            width: 100%;
-            max-width: 770px;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             display: none;
-            font-size: 1.2rem;
+            width: 85%;
+            max-width: 400px;
         }
 
         #debug-box {
@@ -245,7 +255,9 @@
 
 <body>
 
-    <h2>OCR Validador de Etiquetas PRO</h2>
+    <div class="header-logo">
+        <img src="bf_login.png" alt="Logo Empresa" style="max-height: 60px;">
+    </div>
 
     <div class="scanner-container">
         <video id="video" autoplay playsinline></video>
@@ -265,22 +277,21 @@
     <div class="controls">
         <button id="btnMaster" class="btn-master" onclick="capturar('master')">1. Capturar Master</button>
         <button id="btnProv" class="btn-prov" onclick="capturar('prov')" disabled>2. Capturar Proveedor</button>
-        <button class="btn-reset" onclick="resetear()">Limpiar</button>
     </div>
 
     <div class="results">
         <div class="card" id="cardMaster">
             <h3>DATOS MASTER</h3>
-            <div class="data-row"><span class="label">NART:</span> <span id="m-nart" class="val">---</span></div>
-            <div class="data-row"><span class="label">LOTE:</span> <span id="m-lote" class="val">---</span></div>
-            <div class="data-row"><span class="label">CANT:</span> <span id="m-cant" class="val">---</span></div>
+            <div class="data-row"><span class="label">NART</span> <span id="m-nart" class="val">---</span></div>
+            <div class="data-row"><span class="label">LOTE</span> <span id="m-lote" class="val">---</span></div>
+            <div class="data-row"><span class="label">CANT</span> <span id="m-cant" class="val">---</span></div>
         </div>
 
         <div class="card" id="cardProv">
             <h3>DATOS PROVEEDOR</h3>
-            <div class="data-row"><span class="label">NART:</span> <span id="p-nart" class="val">---</span></div>
-            <div class="data-row"><span class="label">LOTE:</span> <span id="p-lote" class="val">---</span></div>
-            <div class="data-row"><span class="label">CANT:</span> <span id="p-cant" class="val">---</span></div>
+            <div class="data-row"><span class="label">NART</span> <span id="p-nart" class="val">---</span></div>
+            <div class="data-row"><span class="label">LOTE</span> <span id="p-lote" class="val">---</span></div>
+            <div class="data-row"><span class="label">CANT</span> <span id="p-cant" class="val">---</span></div>
         </div>
     </div>
 
@@ -289,7 +300,6 @@
     <div id="debug-box"></div>
 
     <script>
-        // === TU CLAVE DE API (Asegúrate de restringirla en Google Cloud a bf-logistica.github.io) ===
         const GOOGLE_API_KEY = 'AIzaSyDe_Rr40Zq6Z-vTf0qeGlsMvzX11LMqBII';
 
         let masterData = { nart: null, lote: null, cant: null };
@@ -308,11 +318,33 @@
             } catch (err) { alert("Error acceso cámara: " + err); }
         }
 
-        async function capturar(tipo) {
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('debug-box').style.display = 'none';
+        function resetUI() {
+            masterData = { nart: null, lote: null, cant: null };
+            provData = { nart: null, lote: null, cant: null };
 
-            // 1. OBTENER DIMENSIONES Y RECORTAR
+            ['m', 'p'].forEach(prefix => {
+                document.getElementById(`${prefix}-nart`).innerText = '---';
+                document.getElementById(`${prefix}-lote`).innerText = '---';
+                document.getElementById(`${prefix}-cant`).innerText = '---';
+            });
+
+            document.getElementById('cardMaster').classList.remove('active');
+            document.getElementById('cardProv').classList.remove('active');
+
+            document.getElementById('btnProv').disabled = true;
+            document.getElementById('btnProv').style.background = 'var(--gray)';
+
+            document.getElementById('global-status').style.display = 'none';
+            document.getElementById('debug-box').style.display = 'none';
+        }
+
+        async function capturar(tipo) {
+            if (tipo === 'master') {
+                resetUI();
+            }
+
+            document.getElementById('loading').style.display = 'block';
+
             const videoW = video.videoWidth;
             const videoH = video.videoHeight;
             const guideWidthRatio = 0.90;
@@ -327,11 +359,9 @@
             canvas.height = cropH;
             ctx.drawImage(video, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
-            // Obtenemos la imagen limpia en Base64 sin ningún filtro matemático
             const imagenBase64Full = canvas.toDataURL('image/jpeg', 0.9);
-            const imagenBase64 = imagenBase64Full.split(',')[1]; // Quitamos la cabecera 'data:image/jpeg;base64,'
+            const imagenBase64 = imagenBase64Full.split(',')[1];
 
-            // 2. LLAMADA A GOOGLE CLOUD VISION API
             const requestBody = {
                 requests: [{
                     image: { content: imagenBase64 },
@@ -348,11 +378,8 @@
 
                 const data = await response.json();
 
-                if (data.error) {
-                    throw new Error(data.error.message);
-                }
+                if (data.error) throw new Error(data.error.message);
 
-                // Extraemos el texto detectado
                 const textAnnotations = data.responses[0].fullTextAnnotation;
                 let fullText = textAnnotations ? textAnnotations.text : '';
 
@@ -362,7 +389,6 @@
                     return;
                 }
 
-                // Limpiamos saltos de línea y múltiples espacios para que tu lógica funcione idéntico que con Tesseract
                 fullText = fullText.replace(/\s+/g, ' ');
 
                 document.getElementById('debug-box').innerText = "GOOGLE OCR LEYÓ: " + fullText;
@@ -384,11 +410,11 @@
 
         function procesarMaster(text) {
             const nartMatch = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-            const loteMatch = text.match(/\b\d{8}\b/);
+            const loteMatch = text.match(/Lote\s*de\s*proveedor\s*([A-Za-z0-9\-]+)/i);
             const cantMatch = text.match(/([\d,.]+)\s*UN/i);
 
             masterData.nart = nartMatch ? nartMatch[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
-            masterData.lote = loteMatch ? loteMatch[0] : "No encontrado";
+            masterData.lote = loteMatch ? loteMatch[1] : "No encontrado";
             masterData.cant = cantMatch ? cantMatch[1].replace(/[,.]/g, '') : "No encontrado";
 
             actualizarUI('m');
@@ -398,51 +424,34 @@
         }
 
         function procesarProv(text) {
-            const textoLimpioNum = text.replace(/[,.]/g, '');
+            const nMatchGen = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
+            provData.nart = nMatchGen ? nMatchGen[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
+
+            const lMatchGen = text.match(/(?:LOTE|BATCH)\D*([A-Za-z0-9\-]{4,10})\b/i);
+            provData.lote = lMatchGen ? lMatchGen[1] : "No encontrado";
+
+            const cMatchGen = text.match(/(?:UNITS|PIEZAS POR TARIMA|Cant.*Pallet)\D*([\d,.]+)/i);
+            provData.cant = cMatchGen ? cMatchGen[1].replace(/[,.]/g, '') : "No encontrado";
+
             const soloNumerosTexto = text.replace(/\D/g, '');
+            const textoSinEspacios = text.replace(/\s+/g, '');
 
-            const esAlpla = text.match(/ALPLA|ALMA/i);
-
-            if (esAlpla) {
-                // REGLAS ALPLA
-                const nMatchAlpla = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-                provData.nart = nMatchAlpla ? nMatchAlpla[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
-
-                const lMatchAlpla = text.match(/ALMA\s*(\d+)\s*[- ]/i);
-                provData.lote = lMatchAlpla ? lMatchAlpla[1] : "No encontrado";
-
-                const cMatchAlpla = text.match(/(?:Cant\s*[Xx]\s*Pal[l]?et|Pal[l]?et)\s*[:.]?\s*([\d,.]+)/i);
-                if (cMatchAlpla && cMatchAlpla[1] !== "") {
-                    provData.cant = cMatchAlpla[1].replace(/[,.]/g, '');
-                } else {
-                    const cRespaldo = text.match(/37[)\]\}\s]*(\d{2,5})\b/i);
-                    provData.cant = cRespaldo ? cRespaldo[1] : "No encontrado";
-                }
-            } else {
-                // REGLAS GENERALES
-                const nMatchGen = text.match(/\d{5}\s*[-–—_~.]+\s*\d{5}\s*[-–—_~.]+\s*\d{2}/);
-                provData.nart = nMatchGen ? nMatchGen[0].replace(/[-–—_~.\s]+/g, '-') : "No encontrado";
-
-                const lMatchGen = text.match(/(?:LOTE|BATCH)\D*(\d{6,8})\b/i);
-                provData.lote = lMatchGen ? lMatchGen[1] : "No encontrado";
-
-                const cMatchGen = text.match(/(?:UNITS|PIEZAS POR TARIMA)\D*([\d,.]+)/i);
-                provData.cant = cMatchGen ? cMatchGen[1].replace(/[,.]/g, '') : "No encontrado";
-            }
-
-            // PLAN A: VERIFICACIÓN DEFINITIVA CONTRA MASTER
-            if (masterData.nart !== "No encontrado" && provData.nart === "No encontrado") {
+            if (masterData.nart !== "No encontrado") {
                 const soloNumerosMasterNart = masterData.nart.replace(/\D/g, '');
                 if (soloNumerosTexto.includes(soloNumerosMasterNart)) {
                     provData.nart = masterData.nart;
                 }
             }
-            if (masterData.lote !== "No encontrado" && provData.lote === "No encontrado") {
-                if (textoLimpioNum.match(new RegExp("\\b" + masterData.lote + "\\b")) || soloNumerosTexto.includes(masterData.lote)) {
+
+            if (masterData.lote !== "No encontrado") {
+                const regexLoteMaster = new RegExp(masterData.lote, "i");
+                if (regexLoteMaster.test(textoSinEspacios) || regexLoteMaster.test(text)) {
                     provData.lote = masterData.lote;
                 }
             }
-            if (masterData.cant !== "No encontrado" && provData.cant === "No encontrado") {
+
+            if (masterData.cant !== "No encontrado") {
+                const textoLimpioNum = text.replace(/[,.]/g, '');
                 if (textoLimpioNum.match(new RegExp("\\b" + masterData.cant + "\\b"))) {
                     provData.cant = masterData.cant;
                 }
@@ -464,31 +473,45 @@
             const status = document.getElementById('global-status');
             status.style.display = 'block';
 
-            const coinciden = (masterData.nart === provData.nart &&
-                masterData.lote === provData.lote &&
-                masterData.cant === provData.cant);
+            const coinciden = (masterData.nart === provData.nart && masterData.lote === provData.lote);
+            const textoEstatus = coinciden ? "✅ ¡COINCIDENCIA TOTAL!" : "❌ DIFERENCIAS DETECTADAS";
 
             if (coinciden) {
-                status.innerText = "✅ ¡COINCIDENCIA TOTAL!";
+                status.innerText = textoEstatus;
                 status.style.background = 'var(--success)';
                 status.style.color = 'white';
                 reproducirSonido(true);
             } else {
-                status.innerText = "❌ DIFERENCIAS DETECTADAS";
+                status.innerText = textoEstatus;
                 status.style.background = 'var(--error)';
                 status.style.color = 'white';
                 reproducirSonido(false);
             }
+
+            const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwJuN6BNPJWkHjRzYBIfRqT6SMkBQ6WNFPfOpT7Yefv0lL0ZwZMWneVrHfHI4iz_u7/exec';
+
+            const payload = {
+                fechaHora: new Date().toLocaleString('es-MX'),
+                estatus: textoEstatus,
+                m_nart: masterData.nart,
+                m_lote: masterData.lote,
+                m_cant: masterData.cant,
+                p_nart: provData.nart,
+                p_lote: provData.lote,
+                p_cant: provData.cant
+            };
+
+            fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            });
         }
 
         function reproducirSonido(esExito) {
             const ruta = esExito ? 'functions/correct.mp3' : 'functions/error.mp3';
             const audio = new Audio(ruta);
             audio.play().catch(err => console.warn("Audio bloqueado o no encontrado: " + ruta));
-        }
-
-        function resetear() {
-            location.reload();
         }
 
         initCamera();
