@@ -45,6 +45,7 @@
 
         h2 {
             margin-top: 0;
+            margin-bottom: 15px;
             padding: 0 20px;
             text-align: center;
         }
@@ -245,20 +246,17 @@
         }
 
         .status-badge {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 9999;
-            padding: 30px 20px;
-            border-radius: 12px;
+            width: calc(100% - 40px);
+            max-width: 500px;
+            padding: 15px 20px;
+            border-radius: 8px;
             text-align: center;
             font-weight: bold;
-            font-size: 1.5rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            font-size: 1.2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             display: none;
-            width: 85%;
-            max-width: 400px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
         }
 
         #debug-box {
@@ -281,7 +279,11 @@
 
     <div class="header-logo">
         <img src="img/bf_login.png" alt="Logo Empresa">
-    </div> 
+    </div>
+
+    <h2>OCR Validador de Etiquetas PRO</h2>
+
+    <div id="global-status" class="status-badge"></div>
 
     <div class="scanner-container">
         <video id="video" autoplay playsinline></video>
@@ -296,7 +298,7 @@
         <canvas id="canvas"></canvas>
     </div>
 
-    <div id="loading">Conectando con Google Vision API... por favor espera...</div>
+    <div id="loading">Conectando... por favor espera...</div>
 
     <div class="controls">
         <button id="btnMaster" class="btn-master" onclick="capturar('master')">1. Capturar Master</button>
@@ -318,8 +320,6 @@
             <div class="data-row"><span class="label">CANT</span> <span id="p-cant" class="val">---</span></div>
         </div>
     </div>
-
-    <div id="global-status" class="status-badge"></div>
 
     <div id="debug-box"></div>
 
