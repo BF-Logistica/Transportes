@@ -498,7 +498,7 @@
             status.style.display = 'block';
 
             const coinciden = (masterData.nart === provData.nart && masterData.lote === provData.lote);
-            const textoEstatus = coinciden ? "✅ ¡COINCIDENCIA TOTAL!" : "❌ DIFERENCIAS DETECTADAS";
+            const textoEstatus = coinciden ? "☑️ ¡COINCIDENCIA TOTAL!" : "✖ DIFERENCIAS DETECTADAS";
 
             if (coinciden) {
                 status.innerText = textoEstatus;
