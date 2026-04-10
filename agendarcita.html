@@ -439,7 +439,7 @@
     let currentProveedorDoc = null;
 
     const ALL_HOURS = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, "0")}:00`);
-    const BLOCKED_HOURS = ["06:00", "14:00", "22:00"];
+    const BLOCKED_HOURS = ["06:00", "07:00", "14:00", "15:00", "22:00"];
     const DOUBLE_CAPACITY_HOURS = ["05:00", "13:00", "21:00"];
     const MIN_DAYS_AHEAD = 3; // mínimo 3 días de anticipación
 
@@ -712,8 +712,11 @@
         const requiereHoraExtraSel = (tipoVisitaSel === "CargaDescarga" || tipoTransporteSel === "Full");
         const tiposReqSel = typesForTipoVisita(tipoVisitaSel);
 
+        const esSabado = new Date(fecha + "T00:00:00").getDay() === 6;
+        
         ALL_HOURS.forEach(h => {
           if (BLOCKED_HOURS.includes(h)) return;
+          if (esSabado && hourToNumber(h) > 21) return;
 
           const capBase = getCapByHour(h);
 
@@ -773,52 +776,52 @@
       }
     }
 
-    function handleFechaChange() {
-      const fecha = document.getElementById("cf-fecha").value;
-      const domingoBox = document.getElementById("domingo-extra");
-      const helpEl = document.getElementById("cf-fecha-help");
-      const hoy = todayISO();
-      const tipo = (document.getElementById("cf-tipo-visita").value || "").trim();
-
-      if (!fecha) {
-        domingoBox.classList.add("hidden");
-        // texto depende de tipo
-        if (tipo === "Carga") {
-          helpEl.textContent = "Puedes seleccionar HOY o una fecha dentro de las próximas 2 semanas.";
-          helpEl.classList.remove("text-red-600");
-          helpEl.classList.add("text-gray-500");
-        } else {
-          helpEl.textContent = "Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.";
-          helpEl.classList.remove("text-gray-500");
-          helpEl.classList.add("text-red-600", "font-semibold");
-        }
-        setHoraEnabled(false, "Selecciona una fecha primero");
-        return;
-      }
-
-      const diff = daysDiff(hoy, fecha);
-      const minDays = getMinDaysAheadByTipoVisita(tipo);
-
-      if (diff < minDays) {
-        helpEl.textContent = (minDays === 0)
-          ? "Fecha no válida."
-          : "Debes seleccionar una fecha de visita con al menos 3 días de anticipación.";
-        helpEl.classList.remove("text-gray-500");
-        helpEl.classList.add("text-red-600", "font-semibold");
-        setHoraEnabled(false, minDays === 0 ? "Fecha no válida" : "Fecha no válida (mínimo 3 días)");
-      } else {
-        helpEl.textContent = (tipo === "Carga")
-          ? "Fecha válida: puedes agendar desde HOY dentro de las próximas 2 semanas."
-          : "Fecha válida: tu visita tiene al menos 3 días de anticipación.";
-        helpEl.classList.remove("text-red-600");
-        helpEl.classList.add("text-gray-500");
-      }
-
-      if (isSunday(fecha)) domingoBox.classList.remove("hidden");
-      else domingoBox.classList.add("hidden");
-
-      updateHourOptionsForDate(fecha);
+  function handleFechaChange() {
+    const fechaInput = document.getElementById("cf-fecha");
+    const fecha = fechaInput.value;
+    const helpEl = document.getElementById("cf-fecha-help");
+    const hoy = todayISO();
+    const tipo = (document.getElementById("cf-tipo-visita").value || "").trim();
+  
+    // Ocultar sección de domingo si existía (puedes borrar el div 'domingo-extra' de tu HTML)
+    const domingoBox = document.getElementById("domingo-extra");
+    if (domingoBox) domingoBox.classList.add("hidden");
+  
+    if (!fecha) {
+      // ... (tu lógica actual para cuando no hay fecha)
+      setHoraEnabled(false, "Selecciona una fecha primero");
+      return;
+    }  
+    
+    if (isSunday(fecha)) {
+      helpEl.textContent = "No hay operaciones los días domingo. Por favor selecciona otra fecha.";
+      helpEl.classList.remove("text-gray-500");
+      helpEl.classList.add("text-red-600", "font-semibold");
+      fechaInput.value = ""; // Limpiamos el input
+      setHoraEnabled(false, "Día no disponible");
+      return;
     }
+  
+    const diff = daysDiff(hoy, fecha);
+    const minDays = getMinDaysAheadByTipoVisita(tipo);
+  
+    if (diff < minDays) {
+      helpEl.textContent = (minDays === 0)
+        ? "Fecha no válida."
+        : "Debes seleccionar una fecha de visita con al menos 3 días de anticipación.";
+      helpEl.classList.remove("text-gray-500");
+      helpEl.classList.add("text-red-600", "font-semibold");
+      setHoraEnabled(false, minDays === 0 ? "Fecha no válida" : "Fecha no válida (mínimo 3 días)");
+    } else {
+      helpEl.textContent = (tipo === "Carga")
+        ? "Fecha válida: puedes agendar desde HOY dentro de las próximas 2 semanas."
+        : "Fecha válida: tu visita tiene al menos 3 días de anticipación.";
+      helpEl.classList.remove("text-red-600");
+      helpEl.classList.add("text-gray-500");
+    }
+  
+    updateHourOptionsForDate(fecha);
+  }
 
     function handleRecolectaChange() {
       const val = document.getElementById("cf-recolecta-caja").value;
