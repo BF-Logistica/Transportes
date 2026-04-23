@@ -38,7 +38,6 @@
       background-color: #f3f4f6;
     }
 
-    /* Inputs en mayúsculas visualmente */
     input[type="text"],
     textarea {
       text-transform: uppercase;
@@ -374,9 +373,6 @@
       getFirestore, collection, getDocs, query, where, addDoc, serverTimestamp, doc, updateDoc
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-    // ==========================
-    //  CONFIG FIREBASE
-    // ==========================
     const firebaseConfig = {
       apiKey: "AIzaSyA2evTn_8bTrlEjc4d43UfljTQhDS3goXA",
       authDomain: "logisticatransportesbmm.firebaseapp.com",
@@ -393,19 +389,14 @@
 
     let currentUser = null;
     let currentProveedorDoc = null;
-    let editingCitaFijaId = null; // Variable para saber si editamos una cita fija
+    let editingCitaFijaId = null;
 
     const ALL_HOURS = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, "0")}:00`);
     
-    // ✅ REGLA 1: Horas bloqueadas actualizadas
     const BLOCKED_HOURS = ["07:00", "15:00", "22:00"];
-    
     const DOUBLE_CAPACITY_HOURS = ["05:00", "13:00", "21:00"];
     const MIN_DAYS_AHEAD = 3; 
 
-    // ==========================
-    //  HELPERS
-    // ==========================
     function todayISO() {
       const d = new Date();
       const yyyy = d.getFullYear();
@@ -633,7 +624,6 @@
         const requiereHoraExtraSel = (tipoVisitaSel === "CargaDescarga" || tipoTransporteSel === "Full");
         const tiposReqSel = typesForTipoVisita(tipoVisitaSel);
 
-        // ✅ REGLA 3: Sábados cortan a las 21:00
         const esSabado = new Date(fecha + "T00:00:00").getDay() === 6;
 
         ALL_HOURS.forEach(h => {
@@ -690,7 +680,10 @@
       }
     }
 
+    // ✅ NUEVO: Evitamos resetear hora si estamos completando cita fija
     function handleFechaChange() {
+      if (editingCitaFijaId) return; // No modificamos la fecha si es fija
+
       const fechaInput = document.getElementById("cf-fecha");
       const fecha = fechaInput.value;
       const helpEl = document.getElementById("cf-fecha-help");
@@ -702,7 +695,6 @@
         return;
       }
 
-      // ✅ REGLA 2: Bloqueo de domingos
       if (isSunday(fecha)) {
         helpEl.textContent = "No hay operaciones los días domingo. Por favor selecciona otra fecha.";
         helpEl.className = "text-[11px] mt-1 text-red-600 font-semibold";
@@ -737,6 +729,7 @@
       else grupo.classList.add("hidden");
     }
 
+    // ✅ NUEVO: Evitamos resetear hora si estamos completando cita fija
     function handleTipoVisitaChange() {
       const tipo = document.getElementById("cf-tipo-visita").value;
       const grpFactura = document.getElementById("grupo-factura");
@@ -745,14 +738,21 @@
 
       applyDateLimitsByTipoVisita();
       applyConditionalFields();
+      
+      if (editingCitaFijaId) return;
+
       document.getElementById("cf-hora").value = "";
       const fecha = document.getElementById("cf-fecha").value;
       if (fecha) updateHourOptionsForDate(fecha);
       else setHoraEnabled(false, "Selecciona una fecha primero");
     }
 
+    // ✅ NUEVO: Evitamos resetear hora si estamos completando cita fija
     function handleTipoTransporteChange() {
       applyConditionalFields();
+      
+      if (editingCitaFijaId) return;
+
       document.getElementById("cf-hora").value = "";
       const fecha = document.getElementById("cf-fecha").value;
       if (fecha) updateHourOptionsForDate(fecha);
@@ -859,7 +859,6 @@
       return { ok: true, horaExtra };
     }
 
-    // ✅ REGLA 4: Modificación en el Guardado (Update si es FijaIncompleta)
     async function handleNuevaCita(event) {
       event.preventDefault();
       clearError();
@@ -905,7 +904,6 @@
       const cajaDeja = (cajaDejaEl.value || "").trim().toUpperCase();
       const cajaRecolecta = (cajaRecolectaEl.value || "").trim().toUpperCase();
 
-      // Validaciones básicas 
       if (!tipoTransporte) return setError("Selecciona el tipo de transporte.");
       if (recolectaCaja === "Si" && (!cajaDeja || !cajaRecolecta)) return setError("Indica qué caja deja y qué caja recolecta.");
       if (!chofer || !lineaTransporte) return setError("Chofer y transporte/línea son obligatorios.");
@@ -930,7 +928,6 @@
         const lineaProveedor = (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase();
 
         if (editingCitaFijaId) {
-            // FLUJO: COMPLETAR CITA FIJA (UPDATE)
             const requiereHoraExtra = (tipoTransporte === "Full");
             let horaExtra = null;
             if (requiereHoraExtra) horaExtra = addHours(hora, 2);
@@ -951,7 +948,6 @@
             await updateDoc(docRef, updatePayload);
             alert("¡Cita Fija confirmada exitosamente!");
 
-            // Limpiamos el modo edición
             editingCitaFijaId = null;
             tipoVisitaEl.disabled = false; tipoVisitaEl.classList.remove("bg-gray-100");
             fechaEl.readOnly = false; fechaEl.classList.remove("bg-gray-100");
@@ -961,7 +957,6 @@
             document.getElementById("btn-agendar").innerHTML = "<span>Guardar cita</span>";
 
         } else {
-            // FLUJO NORMAL: NUEVA CITA
             const opt = Array.from(horaEl.options).find(o => o.value === hora);
             if (!opt || opt.disabled) return setError("El horario seleccionado ya no está disponible.");
 
@@ -997,7 +992,6 @@
                 notas, esDomingo, estatus: "CitaPendiente", createdAt: serverTimestamp()
             });
 
-            // (Envío de correo original omitido por legibilidad, si lo tienes, va aquí)
             alert("Cita registrada como pre-registro.\n\nEstatus: CitaPendiente.");
         }
 
@@ -1014,7 +1008,6 @@
       }
     }
 
-    // ✅ REGLA 4: Cargar tabla y atrapar botón Completar
     async function loadCitasProveedor() {
       const tbody = document.getElementById("citas-tbody");
       const emptyRow = document.getElementById("citas-empty");
@@ -1098,7 +1091,6 @@
       }
     }
 
-    // ✅ REGLA 4: Exponer función para cargar datos al DOM
     window.cargarCitaFijaFormulario = function(citaId) {
         clearError();
         const cita = window.citasEnMemoria[citaId];
@@ -1129,9 +1121,6 @@
         document.getElementById("btn-agendar").innerHTML = "<span>Confirmar Cita Fija</span>";
     };
 
-    // ==========================
-    //  INIT
-    // ==========================
     document.addEventListener("DOMContentLoaded", () => {
       if (!checkAccessGuard()) return;
 
