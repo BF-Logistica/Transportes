@@ -856,7 +856,7 @@
       return { ok: true, horaExtra };
     }
 
-    async function handleNuevaCita(event) {
+async function handleNuevaCita(event) {
       event.preventDefault();
       clearError();
       const btn = document.getElementById("btn-agendar");
@@ -941,7 +941,7 @@
                 recolectaCaja,
                 cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
                 cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
-                notas, estatus: "CitaPendiente", horaExtra: horaExtra, // ✅ Cambio de estatus a CitaPendiente
+                notas, estatus: "CitaPendiente", horaExtra: horaExtra, 
                 updatedAt: serverTimestamp()
             };
 
@@ -949,14 +949,6 @@
             
             docIdForEmail = editingCitaFijaId;
             horaExtraFinal = horaExtra;
-
-            editingCitaFijaId = null;
-            tipoVisitaEl.disabled = false; tipoVisitaEl.classList.remove("bg-gray-100");
-            fechaEl.readOnly = false; fechaEl.classList.remove("bg-gray-100");
-            horaEl.disabled = false; horaEl.classList.remove("bg-gray-100");
-            document.getElementById("cf-fecha-help").textContent = "Debes seleccionar tu fecha de visita con al menos 3 días de anticipación.";
-            document.getElementById("cf-fecha-help").className = "text-[11px] mt-1 text-red-600 font-semibold";
-            document.getElementById("btn-agendar").innerHTML = "<span>Guardar cita</span>";
 
         } else {
             const opt = Array.from(horaEl.options).find(o => o.value === hora);
@@ -998,7 +990,6 @@
             horaExtraFinal = horaExtra;
         }
 
-        // ✅ SECCIÓN DE ENVÍO DE CORREO REHABILITADA PARA AMBAS RUTAS
         const payloadEmail = {
           providerEmail: currentUser.usuario,
           providerLinea: (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase(),
@@ -1050,20 +1041,19 @@
         }
 
         if (correoOk) {
-          alert("Cita completada y enviada a revisión.\n\nEstatus: CitaPendiente.\nSe te notificará por correo cuando logística apruebe la cita.");
+          alert("Cita procesada y enviada a revisión.\n\nEstatus: CitaPendiente.\nSe notificará por correo cuando logística apruebe la cita.");
         } else {
           alert("La cita se guardó correctamente como CitaPendiente, pero hubo un problema al enviar el correo de notificación al administrador.");
         }
 
-        document.getElementById("cita-form").reset();
-        applyConditionalFields();
-        await loadCitasProveedor();
-        if(!editingCitaFijaId && fecha) updateHourOptionsForDate(fecha);
+        // ✅ LA MAGIA OCURRE AQUÍ: RECARGAMOS LA PÁGINA PARA DEJARLA 100% LIMPIA
+        window.location.reload();
 
       } catch (err) {
         console.error("Error guardando cita:", err);
         setError("Ocurrió un error al procesar la cita. Intenta de nuevo.");
       } finally {
+        // En caso de error, volvemos a habilitar el botón (si hay reload, esto no importa)
         setLoadingButton(btn, false);
       }
     }
