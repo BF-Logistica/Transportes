@@ -680,9 +680,8 @@
       }
     }
 
-    // ✅ NUEVO: Evitamos resetear hora si estamos completando cita fija
     function handleFechaChange() {
-      if (editingCitaFijaId) return; // No modificamos la fecha si es fija
+      if (editingCitaFijaId) return;
 
       const fechaInput = document.getElementById("cf-fecha");
       const fecha = fechaInput.value;
@@ -729,7 +728,6 @@
       else grupo.classList.add("hidden");
     }
 
-    // ✅ NUEVO: Evitamos resetear hora si estamos completando cita fija
     function handleTipoVisitaChange() {
       const tipo = document.getElementById("cf-tipo-visita").value;
       const grpFactura = document.getElementById("grupo-factura");
@@ -747,7 +745,6 @@
       else setHoraEnabled(false, "Selecciona una fecha primero");
     }
 
-    // ✅ NUEVO: Evitamos resetear hora si estamos completando cita fija
     function handleTipoTransporteChange() {
       applyConditionalFields();
       
@@ -924,6 +921,9 @@
 
       setLoadingButton(btn, true);
 
+      let docIdForEmail = null;
+      let horaExtraFinal = null;
+
       try {
         const lineaProveedor = (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase();
 
@@ -941,12 +941,14 @@
                 recolectaCaja,
                 cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
                 cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
-                notas, estatus: "CitaConfirmada", horaExtra: horaExtra,
+                notas, estatus: "CitaPendiente", horaExtra: horaExtra, // ✅ Cambio de estatus a CitaPendiente
                 updatedAt: serverTimestamp()
             };
 
             await updateDoc(docRef, updatePayload);
-            alert("¡Cita Fija confirmada exitosamente!");
+            
+            docIdForEmail = editingCitaFijaId;
+            horaExtraFinal = horaExtra;
 
             editingCitaFijaId = null;
             tipoVisitaEl.disabled = false; tipoVisitaEl.classList.remove("bg-gray-100");
@@ -979,7 +981,7 @@
 
             const horaExtra = validacion.horaExtra || null;
 
-            await addDoc(collection(db, "CitasProveedor"), {
+            const docRef = await addDoc(collection(db, "CitasProveedor"), {
                 usuarioProveedor: currentUser.usuario, linea: lineaProveedor,
                 razon: currentProveedorDoc?.razon || null, frontera: currentProveedorDoc?.frontera || null,
                 fecha, hora, horaExtra, tipoVisita, tipoTransporte, destino,
@@ -992,7 +994,65 @@
                 notas, esDomingo, estatus: "CitaPendiente", createdAt: serverTimestamp()
             });
 
-            alert("Cita registrada como pre-registro.\n\nEstatus: CitaPendiente.");
+            docIdForEmail = docRef.id;
+            horaExtraFinal = horaExtra;
+        }
+
+        // ✅ SECCIÓN DE ENVÍO DE CORREO REHABILITADA PARA AMBAS RUTAS
+        const payloadEmail = {
+          providerEmail: currentUser.usuario,
+          providerLinea: (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase(),
+          providerRazon: currentProveedorDoc?.razon || "",
+          providerFrontera: currentProveedorDoc?.frontera || "",
+          citaId: docIdForEmail,
+          cita: {
+            fecha, hora, horaExtra: horaExtraFinal, tipoVisita, tipoTransporte,
+            destino,
+            noPallets: (tipoVisita === "Descarga") ? Number(noPallets) : null,
+            chofer, lineaTransporte: (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase(),
+            placas, factura, caja, sello,
+            placas2: (tipoTransporte === "Full") ? placas2 : "",
+            caja2: (tipoTransporte === "Full") ? caja2 : "",
+            sello2: (tipoTransporte === "Full") ? sello2 : "",
+            recolectaCaja,
+            cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
+            cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
+            notas, esDomingo: isSunday(fecha)
+          }
+        };
+
+        let correoOk = true;
+
+        try {
+          const res = await fetch(APPS_SCRIPT_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({
+              authToken: "tk_logistica_bmm_2026",
+              action: "sendAppointmentNotification",
+              payload: payloadEmail
+            })
+          });
+
+          const raw = await res.text();
+          let data = null;
+          try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
+
+          if (!res.ok || (data && data.success === false)) {
+            correoOk = false;
+            console.error("Apps Script email error:", { status: res.status, raw, data });
+          }
+        } catch (mailErr) {
+          correoOk = false;
+          console.error("Error llamando Apps Script (sendAppointmentNotification):", mailErr);
+        }
+
+        if (correoOk) {
+          alert("Cita completada y enviada a revisión.\n\nEstatus: CitaPendiente.\nSe te notificará por correo cuando logística apruebe la cita.");
+        } else {
+          alert("La cita se guardó correctamente como CitaPendiente, pero hubo un problema al enviar el correo de notificación al administrador.");
         }
 
         document.getElementById("cita-form").reset();
