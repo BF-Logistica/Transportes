@@ -67,19 +67,16 @@
         .btn.danger { background: #dc2626; color: #fff }
         .btn.danger:hover { background: #b91c1c }
         @media (max-width:768px) { .sidebar-expanded { width: 210px } .main-content-expanded { margin-left: 210px } header h1 { font-size: 1.15rem } }
-    /* Estilos para el logo inferior del sidebar */
         .sidebar-footer-logo {
             width: 45px; 
             height: auto;
             transition: width 0.3s ease;
             
         }
-
         
         .sidebar-collapsed .sidebar-footer-logo {
             width: 35px; 
         }
-
         
         aside#sidebar {
             display: flex;
@@ -359,7 +356,6 @@
         // ✅ REPARACIÓN DE CONDICIÓN DE CARRERA (Cada petición genera su propio iframe único)
         function postToAppsScriptViaForm(url, dataObj = {}) {
             return new Promise((resolve) => {
-                // Generamos un ID único por cada envío para que no se sobreescriban
                 const uniqueId = "iframe_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
 
                 const iframe = document.createElement("iframe");
@@ -385,7 +381,6 @@
                 
                 setTimeout(() => { 
                     form.remove(); 
-                    // Damos 45 segundos para que la petición responda antes de borrar el iframe
                     setTimeout(() => iframe.remove(), 45000); 
                     resolve(true); 
                 }, 50);
@@ -664,23 +659,18 @@
         function setChip(folio, step, status, tsText, tagText) { const chip = $("#chip-" + folio + "-" + step); if (!chip) return; chip.classList.remove("todo", "live", "done"); chip.classList.add(status); if (tsText !== undefined) $("#ts-" + folio + "-" + step).textContent = tsText || ""; if (tagText !== undefined) $("#tag-" + folio + "-" + step).textContent = tagText || ""; }
         function moveTruck(folio, step) { $("#bar-" + folio).style.width = stepPercent(step) + "%"; $("#truck-" + folio).style.left = stepPercent(step) + "%"; }
         
-        // ✅ CORRECCIÓN DE LA ETIQUETA "cancel" PARA EL BOTÓN ROJO DE RAMPA
         function buttonsForStep(folio, step) {
             switch (step) {
-                case 0: return `<button class="btn mark" data-f="${folio}" data-step="0">Registrar</button>`;
-                case 1: return `<button class="btn mark" data-f="${folio}" data-step="1">Registrar</button>`;
-                case 2: return `<button class="btn mark" data-f="${folio}" data-step="2">Iniciar</button><button class="btn fin" data-f="${folio}" data-step="2">Finalizar</button>`;
-                case 3: return `<button class="btn fin" data-f="${folio}" data-step="3">Finalizar</button>`;
-                case 4: return `
-                <div class="flex flex-col gap-1.5 items-center w-full px-1">
-                    <button class="btn mark !text-[10px] sm:!text-[11px] !px-1.5 !py-1.5 !m-0 w-full leading-tight whitespace-normal break-words" data-f="${folio}" data-step="4">Iniciar carga/descarga</button>
-                    <button class="btn cancel danger !text-[10px] sm:!text-[11px] !px-1.5 !py-1.5 !m-0 w-full" data-f="${folio}" data-step="4">Cancelar</button>
-                </div>`;
-                case 5: return `<button class="btn mark" data-f="${folio}" data-step="5">Registrar</button>`;
-                case 6: return `<button class="btn mark" data-f="${folio}" data-step="6">Registrar</button>`;
-                case 7: return `<button class="btn mark" data-f="${folio}" data-step="7">Registrar</button>`;
-                case 8: return `<button class="btn mark" data-f="${folio}" data-step="8">Iniciar</button><button class="btn fin" data-f="${folio}" data-step="8">Finalizar</button>`;
-                case 9: return `<button class="btn mark" data-f="${folio}" data-step="9">Registrar</button>`;
+                case 0: return `<button class="btn mark w-full" data-f="${folio}" data-step="0">Registrar</button>`;
+                case 1: return `<button class="btn mark w-full" data-f="${folio}" data-step="1">Registrar</button>`;
+                case 2: return `<button class="btn mark w-full" data-f="${folio}" data-step="2">Iniciar</button><button class="btn fin w-full !mt-0" data-f="${folio}" data-step="2">Finalizar</button>`;
+                case 3: return `<button class="btn fin w-full" data-f="${folio}" data-step="3">Finalizar</button>`;
+                case 4: return `<button class="btn mark w-full !text-[10px] sm:!text-[11px] !px-1.5 !py-1.5 leading-tight whitespace-normal break-words" data-f="${folio}" data-step="4">Iniciar carga/descarga</button><button class="btn cancel danger w-full !text-[10px] sm:!text-[11px] !px-1.5 !py-1.5 !mt-0" data-f="${folio}" data-step="4">Cancelar</button>`;
+                case 5: return `<button class="btn mark w-full" data-f="${folio}" data-step="5">Registrar</button>`;
+                case 6: return `<button class="btn mark w-full" data-f="${folio}" data-step="6">Registrar</button>`;
+                case 7: return `<button class="btn mark w-full" data-f="${folio}" data-step="7">Registrar</button>`;
+                case 8: return `<button class="btn mark w-full" data-f="${folio}" data-step="8">Iniciar</button><button class="btn fin w-full !mt-0" data-f="${folio}" data-step="8">Finalizar</button>`;
+                case 9: return `<button class="btn mark w-full" data-f="${folio}" data-step="9">Registrar</button>`;
                 default: return "";
             }
         }
@@ -818,11 +808,80 @@
         mcitaBtnCancelar.onclick = () => { mcitaCancelWrap.classList.remove("hidden"); mcitaBtnConfirmCancel.classList.remove("hidden"); mcitaBtnCancelar.classList.add("hidden"); mcitaBtnAceptar.classList.add("hidden"); mcitaCancelComent.focus(); };
         mcitaBtnConfirmCancel.onclick = async () => { const comment = mcitaCancelComent.value.trim(); if (!comment) { mcitaCancelErr.classList.remove("hidden"); return; } mcitaCancelErr.classList.add("hidden"); mcitaBtnConfirmCancel.disabled = true; const oldTxt = mcitaBtnConfirmCancel.textContent; mcitaBtnConfirmCancel.textContent = "Cancelando..."; try { mcita_ctx?.resolve && mcita_ctx.resolve({ action: "cancel", comment }); closeModalCita(); } catch (e) { console.error(e); mcitaBtnConfirmCancel.disabled = false; mcitaBtnConfirmCancel.textContent = oldTxt; mcitaCancelErr.textContent = "Error al intentar cancelar. Revisa consola."; mcitaCancelErr.classList.remove("hidden"); } };
 
+        // ✅ SE MODIFICA LA FUNCIÓN PARA DIBUJAR LOS BLOQUES AZULES DE SEGURIDAD
         function renderCardSkeleton(folio, cita) {
-            const el = document.createElement("div"); el.className = "mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"; el.dataset.folio = folio;
+            const el = document.createElement("div"); 
+            el.className = "mb-6 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"; 
+            el.dataset.folio = folio;
+            
+            const sData = ["Llegada", "Ingreso", "Disuasión (E)", "Patio (E)", "Rampa", "Fin Carga/Descarga", "Liberación", "Patio (S)", "Disuasión (S)", "Salida de Planta"];
+            
+            const rStep = (t, i) => `<div class="text-center flex-1 flex flex-col items-center px-1"><div id="chip-${folio}-${i}" class="chip todo mx-auto"><img src="${iconForStep(i)}" class="w-12 h-12 sm:w-14 sm:h-14" alt="${t}"></div><div class="mt-2 font-semibold text-xs sm:text-sm leading-tight">${t}</div><div id="ts-${folio}-${i}" class="mt-1 text-[10px] sm:text-xs text-gray-500 leading-tight min-h-[16px]"></div><div class="mt-2 w-full flex flex-col gap-1.5 items-center justify-start">${buttonsForStep(folio, i)}</div><div id="tag-${folio}-${i}" class="mt-1 text-[10px] sm:text-[11px] text-blue-700 leading-tight"></div></div>`;
+
             el.innerHTML = `
-        <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100"><div class="flex items-center gap-3"><img src="${truckIconFor(cita.tipoVisita)}" class="w-7 h-7" alt="Tipo de visita"><div><div class="text-lg font-semibold">Folio: <span class="text-[var(--bmm-blue)]">${folio}</span></div><div class="text-xs text-gray-500">Línea: ${escapeHtml(cita.linea || cita.lineaTransporte || "-")} · Placas: ${escapeHtml(cita.placas || "-")} · TipoVisita: ${escapeHtml(cita.tipoVisita || "-")}</div></div></div><div class="flex items-center gap-2"><span class="inline-flex items-center gap-1 text-sm font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full"><span id="estado-${folio}">En Proceso</span></span><button class="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-1" data-info="${folio}" aria-label="Ver información"><img src="img/ico_info.png" class="w-4 h-4" alt="Info"> Información</button><button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] text-base font-semibold flex items-center gap-2" data-chat="${folio}"><img src="img/chat.png" class="w-5 h-5" alt=""> Chat<span id="chatBadge-${folio}" class="ml-1 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 hidden">0</span></button></div></div>
-        <div class="px-6 py-6"><div class="relative mb-8"><div class="timeline" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del transporte"><div id="bar-${folio}" style="width:0%"></div></div><img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso"></div><div class="mb-6 flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3"><div><div class="text-xs text-gray-500">Tiempo</div><div class="text-[11px] text-gray-400">≥45 min amarillo · ≥1h 30m rojo</div></div><div id="timer-${folio}" class="text-2xl font-mono font-extrabold text-[var(--bmm-blue)]">00:00:00</div></div><div class="grid grid-cols-5 lg:grid-cols-10 gap-5">${["Llegada", "Ingreso", "Disuasión (E)", "Patio (E)", "Rampa", "Fin Carga/Descarga", "Liberación", "Patio (S)", "Disuasión (S)", "Salida de Planta"].map((t, i) => `<div class="text-center"><div id="chip-${folio}-${i}" class="chip todo mx-auto"><img src="${iconForStep(i)}" class="w-14 h-14" alt="${t}"></div><div class="mt-2 font-semibold text-sm">${t}</div><div id="ts-${folio}-${i}" class="mt-1 text-xs text-gray-500"></div><div class="mt-2 space-x-2">${buttonsForStep(folio, i)}</div><div id="tag-${folio}-${i}" class="mt-1 text-[11px] text-blue-700"></div></div>`).join("")}</div><div id="chatBox-${folio}" class="mt-5 hidden border-t pt-4" aria-live="polite"><div class="flex items-center justify-between"><div class="font-semibold">Chat del folio ${folio}</div><button class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm" data-chat-close="${folio}">Cerrar</button></div><div id="chatMsgs-${folio}" class="mt-2 max-h-56 overflow-auto space-y-2 bg-gray-50 p-3 rounded-lg border"></div><div class="mt-2 flex gap-2"><label class="sr-only" for="chatInput-${folio}">Mensaje</label><input id="chatInput-${folio}" type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe un mensaje… (Enter para enviar)"><button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)] text-white" data-chat-send="${folio}">Enviar</button></div></div></div>`;
+        <div class="px-6 py-4 flex items-center justify-between bg-white border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <img src="${truckIconFor(cita.tipoVisita)}" class="w-7 h-7" alt="Tipo de visita">
+                <div>
+                    <div class="text-lg font-semibold">Folio: <span class="text-[var(--bmm-blue)]">${folio}</span></div>
+                    <div class="text-xs text-gray-500">Línea: ${escapeHtml(cita.linea || cita.lineaTransporte || "-")} · Placas: ${escapeHtml(cita.placas || "-")} · TipoVisita: ${escapeHtml(cita.tipoVisita || "-")}</div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1 text-sm font-semibold bg-blue-50 text-blue-700 px-3 py-1 rounded-full"><span id="estado-${folio}">En Proceso</span></span>
+                <button class="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm flex items-center gap-1" data-info="${folio}" aria-label="Ver información"><img src="img/ico_info.png" class="w-4 h-4" alt="Info"> Información</button>
+                <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)]/10 hover:bg-[var(--bmm-blue)]/20 text-[var(--bmm-blue)] text-base font-semibold flex items-center gap-2" data-chat="${folio}"><img src="img/chat.png" class="w-5 h-5" alt=""> Chat<span id="chatBadge-${folio}" class="ml-1 text-xs bg-red-600 text-white rounded-full px-1.5 py-0.5 hidden">0</span></button>
+            </div>
+        </div>
+        <div class="px-6 py-6">
+            <div class="mb-6 flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3">
+                <div>
+                    <div class="text-xs text-gray-500">Tiempo</div>
+                    <div class="text-[11px] text-gray-400">≥45 min amarillo · ≥1h 30m rojo</div>
+                </div>
+                <div id="timer-${folio}" class="text-2xl font-mono font-extrabold text-[var(--bmm-blue)]">00:00:00</div>
+            </div>
+            
+            <div class="overflow-x-auto pb-4">
+                <div class="min-w-[900px] pt-10">
+                    <div class="relative mb-6 mx-8">
+                        <div class="timeline" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del transporte">
+                            <div id="bar-${folio}" style="width:0%"></div>
+                        </div>
+                        <img src="${truckIconFor(cita.tipoVisita)}" id="truck-${folio}" class="truck w-20 h-20 left-[0%]" alt="Camión en progreso">
+                    </div>
+                    
+                    <div class="flex items-start gap-2 pt-4 px-2">
+                        <div class="border-2 border-[var(--bmm-blue)] rounded-xl p-3 relative flex justify-between gap-1 w-[30%]">
+                            <span class="absolute -top-2.5 left-4 bg-white px-2 text-[10px] font-bold text-[var(--bmm-blue)] uppercase tracking-wider">Seguridad</span>
+                            ${[0,1,2].map(i => rStep(sData[i], i)).join("")}
+                        </div>
+                        
+                        <div class="flex justify-between gap-1 p-3 w-[50%]">
+                            ${[3,4,5,6,7].map(i => rStep(sData[i], i)).join("")}
+                        </div>
+                        
+                        <div class="border-2 border-[var(--bmm-blue)] rounded-xl p-3 relative flex justify-between gap-1 w-[20%]">
+                            <span class="absolute -top-2.5 left-4 bg-white px-2 text-[10px] font-bold text-[var(--bmm-blue)] uppercase tracking-wider">Seguridad</span>
+                            ${[8,9].map(i => rStep(sData[i], i)).join("")}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chatBox-${folio}" class="mt-5 hidden border-t pt-4" aria-live="polite">
+                <div class="flex items-center justify-between">
+                    <div class="font-semibold">Chat del folio ${folio}</div>
+                    <button class="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200 text-sm" data-chat-close="${folio}">Cerrar</button>
+                </div>
+                <div id="chatMsgs-${folio}" class="mt-2 max-h-56 overflow-auto space-y-2 bg-gray-50 p-3 rounded-lg border"></div>
+                <div class="mt-2 flex gap-2">
+                    <label class="sr-only" for="chatInput-${folio}">Mensaje</label>
+                    <input id="chatInput-${folio}" type="text" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg" placeholder="Escribe un mensaje… (Enter para enviar)">
+                    <button class="px-3 py-2 rounded-lg bg-[var(--bmm-blue)] text-white" data-chat-send="${folio}">Enviar</button>
+                </div>
+            </div>
+        </div>`;
             return el;
         }
 
@@ -843,7 +902,6 @@
                     const { usuario, comentario } = res.data; await logBitacora(folio, { paso, accion, usuario, comentario, actorEmail: currentUser?.email || "" }); return res.data;
                 }
 
-                // ✅ SE CORRIGIÓ markCancelAndJump PARA MARCAR LA RAMPA COMO DONE Y SALTAR AL ESTADO FINAL
                 async function markCancelAndJump(origen, pasoKeyForComment) {
                     const com = await pedirComentario(origen === "DisuasionE" ? "Cancelar en Disuasión (E)" : "Cancelar en Rampa", pasoKeyForComment, "cancelar"); if (!com) return false;
                     const ts = nowISO(); 
@@ -852,7 +910,7 @@
                     if (origen === "DisuasionE") { 
                         updates["pasos.disuasionE_inicio"] = p.disuasionE_inicio || ts; updates["pasos.disuasionE_fin"] = ts; updates["pasos.disuasionE_destino"] = "Cancelado"; 
                     } else { 
-                        updates["pasos.rampa_inicio"] = p.rampa_inicio || ts;  // <--- SOLUCION PARA QUE NO SE SALTE VISUALMENTE LA RAMPA
+                        updates["pasos.rampa_inicio"] = p.rampa_inicio || ts;  
                         updates["pasos.rampa_cancel"] = ts; 
                     }
                     
@@ -1175,6 +1233,3 @@
 </body>
 
 </html>
-
-
-
