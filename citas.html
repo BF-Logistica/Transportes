@@ -151,7 +151,6 @@
             }
         }
 
-        /* Estilos para el logo inferior del sidebar */
         .sidebar-footer-logo {
             width: 45px; 
             height: auto;
@@ -175,7 +174,6 @@
 <body>
     <div id="app" class="h-full flex">
 
-        <!-- SIDEBAR -->
         <aside id="sidebar"
             class="sidebar-expanded bg-[var(--bmm-blue)] text-white fixed h-full transition-all duration-300 z-20 flex flex-col">
             <div class="p-4 flex items-center justify-between border-b border-gray-200">
@@ -247,7 +245,6 @@
             </div>
         </aside>
 
-        <!-- MAIN -->
         <main id="main-content"
             class="main-content-expanded flex-1 flex flex-col transition-all duration-300 bg-gray-50">
             <header
@@ -269,7 +266,6 @@
                 </button>
             </header>
 
-            <!-- FILTROS -->
             <div class="p-4 sm:p-6 bg-white border-b border-gray-200">
                 <div class="flex gap-4 flex-wrap items-center">
                     <div class="flex-1 min-w-[220px]">
@@ -278,7 +274,6 @@
                             aria-label="Buscar cita por línea, placas, chofer o factura" />
                     </div>
 
-                    <!-- ✅ CAMBIO 1: botón Generar Cita (reemplaza Limpiar filtros) -->
                     <button id="generate-cita"
                         class="px-4 py-2 bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -287,7 +282,6 @@
                         Generar Cita
                     </button>
 
-                    <!-- BOTÓN CALENDARIO SEMANAL -->
                     <button id="calendar-btn" type="button"
                         class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
                         title="Ver calendario semanal de citas">
@@ -297,7 +291,6 @@
                 </div>
             </div>
 
-            <!-- TABLA PENDIENTES -->
             <div class="flex-1 p-4 sm:p-6 table-container">
                 <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
                     <div class="overflow-x-auto">
@@ -349,7 +342,6 @@
         </main>
     </div>
 
-    <!-- MODAL DETALLE DE CITA -->
     <div id="cita-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -412,8 +404,7 @@
                         <label for="cm-placas"
                             class="block text-xs font-semibold text-gray-500 uppercase mb-1">Placas</label>
                         <input id="cm-placas" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-[var(--bmm-blue)]" />
                     </div>
 
                     <div>
@@ -438,8 +429,7 @@
                         <label for="cm-chofer"
                             class="block text-xs font-semibold text-gray-500 uppercase mb-1">Chofer</label>
                         <input id="cm-chofer" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:ring-2 focus:ring-[var(--bmm-blue)]" />
                     </div>
 
                     <div>
@@ -518,7 +508,6 @@
         </div>
     </div>
 
-    <!-- ✅ NUEVO: MODAL CANCELACIÓN (motivo) -->
     <div id="cancel-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -577,7 +566,6 @@
         </div>
     </div>
 
-    <!-- ✅ NUEVO: MODAL GENERAR CITA -->
     <div id="gen-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -783,7 +771,7 @@
                         </select>
 
                         <p id="gn-recolectaCaja-help" class="text-[11px] text-gray-500 mt-1">
-                            Si es <b>Sí</b> se mostrarán “Caja que recolecta” <b>y</b> “Caja que deja”.                           
+                            Si es <b>Sí</b> se mostrarán “Caja que recolecta” <b>y</b> “Caja que deja”.                            
                         </p>
                     </div>
 
@@ -829,7 +817,6 @@
         </div>
     </div>
 
-    <!-- MODAL CALENDARIO SEMANAL -->
     <div id="calendar-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto max-h-[90vh] flex flex-col overflow-hidden">
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -873,13 +860,11 @@
                 </div>
             </div>
 
-            <!-- CUERPO DEL CALENDARIO -->
             <div id="calendar-body" class="p-4 flex-1 overflow-y-auto bg-white text-xs sm:text-sm">
             </div>
         </div>
     </div>
 
-    <!-- LÓGICA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import {
@@ -920,7 +905,6 @@
         let currentCita = null;
         let currentUser = null;
 
-        // ==== estado calendario semanal ====
         let calendarCitas = [];
         let calendarIndex = {};
         let calendarDataLoaded = false;
@@ -992,7 +976,6 @@
             return a === b;
         }
 
-        // ====== FOLIOS CONSECUTIVOS POR FECHA ======
         async function getNextFolioForDate(fechaISO) {
             if (!fechaISO) {
                 throw new Error("Fecha inválida para generar folio");
@@ -1066,7 +1049,6 @@
         function enforceAdminAccess() {
             const isFileProtocol = window.location.protocol === "file:";
             if (isFileProtocol) {
-                console.warn("Saltando validación de login (entorno local file://).");
                 return true;
             }
 
@@ -1358,9 +1340,6 @@
             return used < maxCap;
         }
 
-        // ===============================
-        // ✅ helpers "hot refresh" del calendario
-        // ===============================
         function isCalendarOpen() {
             const modal = document.getElementById("calendar-modal");
             return modal && modal.classList.contains("flex") && !modal.classList.contains("hidden");
@@ -1433,6 +1412,14 @@
 
             const fecha = fechaInput.value;
             const hora = horaSelect.value;
+            const nuevaPlaca = document.getElementById("cm-placas").value.trim().toUpperCase();
+            const nuevoChofer = document.getElementById("cm-chofer").value.trim().toUpperCase();
+
+            if (!nuevaPlaca || !nuevoChofer) {
+                generalError.textContent = "Las placas y el nombre del chofer son obligatorios.";
+                generalError.classList.remove("hidden");
+                return;
+            }
 
             let ok = true;
 
@@ -1467,7 +1454,9 @@
                     hora,
                     horaExtra: nuevaHoraExtra,
                     esDomingo,
-                    estatus: "CitaConfirmada"
+                    estatus: "CitaConfirmada",
+                    placas: nuevaPlaca,
+                    chofer: nuevoChofer
                 };
                 await updateDoc(docRef, updatePayload);
 
@@ -1503,13 +1492,13 @@
                         citaId: currentCita.id,
                         datosCita: {
                             linea: currentCita.linea,
-                            placas: currentCita.placas,
+                            placas: nuevaPlaca,
                             tipoTransporte: currentCita.tipoTransporte,
                             tipoVisita: currentCita.tipoVisita,
                             fecha,
                             hora,
                             horaExtra: nuevaHoraExtra,
-                            chofer: currentCita.chofer,
+                            chofer: nuevoChofer,
                             destino: currentCita.destino,
                             factura: currentCita.factura,
                             notas: currentCita.notas,
@@ -1567,7 +1556,6 @@
             }
         }
 
-        // ✅ CAMBIO 2: Eliminar cita ahora -> cancelar con motivo + correo + registro
         function openCancelModal() {
             if (!currentCita) return;
 
@@ -1657,7 +1645,6 @@
             const canceladoPorEmail = (currentUser && (currentUser.email || currentUser.correo)) ? (currentUser.email || currentUser.correo) : "";
 
             try {
-                // 1) Actualizar Firestore (NO borrar)
                 const docRef = doc(db, "CitasProveedor", currentCita.id);
                 await updateDoc(docRef, {
                     estatus: "CitaCancelada",
@@ -1667,7 +1654,6 @@
                     canceladoComentario: motivo
                 });
 
-                // 2) Enviar correo cancelación al proveedor
                 const correoDestino = currentCita.usuarioProveedor || "";
                 if (correoDestino) {
                     const payloadCancelEmail = {
@@ -1711,7 +1697,6 @@
                     }
                 }
 
-                // 3) Registrar en Sheets (Registro) usando formato que me compartiste
                 await appendRegistroCancelacion({
                     folio: (currentCita.raw && currentCita.raw.folio) ? String(currentCita.raw.folio) : "",
                     citaId: currentCita.id,
@@ -1732,7 +1717,6 @@
                     }
                 });
 
-                // 4) UI: quitar de la tabla pendientes + calendario
                 removeCalendarCitaById(currentCita.id);
                 allCitas = allCitas.filter(c => c.id !== currentCita.id);
                 applyFilters();
@@ -1750,7 +1734,6 @@
             }
         }
 
-        // ====== helpers calendario semanal ======
         function startOfDay(date) {
             return new Date(date.getFullYear(), date.getMonth(), date.getDate());
         }
@@ -1944,14 +1927,10 @@
             modal.classList.remove("flex");
         }
 
-        // ===============================
-        // ✅ NUEVO: Generar cita (desde hoy en adelante, sin validar capacidad)
-        // ===============================
         function openGenModal() {
             const modal = document.getElementById("gen-modal");
             document.getElementById("gn-general-error").classList.add("hidden");
 
-            // limpiar errores
             [
                 "gn-usuarioProveedor-error",
                 "gn-lineaTransporte-error",
@@ -1965,7 +1944,6 @@
                 "gn-cajaRecolecta-error",
             ].forEach(id => document.getElementById(id).classList.add("hidden"));
 
-            // reset campos básicos
             [
                 "gn-usuarioProveedor", "gn-frontera", "gn-razon",
                 "gn-lineaTransporte", "gn-placas", "gn-chofer", "gn-destino",
@@ -1975,16 +1953,13 @@
             document.getElementById("gn-tipoTransporte").value = "";
             document.getElementById("gn-tipoVisita").value = "";
 
-            // ✅ fecha: desde hoy
             const hoyISO = getTodayISO();
             const fechaEl = document.getElementById("gn-fecha");
             fechaEl.min = hoyISO;
             fechaEl.value = hoyISO;
 
-            // recolecta default
             document.getElementById("gn-recolectaCaja").value = "No";
 
-            // horas
             const horaSel = document.getElementById("gn-hora");
             horaSel.innerHTML = "";
             allSlots.forEach(h => {
@@ -1995,7 +1970,6 @@
             });
             horaSel.value = allSlots[0] || "";
 
-            // estado UI dependiente
             document.getElementById("gn-horaExtra-wrap").classList.add("hidden");
             document.getElementById("gn-horaExtra").value = "";
 
@@ -2076,7 +2050,6 @@
             setErr("gn-hora-error", false);
             setErr("gn-cajaRecolecta-error", false);
 
-            // ✅ Validaciones completas
             if (!usuarioProveedor || !isValidEmail(usuarioProveedor)) { setErr("gn-usuarioProveedor-error", true); ok = false; }
             if (!lineaTransporte) { setErr("gn-lineaTransporte-error", true); ok = false; }
             if (!placas) { setErr("gn-placas-error", true); ok = false; }
@@ -2087,7 +2060,6 @@
             if (!fecha || !isDateFromToday(fecha)) { setErr("gn-fecha-error", true); ok = false; }
             if (!hora) { setErr("gn-hora-error", true); ok = false; }
 
-            // ✅ Dependencia: si recolecta caja = Sí -> cajaRecolecta requerido
             if (recolectaCaja === "Sí") {
                 if (!cajaRecolecta) { setErr("gn-cajaRecolecta-error", true); ok = false; }
             }
@@ -2100,7 +2072,6 @@
             const horaExtra = computeHoraExtraIfNeeded(tipoVisita, hora);
             document.getElementById("gn-horaExtra").value = horaExtra || "";
 
-            // reflejar placas ya normalizadas
             document.getElementById("gn-placas").value = placas;
 
             const btn = document.getElementById("gn-save-btn");
@@ -2125,7 +2096,7 @@
                     razon: razon || "",
 
                     lineaTransporte,
-                    linea: lineaTransporte, // por compatibilidad
+                    linea: lineaTransporte,
                     placas,
                     chofer,
                     destino,
@@ -2149,7 +2120,6 @@
 
                 await setDoc(newRef, data);
 
-                // correo pre-registro (sendAppointmentNotification)
                 const payloadMail = {
                     providerEmail: usuarioProveedor,
                     providerLinea: lineaTransporte,
@@ -2191,7 +2161,6 @@
                     console.warn("No se pudo enviar correo de pre-registro:", e);
                 }
 
-                // agregar a la tabla local
                 allCitas.unshift({
                     id: citaId,
                     raw: data,
@@ -2214,7 +2183,6 @@
                 });
                 applyFilters();
 
-                // calendario cache (si ya existe)
                 if (calendarDataLoaded) {
                     calendarCitas.push({
                         id: citaId,
@@ -2265,15 +2233,12 @@
             const wrapDeja = document.getElementById("gn-cajaDeja-wrap");
 
             if (v === "Sí") {
-                // Mostrar ambos
                 wrapRecolecta.classList.remove("hidden");
                 wrapDeja.classList.remove("hidden");
             } else {
-                // Ocultar ambos
                 wrapRecolecta.classList.add("hidden");
                 wrapDeja.classList.add("hidden");
 
-                // Limpiar valores cuando no aplica
                 const reco = document.getElementById("gn-cajaRecolecta");
                 const deja = document.getElementById("gn-cajaDeja");
 
@@ -2314,12 +2279,10 @@
             document.getElementById("cm-cancel-btn").addEventListener("click", closeCitaModal);
             document.getElementById("cm-accept-btn").addEventListener("click", acceptCita);
 
-            
             document.getElementById("cm-delete-btn").addEventListener("click", () => {
                 openCancelModal();
             });
 
-            // modal cancelación
             document.getElementById("cn-cancel-btn").addEventListener("click", closeCancelModal);
             document.getElementById("cn-confirm-btn").addEventListener("click", confirmarCancelacion);
 
@@ -2352,7 +2315,6 @@
                 }
             });
 
-            // ✅ NUEVO: abrir modal generar cita
             const genBtn = document.getElementById("generate-cita");
             if (genBtn) {
                 genBtn.addEventListener("click", () => {
@@ -2360,7 +2322,6 @@
                 });
             }
 
-            // generar: listeners
             document.getElementById("gn-cancel-btn").addEventListener("click", closeGenModal);
             document.getElementById("gn-save-btn").addEventListener("click", generarCita);
 
@@ -2368,7 +2329,6 @@
             document.getElementById("gn-hora").addEventListener("change", updateGenUIByTipoVisita);
             document.getElementById("gn-recolectaCaja").addEventListener("change", updateGenUIByRecolectaCaja);
 
-            // UX: placas a mayúsculas en vivo
             const placasEl = document.getElementById("gn-placas");
             if (placasEl) {
                 placasEl.addEventListener("input", () => {
@@ -2376,7 +2336,6 @@
                 });
             }
 
-            // Calendario: abrir modal
             const calendarBtn = document.getElementById("calendar-btn");
             if (calendarBtn) {
                 calendarBtn.addEventListener("click", async () => {
@@ -2420,7 +2379,3 @@
 </body>
 
 </html>
-
-
-
-
