@@ -798,26 +798,13 @@
                         <div id="panelDoc" class="tab-panel" role="tabpanel" aria-labelledby="tabDoc">
                             <div class="row-1">
                                 <div class="file-box">
-                                    <label for="provZip"><strong>Adjuntar archivo ZIP (comprimido)</strong></label>
-                                    <input id="provZip" type="file" accept=".zip" />
-                                    <div class="hint i-info">Adjuntar un ZIP con la documentación requerida.</div>
-
+                                    <label for="provDoc"><strong>Documentación (opcional)</strong></label>
+                                    <input id="provDoc" type="file"
+                                        accept=".zip,.pdf,.doc,.docx,.xls,.xlsx,image/*" />
+                                    <div class="hint">Puedes adjuntar PDF, imagen escaneada, Word, Excel o ZIP.</div>
                                     <ul class="lista-zip">
-                                        <li>Opinión positiva <span style="color:red;">*</span></li>
-                                        <li>Opinión de cumplimiento de obligaciones fiscales <span style="color:red;">*</span></li>
-                                        <li>Constancia de situación fiscal <span style="color:red;">*</span></li>
-                                        <li>Copia de RFC (R1 y R2 si aplica) <span style="color:red;">*</span></li>
-                                        <li>CAAT <span style="color:red;">*</span></li>
-                                        <li>Comprobante de domicilio <span style="color:red;">*</span></li>
-                                        <li>Poder e identificación del representante legal <span style="color:red;">*</span></li>
-                                        <li>Certificación C-TPAT <span style="color:red;">*</span></li>
-                                        <li>SUA mensual de operadores autorizados (último) <span style="color:red;">*</span></li>
-                                        <li>Listado de transportistas autorizados <span style="color:red;">*</span></li>
-                                        <li>Listado de unidades autorizadas <span style="color:red;">*</span></li>
                                         <li>Hoja de datos de seguridad de los materiales (opcional)</li>
                                     </ul>
-
-                                    <div id="errProvZip" class="error hidden">El ZIP es obligatorio.</div>
                                 </div>
                             </div>
                         </div>
@@ -1236,12 +1223,9 @@
                     const email = emailRaw.toLowerCase();
                     const tel = v("provTel");
 
-                    const zip = document.getElementById("provZip")?.files?.[0];
+                    const docFile = document.getElementById("provDoc")?.files?.[0];
 
                     let ok = validateProviderBasic();
-                    if (!zip) { ok = false; setErr("errProvZip", true); }
-                    else { setErr("errProvZip", false); }
-
                     if (!ok) {
                         if (submitBtn) {
                             submitBtn.disabled = false;
@@ -1268,7 +1252,11 @@
                     });
 
                     try {
-                        const zipBase64 = await readFileAsBase64(zip);
+                        const filePayload = {};
+                        if (docFile) {
+                            filePayload.zipBase64 = await readFileAsBase64(docFile);
+                            filePayload.zipName = docFile.name;
+                        }
 
                         const response = await fetch(APPS_SCRIPT_URL, {
                               method: "POST",
@@ -1281,13 +1269,7 @@
                                 payload: {
                                   providerId: newId,
                                   providerEmail: email,
-                            
-                                  // (opcional) si luego quieres admins desde cliente
-                                  // adminEmails: ["mitzyguadalupe.rosado@beiersdorf.com", "mitrosa@hotmail.com"],
-                            
-                                  zipBase64,
-                                  zipName: zip.name,
-                            
+                                  ...filePayload,
                                   providerData: {
                                     linea,
                                     razon,
@@ -1351,6 +1333,3 @@
 
 
 </html>
-
-
-
