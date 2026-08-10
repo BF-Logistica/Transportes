@@ -940,7 +940,7 @@
                     const d = docSnap.data() || {};
                     result.push({
                         id: docSnap.id, raw: d,
-                        linea: d.lineaTransporte || d.linea || "",
+                        linea: d.linea || d.lineaTransporte || "",
                         placas: d.placas || "", tipoTransporte: d.tipoTransporte || "",
                         tipoVisita: d.tipoVisita || "", fecha: d.fecha || "",
                         hora: d.hora || "", horaExtra: d.horaExtra || null,
