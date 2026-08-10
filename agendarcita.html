@@ -66,7 +66,7 @@
       margin-top: auto;
       flex-shrink: 0;
     }
-    
+
     .footer-logo {
       height: 40px;
       width: auto;
@@ -222,14 +222,15 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
             </div>
 
+            <!-- CAMBIO 1: campo editable — quitado readonly, bg-gray-100 y cursor-not-allowed -->
             <div>
               <label for="cf-linea-transporte"
                 class="block text-xs font-semibold text-gray-500 uppercase mb-1">Transporte / línea
                 <span class="text-red-600">*</span>
               </label>
               <input id="cf-linea-transporte" type="text"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed focus:outline-none focus:ring-0"
-                placeholder="Se llenará con tu línea por defecto" readonly />
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
+                placeholder="Ej. ALPLA ROJO, WEENER EXPRESS, etc." />
             </div>
 
             <div id="grupo-factura">
@@ -361,6 +362,7 @@
         </div>
       </section>
     </main>
+
     <footer class="footer-bmm">
       <img src="img/logo_digital.png" alt="Digital Manufacturing Logo" class="footer-logo">
       <p class="text-xs sm:text-sm font-light">©️ 2026. Todos los derechos reservados.</p>
@@ -390,12 +392,14 @@
     let currentUser = null;
     let currentProveedorDoc = null;
     let editingCitaFijaId = null;
+    // CAMBIO 5a: variable para modo actualización de cita confirmada
+    let updatingCitaConfirmadaId = null;
 
     const ALL_HOURS = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, "0")}:00`);
-    
+
     const BLOCKED_HOURS = ["07:00", "15:00", "22:00"];
     const DOUBLE_CAPACITY_HOURS = ["05:00", "13:00", "21:00"];
-    const MIN_DAYS_AHEAD = 3; 
+    const MIN_DAYS_AHEAD = 3;
 
     function todayISO() {
       const d = new Date();
@@ -597,7 +601,7 @@
       const hoy = todayISO();
       const diff = daysDiff(hoy, fecha);
       const minDays = getMinDaysAheadByTipoVisita(tipoVisitaSel);
-      
+
       if (diff < minDays) {
         setHoraEnabled(false, minDays === 0 ? "Fecha no válida" : "Fecha no válida (mínimo 3 días)");
         return;
@@ -620,6 +624,7 @@
         });
 
         const usage = buildUsageByType(citas);
+        // CAMBIO 1b: lineaProv = nombre del proveedor (para validar separación de horarios)
         const lineaProv = currentProveedorDoc?.linea || "";
         const requiereHoraExtraSel = (tipoVisitaSel === "CargaDescarga" || tipoTransporteSel === "Full");
         const tiposReqSel = typesForTipoVisita(tipoVisitaSel);
@@ -632,7 +637,7 @@
 
           const capBase = getCapByHour(h);
           let invalidForProvider = false;
-          
+
           if (lineaProv) {
             const citasLinea = citas.filter(c => (c.linea || "") === lineaProv);
             for (const c of citasLinea) {
@@ -647,7 +652,7 @@
 
           let fullByTypeBase = tiposReqSel.some(t => (usage[h]?.[t] || 0) >= capBase);
           let fullByTypeExtra = false;
-          
+
           if (requiereHoraExtraSel) {
             const horaExtra = addHours(h, 2);
             if (!horaExtra || BLOCKED_HOURS.includes(horaExtra)) {
@@ -736,7 +741,7 @@
 
       applyDateLimitsByTipoVisita();
       applyConditionalFields();
-      
+
       if (editingCitaFijaId) return;
 
       document.getElementById("cf-hora").value = "";
@@ -747,7 +752,7 @@
 
     function handleTipoTransporteChange() {
       applyConditionalFields();
-      
+
       if (editingCitaFijaId) return;
 
       document.getElementById("cf-hora").value = "";
@@ -784,12 +789,10 @@
 
         infoEl.textContent = `${linea} | ${razon} | Frontera: ${frontera}`;
 
-        const lineaInput = document.getElementById("cf-linea-transporte");
-        if (linea && lineaInput) {
-          lineaInput.value = linea;
-          lineaInput.readOnly = true;
-          lineaInput.classList.add("bg-gray-100", "text-gray-700", "cursor-not-allowed");
-        }
+        // CAMBIO 2: NO se auto-llena cf-linea-transporte.
+        // El campo queda vacío — el usuario escribe la línea específica del camión.
+        // currentProveedorDoc.linea = nombre del proveedor (ALPLA, WEENER...)
+        // y se guarda en Firestore como `linea`, separado de `lineaTransporte`.
 
         await loadCitasProveedor();
       } catch (err) {
@@ -821,7 +824,7 @@
       const usage = buildUsageByType(citas);
       const capBase = getCapByHour(hora);
       const tiposReq = typesForTipoVisita(tipoVisita);
-      
+
       if (!tiposReq.length) return { ok: false, message: "Selecciona el tipo de visita." };
 
       for (const t of tiposReq) {
@@ -845,7 +848,7 @@
       if (requiereHoraExtra) {
         horaExtra = addHours(hora, 2);
         if (!horaExtra || BLOCKED_HOURS.includes(horaExtra)) return { ok: false, message: `No se puede usar la hora ${hora} porque no hay una segunda hora posterior disponible.` };
-        
+
         const capExtra = getCapByHour(horaExtra);
         for (const t of tiposReq) {
           const usedExtra = usage[horaExtra]?.[t] || 0;
@@ -856,7 +859,7 @@
       return { ok: true, horaExtra };
     }
 
-async function handleNuevaCita(event) {
+    async function handleNuevaCita(event) {
       event.preventDefault();
       clearError();
       const btn = document.getElementById("btn-agendar");
@@ -901,9 +904,42 @@ async function handleNuevaCita(event) {
       const cajaDeja = (cajaDejaEl.value || "").trim().toUpperCase();
       const cajaRecolecta = (cajaRecolectaEl.value || "").trim().toUpperCase();
 
+      // CAMBIO 5b: modo actualización de CitaConfirmada
+      if (updatingCitaConfirmadaId) {
+        if (!lineaTransporte) return setError("El campo Transporte / línea es obligatorio.");
+        if (!chofer) return setError("El nombre del chofer es obligatorio.");
+        if (!placas) return setError("No. placas es obligatorio.");
+
+        const citaOrig = window.citasEnMemoria[updatingCitaConfirmadaId];
+        const esFullOrig = (citaOrig?.tipoTransporte || "") === "Full";
+        if (esFullOrig && !placas2) return setError("No. placas 2 es obligatorio para transporte Full.");
+
+        setLoadingButton(btn, true);
+        try {
+          const docRef = doc(db, "CitasProveedor", updatingCitaConfirmadaId);
+          const payload = {
+            lineaTransporte,
+            chofer,
+            placas,
+            updatedAt: serverTimestamp()
+          };
+          if (esFullOrig) payload.placas2 = placas2;
+
+          await updateDoc(docRef, payload);
+          alert("Datos de la cita actualizados correctamente.");
+          window.location.reload();
+        } catch (err) {
+          console.error("Error actualizando cita confirmada:", err);
+          setError("Ocurrió un error al actualizar. Intenta de nuevo.");
+          setLoadingButton(btn, false);
+        }
+        return;
+      }
+
       if (!tipoTransporte) return setError("Selecciona el tipo de transporte.");
+      if (!lineaTransporte) return setError("El campo Transporte / línea es obligatorio.");
       if (recolectaCaja === "Si" && (!cajaDeja || !cajaRecolecta)) return setError("Indica qué caja deja y qué caja recolecta.");
-      if (!chofer || !lineaTransporte) return setError("Chofer y transporte/línea son obligatorios.");
+      if (!chofer) return setError("Chofer es obligatorio.");
       if (!placas) return setError("No. placas es obligatorio.");
       if (!caja) return setError("No. caja/contenedor es obligatorio.");
 
@@ -925,74 +961,81 @@ async function handleNuevaCita(event) {
       let horaExtraFinal = null;
 
       try {
-        const lineaProveedor = (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase();
+        // CAMBIO 3: linea = nombre del proveedor (perfil), lineaTransporte = lo que escribe el usuario
+        const lineaProveedor = (currentProveedorDoc?.linea || "").toUpperCase();
 
         if (editingCitaFijaId) {
-            const requiereHoraExtra = (tipoTransporte === "Full");
-            let horaExtra = null;
-            if (requiereHoraExtra) horaExtra = addHours(hora, 2);
+          const requiereHoraExtra = (tipoTransporte === "Full");
+          let horaExtra = null;
+          if (requiereHoraExtra) horaExtra = addHours(hora, 2);
 
-            const docRef = doc(db, "CitasProveedor", editingCitaFijaId);
-            const updatePayload = {
-                tipoTransporte, noPallets: Number(noPallets), chofer, placas, caja, sello,
-                placas2: (tipoTransporte === "Full") ? placas2 : "",
-                caja2: (tipoTransporte === "Full") ? caja2 : "",
-                sello2: (tipoTransporte === "Full") ? sello2 : "",
-                recolectaCaja,
-                cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
-                cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
-                notas, estatus: "CitaPendiente", horaExtra: horaExtra, 
-                updatedAt: serverTimestamp()
-            };
+          const docRef = doc(db, "CitasProveedor", editingCitaFijaId);
+          const updatePayload = {
+            tipoTransporte, noPallets: Number(noPallets), chofer, placas, caja, sello,
+            lineaTransporte,
+            placas2: (tipoTransporte === "Full") ? placas2 : "",
+            caja2: (tipoTransporte === "Full") ? caja2 : "",
+            sello2: (tipoTransporte === "Full") ? sello2 : "",
+            recolectaCaja,
+            cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
+            cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
+            notas, estatus: "CitaPendiente", horaExtra: horaExtra,
+            updatedAt: serverTimestamp()
+          };
 
-            await updateDoc(docRef, updatePayload);
-            
-            docIdForEmail = editingCitaFijaId;
-            horaExtraFinal = horaExtra;
+          await updateDoc(docRef, updatePayload);
+          docIdForEmail = editingCitaFijaId;
+          horaExtraFinal = horaExtra;
 
         } else {
-            const opt = Array.from(horaEl.options).find(o => o.value === hora);
-            if (!opt || opt.disabled) return setError("El horario seleccionado ya no está disponible.");
+          const opt = Array.from(horaEl.options).find(o => o.value === hora);
+          if (!opt || opt.disabled) return setError("El horario seleccionado ya no está disponible.");
 
-            const hoy = todayISO();
-            if (fecha < hoy) return setError("No puedes agendar citas en fechas pasadas.");
-            const minDays = getMinDaysAheadByTipoVisita(tipoVisita);
-            const diff = daysDiff(hoy, fecha);
-            if (diff < minDays) return setError(tipoVisita === "Carga" ? "Fecha no válida." : "Debes seleccionar tu fecha con al menos 3 días de anticipación.");
-            const esDomingo = isSunday(fecha);
-            if (esDomingo && !notas) return setError("Para citas en domingo es obligatorio explicar el motivo en comentarios.");
+          const hoy = todayISO();
+          if (fecha < hoy) return setError("No puedes agendar citas en fechas pasadas.");
+          const minDays = getMinDaysAheadByTipoVisita(tipoVisita);
+          const diff = daysDiff(hoy, fecha);
+          if (diff < minDays) return setError(tipoVisita === "Carga" ? "Fecha no válida." : "Debes seleccionar tu fecha con al menos 3 días de anticipación.");
+          const esDomingo = isSunday(fecha);
+          if (esDomingo && !notas) return setError("Para citas en domingo es obligatorio explicar el motivo en comentarios.");
 
-            if ((tipoVisita === "Carga" || tipoVisita === "CargaDescarga") && !destino) return setError("Destino es obligatorio.");
-            if ((tipoVisita === "Carga" || tipoVisita === "CargaDescarga") && !factura) return setError("Factura obligatoria.");
+          if ((tipoVisita === "Carga" || tipoVisita === "CargaDescarga") && !destino) return setError("Destino es obligatorio.");
+          if ((tipoVisita === "Carga" || tipoVisita === "CargaDescarga") && !factura) return setError("Factura obligatoria.");
 
-            const validacion = await validarSlotCita({ fecha, hora, tipoVisita, tipoTransporte, linea: lineaProveedor });
-            if (!validacion.ok) {
-                setLoadingButton(btn, false);
-                return setError(validacion.message);
-            }
+          const validacion = await validarSlotCita({ fecha, hora, tipoVisita, tipoTransporte, linea: lineaProveedor });
+          if (!validacion.ok) {
+            setLoadingButton(btn, false);
+            return setError(validacion.message);
+          }
 
-            const horaExtra = validacion.horaExtra || null;
+          const horaExtra = validacion.horaExtra || null;
 
-            const docRef = await addDoc(collection(db, "CitasProveedor"), {
-                usuarioProveedor: currentUser.usuario, linea: lineaProveedor,
-                razon: currentProveedorDoc?.razon || null, frontera: currentProveedorDoc?.frontera || null,
-                fecha, hora, horaExtra, tipoVisita, tipoTransporte, destino,
-                noPallets: (tipoVisita === "Descarga") ? Number(noPallets) : null,
-                chofer, lineaTransporte, placas, factura, caja, sello,
-                placas2: (tipoTransporte === "Full") ? placas2 : "",
-                caja2: (tipoTransporte === "Full") ? caja2 : "",
-                sello2: (tipoTransporte === "Full") ? sello2 : "",
-                recolectaCaja, cajaDeja: recolectaCaja === "Si" ? cajaDeja : "", cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
-                notas, esDomingo, estatus: "CitaPendiente", createdAt: serverTimestamp()
-            });
+          const docRef = await addDoc(collection(db, "CitasProveedor"), {
+            usuarioProveedor: currentUser.usuario,
+            // CAMBIO 3: linea = proveedor (ALPLA, WEENER...), lineaTransporte = línea específica del camión
+            linea: lineaProveedor,
+            lineaTransporte,
+            razon: currentProveedorDoc?.razon || null,
+            frontera: currentProveedorDoc?.frontera || null,
+            fecha, hora, horaExtra, tipoVisita, tipoTransporte, destino,
+            noPallets: (tipoVisita === "Descarga") ? Number(noPallets) : null,
+            chofer, placas, factura, caja, sello,
+            placas2: (tipoTransporte === "Full") ? placas2 : "",
+            caja2: (tipoTransporte === "Full") ? caja2 : "",
+            sello2: (tipoTransporte === "Full") ? sello2 : "",
+            recolectaCaja,
+            cajaDeja: recolectaCaja === "Si" ? cajaDeja : "",
+            cajaRecolecta: recolectaCaja === "Si" ? cajaRecolecta : "",
+            notas, esDomingo, estatus: "CitaPendiente", createdAt: serverTimestamp()
+          });
 
-            docIdForEmail = docRef.id;
-            horaExtraFinal = horaExtra;
+          docIdForEmail = docRef.id;
+          horaExtraFinal = horaExtra;
         }
 
         const payloadEmail = {
           providerEmail: currentUser.usuario,
-          providerLinea: (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase(),
+          providerLinea: (currentProveedorDoc?.linea || "").toUpperCase(),
           providerRazon: currentProveedorDoc?.razon || "",
           providerFrontera: currentProveedorDoc?.frontera || "",
           citaId: docIdForEmail,
@@ -1000,7 +1043,8 @@ async function handleNuevaCita(event) {
             fecha, hora, horaExtra: horaExtraFinal, tipoVisita, tipoTransporte,
             destino,
             noPallets: (tipoVisita === "Descarga") ? Number(noPallets) : null,
-            chofer, lineaTransporte: (currentProveedorDoc?.linea || lineaTransporte || "").toUpperCase(),
+            chofer,
+            lineaTransporte,
             placas, factura, caja, sello,
             placas2: (tipoTransporte === "Full") ? placas2 : "",
             caja2: (tipoTransporte === "Full") ? caja2 : "",
@@ -1017,9 +1061,7 @@ async function handleNuevaCita(event) {
         try {
           const res = await fetch(APPS_SCRIPT_URL, {
             method: "POST",
-            headers: {
-              "Content-Type": "text/plain;charset=utf-8"
-            },
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
             body: JSON.stringify({
               authToken: "tk_logistica_bmm_2026",
               action: "sendAppointmentNotification",
@@ -1046,14 +1088,12 @@ async function handleNuevaCita(event) {
           alert("La cita se guardó correctamente como CitaPendiente, pero hubo un problema al enviar el correo de notificación al administrador.");
         }
 
-        // ✅ LA MAGIA OCURRE AQUÍ: RECARGAMOS LA PÁGINA PARA DEJARLA 100% LIMPIA
         window.location.reload();
 
       } catch (err) {
         console.error("Error guardando cita:", err);
         setError("Ocurrió un error al procesar la cita. Intenta de nuevo.");
       } finally {
-        // En caso de error, volvemos a habilitar el botón (si hay reload, esto no importa)
         setLoadingButton(btn, false);
       }
     }
@@ -1078,12 +1118,12 @@ async function handleNuevaCita(event) {
         const snap = await getDocs(qRef);
 
         const citas = [];
-        window.citasEnMemoria = window.citasEnMemoria || {}; 
+        window.citasEnMemoria = window.citasEnMemoria || {};
 
-        snap.forEach(docSnap => { 
-            const data = docSnap.data();
-            citas.push({ id: docSnap.id, ...data }); 
-            window.citasEnMemoria[docSnap.id] = data; 
+        snap.forEach(docSnap => {
+          const data = docSnap.data();
+          citas.push({ id: docSnap.id, ...data });
+          window.citasEnMemoria[docSnap.id] = data;
         });
 
         citas.sort((a, b) => ((a.fecha || "") + " " + (a.hora || "")).localeCompare((b.fecha || "") + " " + (b.hora || "")));
@@ -1098,19 +1138,29 @@ async function handleNuevaCita(event) {
         tbody.innerHTML = citas.map(c => {
           const estatus = c.estatus || "CitaPendiente";
           let badgeClasses = "bg-gray-100 text-gray-800";
-          let botonAccion = ""; 
+          let botonAccion = "";
 
-          if (estatus === "CitaPendiente") badgeClasses = "bg-yellow-100 text-yellow-800";
-          else if (estatus === "CitaConfirmada") badgeClasses = "bg-green-100 text-green-800";
-          else if (estatus === "CitaCancelada" || estatus === "CitaRechazada") badgeClasses = "bg-red-100 text-red-800";
-          else if (estatus === "FijaIncompleta") {
-              badgeClasses = "bg-blue-100 text-blue-800";
-              botonAccion = `
-                <button type="button" onclick="window.cargarCitaFijaFormulario('${c.id}')" 
-                        class="ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white text-[10px] font-semibold transition-colors">
-                    Completar
-                </button>
-              `;
+          if (estatus === "CitaPendiente") {
+            badgeClasses = "bg-yellow-100 text-yellow-800";
+          } else if (estatus === "CitaConfirmada") {
+            badgeClasses = "bg-green-100 text-green-800";
+            // CAMBIO 4: botón Actualizar Datos solo para CitaConfirmada
+            botonAccion = `
+              <button type="button" onclick="window.cargarCitaConfirmadaFormulario('${c.id}')"
+                      class="ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white text-[10px] font-semibold transition-colors">
+                Actualizar Datos
+              </button>
+            `;
+          } else if (estatus === "CitaCancelada" || estatus === "CitaRechazada") {
+            badgeClasses = "bg-red-100 text-red-800";
+          } else if (estatus === "FijaIncompleta") {
+            badgeClasses = "bg-blue-100 text-blue-800";
+            botonAccion = `
+              <button type="button" onclick="window.cargarCitaFijaFormulario('${c.id}')"
+                      class="ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white text-[10px] font-semibold transition-colors">
+                Completar
+              </button>
+            `;
           }
 
           const horaMostrar = c.horaExtra ? `${c.hora} - ${c.horaExtra}` : c.hora;
@@ -1141,34 +1191,120 @@ async function handleNuevaCita(event) {
       }
     }
 
+    // CAMBIO 5c: función para cargar cita confirmada en modo actualización
+    window.cargarCitaConfirmadaFormulario = function(citaId) {
+      clearError();
+      const cita = window.citasEnMemoria[citaId];
+      if (!cita) return;
+
+      updatingCitaConfirmadaId = citaId;
+      editingCitaFijaId = null;
+
+      // Bloquear todos los campos excepto los editables
+      const camposReadonly = [
+        "cf-tipo-visita", "cf-tipo-transporte", "cf-fecha", "cf-hora",
+        "cf-recolecta-caja", "cf-destino", "cf-no-pallets",
+        "cf-factura", "cf-caja", "cf-sello", "cf-caja2", "cf-sello2",
+        "cf-caja-deja", "cf-caja-recolecta", "cf-notas"
+      ];
+
+      camposReadonly.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.disabled = true;
+        el.classList.add("bg-gray-100", "opacity-70");
+      });
+
+      // Llenar todos los campos con los datos de la cita
+      document.getElementById("cf-tipo-visita").value = cita.tipoVisita || "";
+      document.getElementById("cf-tipo-transporte").value = cita.tipoTransporte || "";
+      document.getElementById("cf-fecha").value = cita.fecha || "";
+      document.getElementById("cf-fecha-help").textContent = "Fecha de la cita confirmada (no editable).";
+      document.getElementById("cf-fecha-help").className = "text-[11px] mt-1 text-gray-500";
+
+      const horaEl = document.getElementById("cf-hora");
+      horaEl.innerHTML = `<option value="${cita.hora || ""}" selected>${cita.hora || ""}</option>`;
+
+      document.getElementById("cf-recolecta-caja").value = cita.recolectaCaja || "No";
+      document.getElementById("cf-destino").value = cita.destino || "";
+      document.getElementById("cf-no-pallets").value = cita.noPallets || "";
+      document.getElementById("cf-factura").value = cita.factura || "";
+      document.getElementById("cf-caja").value = cita.caja || "";
+      document.getElementById("cf-sello").value = cita.sello || "";
+      document.getElementById("cf-caja-deja").value = cita.cajaDeja || "";
+      document.getElementById("cf-caja-recolecta").value = cita.cajaRecolecta || "";
+      document.getElementById("cf-notas").value = cita.notas || "";
+
+      // Mostrar secciones condicionales si aplica
+      if (cita.tipoTransporte === "Full") {
+        document.getElementById("grupo-caja2").classList.remove("hidden");
+        document.getElementById("cf-caja2").value = cita.caja2 || "";
+        document.getElementById("cf-sello2").value = cita.sello2 || "";
+      }
+      if (cita.recolectaCaja === "Si") {
+        document.getElementById("grupo-recolecta").classList.remove("hidden");
+      }
+      if (cita.tipoVisita === "Descarga") {
+        document.getElementById("grupo-pallets").classList.remove("hidden");
+      }
+
+      // CAMPOS EDITABLES: lineaTransporte, chofer, placas (y placas2 si es Full)
+      const lineaEl = document.getElementById("cf-linea-transporte");
+      lineaEl.value = cita.lineaTransporte || "";
+      lineaEl.disabled = false;
+      lineaEl.classList.remove("bg-gray-100", "opacity-70");
+
+      const choferEl = document.getElementById("cf-chofer");
+      choferEl.value = cita.chofer || "";
+      choferEl.disabled = false;
+      choferEl.classList.remove("bg-gray-100", "opacity-70");
+
+      const placasEl = document.getElementById("cf-placas");
+      placasEl.value = cita.placas || "";
+      placasEl.disabled = false;
+      placasEl.classList.remove("bg-gray-100", "opacity-70");
+
+      if (cita.tipoTransporte === "Full") {
+        const placas2El = document.getElementById("cf-placas2");
+        placas2El.value = cita.placas2 || "";
+        placas2El.disabled = false;
+        placas2El.classList.remove("bg-gray-100", "opacity-70");
+      }
+
+      // Cambiar texto del botón
+      document.getElementById("btn-agendar").innerHTML = "<span>Actualizar cita</span>";
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
     window.cargarCitaFijaFormulario = function(citaId) {
-        clearError();
-        const cita = window.citasEnMemoria[citaId];
-        if (!cita) return;
+      clearError();
+      const cita = window.citasEnMemoria[citaId];
+      if (!cita) return;
 
-        editingCitaFijaId = citaId;
+      editingCitaFijaId = citaId;
 
-        const tipoVisitaEl = document.getElementById("cf-tipo-visita");
-        tipoVisitaEl.value = "Descarga";
-        tipoVisitaEl.disabled = true;
-        tipoVisitaEl.classList.add("bg-gray-100");
+      const tipoVisitaEl = document.getElementById("cf-tipo-visita");
+      tipoVisitaEl.value = "Descarga";
+      tipoVisitaEl.disabled = true;
+      tipoVisitaEl.classList.add("bg-gray-100");
 
-        const fechaEl = document.getElementById("cf-fecha");
-        fechaEl.value = cita.fecha;
-        fechaEl.readOnly = true;
-        fechaEl.classList.add("bg-gray-100");
-        document.getElementById("cf-fecha-help").textContent = "Fecha fija asignada.";
-        document.getElementById("cf-fecha-help").className = "text-[11px] mt-1 text-gray-500";
+      const fechaEl = document.getElementById("cf-fecha");
+      fechaEl.value = cita.fecha;
+      fechaEl.readOnly = true;
+      fechaEl.classList.add("bg-gray-100");
+      document.getElementById("cf-fecha-help").textContent = "Fecha fija asignada.";
+      document.getElementById("cf-fecha-help").className = "text-[11px] mt-1 text-gray-500";
 
-        const horaEl = document.getElementById("cf-hora");
-        horaEl.disabled = false;
-        horaEl.innerHTML = `<option value="${cita.hora}" selected>${cita.hora}</option>`;
-        horaEl.disabled = true;
-        horaEl.classList.add("bg-gray-100");
+      const horaEl = document.getElementById("cf-hora");
+      horaEl.disabled = false;
+      horaEl.innerHTML = `<option value="${cita.hora}" selected>${cita.hora}</option>`;
+      horaEl.disabled = true;
+      horaEl.classList.add("bg-gray-100");
 
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        applyConditionalFields();
-        document.getElementById("btn-agendar").innerHTML = "<span>Confirmar Cita Fija</span>";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      applyConditionalFields();
+      document.getElementById("btn-agendar").innerHTML = "<span>Confirmar Cita Fija</span>";
     };
 
     document.addEventListener("DOMContentLoaded", () => {
