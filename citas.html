@@ -152,18 +152,15 @@
         }
 
         .sidebar-footer-logo {
-            width: 45px; 
+            width: 45px;
             height: auto;
             transition: width 0.3s ease;
-            
         }
 
-        
         .sidebar-collapsed .sidebar-footer-logo {
-            width: 35px; 
+            width: 35px;
         }
 
-        
         aside#sidebar {
             display: flex;
             flex-direction: column;
@@ -181,7 +178,6 @@
                     <div id="logo" class="w-10 h-10 bg-bmm rounded-lg"></div>
                     <span class="menu-text" id="app-title-sidebar"></span>
                 </div>
-
                 <button id="hamburger-btn" type="button" aria-label="Abrir o cerrar menú lateral"
                     class="p-2 rounded-lg bg-white text-[var(--bmm-blue)] shadow-sm hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -196,45 +192,40 @@
                     <li>
                         <a href="menu" data-page="menu"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/solicitudes.png" alt="Solicitudes" class="nav-icon" />
-                            </span>
+                            <span class="nav-icon-wrapper"><img src="img/solicitudes.png" alt="Solicitudes"
+                                    class="nav-icon" /></span>
                             <span class="menu-text">Solicitudes</span>
                         </a>
                     </li>
                     <li>
                         <a href="usuarios" data-page="usuarios"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/usuarios.png" alt="Usuarios" class="nav-icon" />
-                            </span>
+                            <span class="nav-icon-wrapper"><img src="img/usuarios.png" alt="Usuarios"
+                                    class="nav-icon" /></span>
                             <span class="menu-text">Usuarios</span>
                         </a>
                     </li>
                     <li>
                         <a href="citas" data-page="citas"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/agendar_cita.png" alt="Agendar Cita" class="nav-icon" />
-                            </span>
+                            <span class="nav-icon-wrapper"><img src="img/agendar_cita.png" alt="Agendar Cita"
+                                    class="nav-icon" /></span>
                             <span class="menu-text">Control de Citas</span>
                         </a>
                     </li>
                     <li>
                         <a href="control" data-page="control"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/control_transportes.png" alt="Citas pendientes" class="nav-icon" />
-                            </span>
+                            <span class="nav-icon-wrapper"><img src="img/control_transportes.png" alt="Citas pendientes"
+                                    class="nav-icon" /></span>
                             <span class="menu-text">Control Transportes</span>
                         </a>
                     </li>
                     <li>
                         <a href="estatus" data-page="estatus"
                             class="flex items-center gap-3 p-3 rounded-lg bg-bmm hover:bg-bmm-light transition-colors">
-                            <span class="nav-icon-wrapper">
-                                <img src="img/estatus_transportes.png" alt="Seguimiento en vivo" class="nav-icon" />
-                            </span>
+                            <span class="nav-icon-wrapper"><img src="img/estatus_transportes.png"
+                                    alt="Seguimiento en vivo" class="nav-icon" /></span>
                             <span class="menu-text">Seguimiento en Vivo</span>
                         </a>
                     </li>
@@ -255,7 +246,6 @@
                         Citas de transporte pendientes
                     </h1>
                 </div>
-
                 <button id="logout-btn"
                     class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +263,6 @@
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             aria-label="Buscar cita por línea, placas, chofer o factura" />
                     </div>
-
                     <button id="generate-cita"
                         class="px-4 py-2 bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,7 +270,6 @@
                         </svg>
                         Generar Cita
                     </button>
-
                     <button id="calendar-btn" type="button"
                         class="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors"
                         title="Ver calendario semanal de citas">
@@ -299,35 +287,27 @@
                                 <tr>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Línea
-                                    </th>
+                                        Línea</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Placas
-                                    </th>
+                                        Placas</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Tipo transporte
-                                    </th>
+                                        Tipo transporte</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Tipo visita
-                                    </th>
+                                        Tipo visita</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Hora
-                                    </th>
+                                        Hora</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-semibold text-gray-500 tracking-wider uppercase">
-                                        Acciones
-                                    </th>
+                                        Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="citas-tbody" class="bg-white divide-y divide-gray-100">
-                            </tbody>
+                            <tbody id="citas-tbody" class="bg-white divide-y divide-gray-100"></tbody>
                         </table>
                     </div>
-
                     <div id="empty-state" class="p-12 text-center text-gray-500 hidden">
                         <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -342,6 +322,7 @@
         </main>
     </div>
 
+    <!-- Modal detalle de cita -->
     <div id="cita-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -351,19 +332,13 @@
                             class="w-7 h-7 object-contain pointer-events-none select-none" />
                     </div>
                     <div>
-                        <h2 class="text-lg font-semibold text-gray-900">
-                            Detalle de cita
-                        </h2>
-                        <p class="text-xs text-gray-500">
-                            Revisa la información del transporte y ajusta fecha / hora si es necesario antes de
-                            confirmar.
-                        </p>
+                        <h2 class="text-lg font-semibold text-gray-900">Detalle de cita</h2>
+                        <p class="text-xs text-gray-500">Revisa la información del transporte y ajusta fecha / hora si
+                            es necesario antes de confirmar.</p>
                     </div>
                 </div>
                 <span id="cm-estatus"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                    CitaPendiente
-                </span>
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">CitaPendiente</span>
             </div>
 
             <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[60vh]">
@@ -384,20 +359,18 @@
                         <select id="cm-hora"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
                         </select>
-                        <p class="text-[11px] text-gray-500 mt-1">
-                            Citas disponibles las 24 horas. Horas 05:00, 13:00 y 21:00 permiten hasta 2 transportes.
-                        </p>
-                        <p id="cm-hora-error" class="text-[11px] text-red-600 mt-1 hidden">
-                            La hora seleccionada ya no tiene capacidad disponible. Elige otro horario.
-                        </p>
+                        <p class="text-[11px] text-gray-500 mt-1">Citas disponibles las 24 horas. Horas 05:00, 13:00 y
+                            21:00 permiten hasta 2 transportes.</p>
+                        <p id="cm-hora-error" class="text-[11px] text-red-600 mt-1 hidden">La hora seleccionada ya no
+                            tiene capacidad disponible. Elige otro horario.</p>
                     </div>
 
+                    <!-- CAMBIO: cm-linea ahora es editable -->
                     <div>
                         <label for="cm-linea" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea
                             transportista</label>
                         <input id="cm-linea" type="text"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
-                            readonly />
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
                     </div>
 
                     <div>
@@ -409,8 +382,7 @@
 
                     <div>
                         <label for="cm-tipo-transporte"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de
-                            transporte</label>
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de transporte</label>
                         <input id="cm-tipo-transporte" type="text"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
                             readonly />
@@ -418,8 +390,7 @@
 
                     <div>
                         <label for="cm-tipo-visita"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de
-                            visita</label>
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo de visita</label>
                         <input id="cm-tipo-visita" type="text"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
                             readonly />
@@ -466,8 +437,7 @@
 
                     <div>
                         <label for="cm-recolecta-caja"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Recolecta
-                            caja?</label>
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Recolecta caja?</label>
                         <input id="cm-recolecta-caja" type="text"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
                             readonly />
@@ -475,17 +445,15 @@
 
                     <div class="md:col-span-2">
                         <label for="cm-notas"
-                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Comentarios /
-                            notas</label>
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Comentarios / notas</label>
                         <textarea id="cm-notas" rows="2"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700"
                             readonly></textarea>
                     </div>
                 </div>
 
-                <p id="cm-general-error" class="text-xs text-red-600 hidden">
-                    Ocurrió un error al procesar la cita. Intenta nuevamente.
-                </p>
+                <p id="cm-general-error" class="text-xs text-red-600 hidden">Ocurrió un error al procesar la cita.
+                    Intenta nuevamente.</p>
             </div>
 
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between gap-3">
@@ -493,7 +461,6 @@
                     class="px-4 py-2 rounded-lg border border-red-600 text-red-600 hover:bg-red-50 text-sm font-medium transition-colors">
                     Eliminar cita
                 </button>
-
                 <div class="flex gap-3">
                     <button id="cm-cancel-btn" type="button"
                         class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium transition-colors">
@@ -508,6 +475,7 @@
         </div>
     </div>
 
+    <!-- Modal cancelar cita -->
     <div id="cancel-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -524,9 +492,7 @@
                     </div>
                 </div>
                 <span
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">
-                    CitaCancelada
-                </span>
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">CitaCancelada</span>
             </div>
 
             <div class="px-6 py-4 space-y-3 text-sm overflow-y-auto">
@@ -537,7 +503,6 @@
                         <span class="text-gray-400">•</span> <span id="cn-email">-</span>
                     </div>
                 </div>
-
                 <div>
                     <label for="cn-motivo" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Motivo de
                         cancelación</label>
@@ -547,10 +512,8 @@
                     <p id="cn-error" class="text-[11px] text-red-600 mt-1 hidden">Escribe el motivo para poder cancelar.
                     </p>
                 </div>
-
-                <p id="cn-general-error" class="text-xs text-red-600 hidden">
-                    Ocurrió un error al cancelar. Intenta nuevamente.
-                </p>
+                <p id="cn-general-error" class="text-xs text-red-600 hidden">Ocurrió un error al cancelar. Intenta
+                    nuevamente.</p>
             </div>
 
             <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-end gap-3">
@@ -566,6 +529,7 @@
         </div>
     </div>
 
+    <!-- Modal generar cita -->
     <div id="gen-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto overflow-hidden max-h-[90vh] flex flex-col">
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -576,31 +540,24 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900">Generar Cita (sin cita previa)</h2>
-                        <p class="text-xs text-gray-500">
-                            Se guardará como <b>CitaPendiente</b> y se enviará correo de pre-registro al proveedor.
-                        </p>
+                        <p class="text-xs text-gray-500">Se guardará como <b>CitaPendiente</b> y se enviará correo de
+                            pre-registro al proveedor.</p>
                     </div>
                 </div>
                 <span
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">
-                    CitaPendiente
-                </span>
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800">CitaPendiente</span>
             </div>
 
             <div class="px-6 py-4 space-y-4 text-sm overflow-y-auto max-h-[70vh]">
-                <p id="gn-general-error" class="text-xs text-red-600 hidden">
-                    Ocurrió un error al generar la cita. Intenta nuevamente.
-                </p>
-
+                <p id="gn-general-error" class="text-xs text-red-600 hidden">Ocurrió un error al generar la cita.
+                    Intenta nuevamente.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-
                     <div class="md:col-span-2">
                         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-700">
                             <div class="font-semibold text-gray-800">Proveedor (correo destino)</div>
                             <div class="text-gray-500">Este correo recibirá el pre-registro.</div>
                         </div>
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Correo proveedor</label>
                         <input id="gn-usuarioProveedor" type="email" autocomplete="email" inputmode="email"
@@ -609,7 +566,6 @@
                         <p id="gn-usuarioProveedor-error" class="text-[11px] text-red-600 mt-1 hidden">Correo
                             obligatorio y válido.</p>
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Frontera
                             (opcional)</label>
@@ -617,7 +573,6 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             placeholder="Ej: Reynosa / Laredo / ..." />
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Razón social
                             (opcional)</label>
@@ -625,7 +580,6 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             placeholder="Razón social" />
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Línea
                             transportista</label>
@@ -635,7 +589,6 @@
                         <p id="gn-lineaTransporte-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.
                         </p>
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Placas</label>
                         <input id="gn-placas" type="text" autocapitalize="characters"
@@ -643,7 +596,6 @@
                             placeholder="ABC-123" />
                         <p id="gn-placas-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Chofer</label>
                         <input id="gn-chofer" type="text" autocomplete="name"
@@ -651,7 +603,6 @@
                             placeholder="Nombre del chofer" />
                         <p id="gn-chofer-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Destino</label>
                         <input id="gn-destino" type="text"
@@ -659,29 +610,21 @@
                             placeholder="Ej: Monterrey / Laredo / ..." />
                         <p id="gn-destino-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
                     </div>
-
                     <div>
-                        <label for="gn-tipoTransporte" class="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                            Tipo transporte
-                        </label>
-
+                        <label for="gn-tipoTransporte"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo transporte</label>
                         <select id="gn-tipoTransporte" aria-describedby="gn-tipoTransporte-error"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
                             <option value="">Selecciona...</option>
                             <option value="Sencillo">Sencillo</option>
                             <option value="Full">Full</option>
                         </select>
-
-                        <p id="gn-tipoTransporte-error" class="text-[11px] text-red-600 mt-1 hidden">
-                            Campo obligatorio.
+                        <p id="gn-tipoTransporte-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.
                         </p>
                     </div>
-
                     <div>
-                        <label for="gn-tipoVisita" class="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                            Tipo visita
-                        </label>
-
+                        <label for="gn-tipoVisita" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tipo
+                            visita</label>
                         <select id="gn-tipoVisita" aria-describedby="gn-tipoVisita-error"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
                             <option value="">Selecciona...</option>
@@ -689,52 +632,32 @@
                             <option value="Descarga">Descarga</option>
                             <option value="Carga y Descarga">Carga y Descarga</option>
                         </select>
-
-                        <p id="gn-tipoVisita-error" class="text-[11px] text-red-600 mt-1 hidden">
-                            Campo obligatorio.
-                        </p>
+                        <p id="gn-tipoVisita-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
                     </div>
-
                     <div>
-                        <label for="gn-fecha" class="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                            Fecha
-                        </label>
-
+                        <label for="gn-fecha"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Fecha</label>
                         <input id="gn-fecha" type="date" aria-describedby="gn-fecha-error"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]" />
-
-                        <p id="gn-fecha-error" class="text-[11px] text-red-600 mt-1 hidden">
-                            Selecciona una fecha desde hoy en adelante.
-                        </p>
+                        <p id="gn-fecha-error" class="text-[11px] text-red-600 mt-1 hidden">Selecciona una fecha desde
+                            hoy en adelante.</p>
                     </div>
-
                     <div>
-                        <label for="gn-hora" class="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                            Hora
-                        </label>
-
+                        <label for="gn-hora"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora</label>
                         <select id="gn-hora" aria-describedby="gn-hora-error" required aria-required="true"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
                         </select>
-
-                        <p id="gn-hora-error" class="text-[11px] text-red-600 mt-1 hidden">
-                            Campo obligatorio.
-                        </p>
+                        <p id="gn-hora-error" class="text-[11px] text-red-600 mt-1 hidden">Campo obligatorio.</p>
                     </div>
-
                     <div id="gn-horaExtra-wrap" class="hidden">
-                        <label for="gn-horaExtra" class="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                            Hora extra (automática)
-                        </label>
-
+                        <label for="gn-horaExtra" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Hora
+                            extra (automática)</label>
                         <input id="gn-horaExtra" type="text" readonly aria-readonly="true"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700" />
-
-                        <p class="text-[11px] text-gray-500 mt-1">
-                            Se calcula como +2 horas cuando es “Carga y Descarga”.
+                        <p class="text-[11px] text-gray-500 mt-1">Se calcula como +2 horas cuando es "Carga y Descarga".
                         </p>
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Factura
                             (opcional)</label>
@@ -742,7 +665,6 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             placeholder="Factura" />
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">No. caja
                             (opcional)</label>
@@ -750,7 +672,6 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             placeholder="Caja" />
                     </div>
-
                     <div>
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">No. sello
                             (opcional)</label>
@@ -758,23 +679,18 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             placeholder="Sello" />
                     </div>
-
                     <div>
-                        <label for="gn-recolectaCaja" class="block text-xs font-semibold text-gray-500 uppercase mb-1">
-                            ¿Recolecta caja?
-                        </label>
-
+                        <label for="gn-recolectaCaja"
+                            class="block text-xs font-semibold text-gray-500 uppercase mb-1">¿Recolecta caja?</label>
                         <select id="gn-recolectaCaja" aria-describedby="gn-recolectaCaja-help"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]">
                             <option value="No">No</option>
                             <option value="Sí">Sí</option>
                         </select>
-
                         <p id="gn-recolectaCaja-help" class="text-[11px] text-gray-500 mt-1">
-                            Si es <b>Sí</b> se mostrarán “Caja que recolecta” <b>y</b> “Caja que deja”.                            
+                            Si es <b>Sí</b> se mostrarán "Caja que recolecta" <b>y</b> "Caja que deja".
                         </p>
                     </div>
-
                     <div id="gn-cajaDeja-wrap" class="hidden">
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Caja que deja (si
                             aplica)</label>
@@ -782,7 +698,6 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             placeholder="Caja que deja" />
                     </div>
-
                     <div id="gn-cajaRecolecta-wrap" class="hidden">
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Caja que
                             recolecta</label>
@@ -790,10 +705,9 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--bmm-blue)]"
                             placeholder="Caja que recolecta" />
                         <p id="gn-cajaRecolecta-error" class="text-[11px] text-red-600 mt-1 hidden">
-                            Si “Recolecta caja” = Sí, debes indicar la caja que recolecta.
+                            Si "Recolecta caja" = Sí, debes indicar la caja que recolecta.
                         </p>
                     </div>
-
                     <div class="md:col-span-2">
                         <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Comentarios /
                             notas</label>
@@ -817,18 +731,15 @@
         </div>
     </div>
 
+    <!-- Modal calendario -->
     <div id="calendar-modal" class="fixed inset-0 z-50 hidden items-center justify-center modal-backdrop px-2 sm:px-0">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-auto max-h-[90vh] flex flex-col overflow-hidden">
             <div class="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 bg-gray-50">
                 <div class="flex items-start gap-2">
                     <img src="img/calendar.png" alt="Calendario" class="w-11 h-11" />
                     <div class="flex flex-col">
-                        <h2 class="text-lg font-semibold text-gray-900">
-                            Calendario de citas
-                        </h2>
-                        <p class="text-xs text-gray-500">
-                            Vista semanal de citas futuras. Solo lectura.
-                        </p>
+                        <h2 class="text-lg font-semibold text-gray-900">Calendario de citas</h2>
+                        <p class="text-xs text-gray-500">Vista semanal de citas futuras. Solo lectura.</p>
                     </div>
                 </div>
                 <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -845,13 +756,9 @@
                     <div class="flex items-center gap-2 justify-end">
                         <span id="cal-week-label" class="text-sm font-medium text-gray-700"></span>
                         <button id="cal-prev-week"
-                            class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">
-                            ◀
-                        </button>
+                            class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">◀</button>
                         <button id="cal-next-week"
-                            class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">
-                            ▶
-                        </button>
+                            class="w-8 h-8 rounded-full border border-gray-300 bg-white hover:bg-gray-100 flex items-center justify-center text-gray-600 text-sm transition-colors">▶</button>
                         <button id="cal-close-btn"
                             class="px-3 py-1.5 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs sm:text-sm font-medium transition-colors">
                             Cerrar
@@ -859,25 +766,15 @@
                     </div>
                 </div>
             </div>
-
-            <div id="calendar-body" class="p-4 flex-1 overflow-y-auto bg-white text-xs sm:text-sm">
-            </div>
+            <div id="calendar-body" class="p-4 flex-1 overflow-y-auto bg-white text-xs sm:text-sm"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import {
-            getFirestore,
-            collection,
-            getDocs,
-            query,
-            where,
-            doc,
-            updateDoc,
-            deleteDoc,
-            setDoc,
-            runTransaction
+            getFirestore, collection, getDocs, query, where,
+            doc, updateDoc, deleteDoc, setDoc, runTransaction
         } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -894,9 +791,7 @@
 
         const APPS_SCRIPT_MAIL_URL =
             "https://script.google.com/macros/s/AKfycbyVL4i0PfAYEbiSwcmKZ0ZXST1T3L-8H0lK5CbEVJRnimZaKNDtwMWLApiIStm3Wgz6ZQ/exec";
-
         const APPS_SCRIPT_AUTH_TOKEN = "tk_logistica_bmm_2026";
-
         const APPS_SCRIPT_REGISTRO_URL =
             "https://script.google.com/macros/s/AKfycbybQ7_YZLJmXaJPPynkOpEl_HIU8ADWNI5is5V7-8RtrdThT5pzfI_lvCVOTlLb_5CH/exec";
 
@@ -915,11 +810,8 @@
         function sanitize(value) {
             if (value === null || value === undefined) return "";
             return String(value)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
         function getTodayISO() {
@@ -940,15 +832,11 @@
             return `${yy}-${mm}-${dd}`;
         }
 
-        function dateToComparable(dateStr) {
-            return dateStr;
-        }
+        function dateToComparable(dateStr) { return dateStr; }
 
         function generateTimeSlots24h() {
             const slots = [];
-            for (let h = 0; h < 24; h++) {
-                slots.push(`${String(h).padStart(2, "0")}:00`);
-            }
+            for (let h = 0; h < 24; h++) slots.push(`${String(h).padStart(2, "0")}:00`);
             return slots;
         }
 
@@ -957,103 +845,61 @@
             const [hStr, mStr] = timeStr.split(":");
             let h = parseInt(hStr, 10);
             let m = parseInt(mStr || "0", 10);
-
             if (Number.isNaN(h) || Number.isNaN(m)) return null;
-
             h = (h + hoursToAdd) % 24;
-            const hh = String(h).padStart(2, "0");
-            const mm = String(m).padStart(2, "0");
-            return `${hh}:${mm}`;
+            return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
         }
 
         const specialDoubleSlots = new Set(["05:00", "13:00", "21:00"]);
-
-        function getMaxCapacityForSlot(hora) {
-            return specialDoubleSlots.has(hora) ? 2 : 1;
-        }
-
-        function sameDate(a, b) {
-            return a === b;
-        }
+        function getMaxCapacityForSlot(hora) { return specialDoubleSlots.has(hora) ? 2 : 1; }
+        function sameDate(a, b) { return a === b; }
 
         async function getNextFolioForDate(fechaISO) {
-            if (!fechaISO) {
-                throw new Error("Fecha inválida para generar folio");
-            }
-
+            if (!fechaISO) throw new Error("Fecha inválida para generar folio");
             const [yyyy, mm, dd] = fechaISO.split("-");
             const ddmmyy = `${dd}${mm}${String(yyyy).slice(2)}`;
-
             const counterRef = doc(db, "FolioCounters", fechaISO);
-
             const indice = await runTransaction(db, async (tx) => {
                 const snap = await tx.get(counterRef);
-
                 let lastIndex = -1;
                 if (snap.exists()) {
                     const data = snap.data();
-                    if (typeof data.lastIndex === "number") {
-                        lastIndex = data.lastIndex;
-                    }
+                    if (typeof data.lastIndex === "number") lastIndex = data.lastIndex;
                 }
-
                 const nextIndex = lastIndex + 1;
                 tx.set(counterRef, { lastIndex: nextIndex }, { merge: true });
                 return nextIndex;
             });
-
-            const sufijo = String(indice).padStart(2, "0");
-            return `BMM-${ddmmyy}${sufijo}`;
+            return `BMM-${ddmmyy}${String(indice).padStart(2, "0")}`;
         }
 
         function loadCurrentUser() {
             try {
-                const storedSession = sessionStorage.getItem("currentUser");
-                const storedLocal = localStorage.getItem("currentUser");
-                const raw = storedSession || storedLocal;
+                const raw = sessionStorage.getItem("currentUser") || localStorage.getItem("currentUser");
                 if (!raw) return null;
                 return JSON.parse(raw);
-            } catch {
-                return null;
-            }
+            } catch { return null; }
         }
 
         function normalizeRole(str) {
-            return (str || "")
-                .toLowerCase()
-                .normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/\s+/g, "");
+            return (str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "");
         }
 
         function isAdminUser(user) {
             if (!user) return false;
             const normRol = normalizeRole(user.rol || user.role);
-            return (
-                normRol === "administrador" ||
-                user.roleKey === "UsuarioAdmin" ||
-                user.collection === "UsuarioAdmin"
-            );
+            return normRol === "administrador" || user.roleKey === "UsuarioAdmin" || user.collection === "UsuarioAdmin";
         }
 
         function isCoordLogUser(user) {
             if (!user) return false;
             const normRol = normalizeRole(user.rol || user.role);
-            return (
-                normRol === "coordinadorlogistico" ||
-                user.roleKey === "UsuarioLogistico" ||
-                user.collection === "UsuarioLogistico"
-            );
+            return normRol === "coordinadorlogistico" || user.roleKey === "UsuarioLogistico" || user.collection === "UsuarioLogistico";
         }
 
         function enforceAdminAccess() {
-            const isFileProtocol = window.location.protocol === "file:";
-            if (isFileProtocol) {
-                return true;
-            }
-
+            if (window.location.protocol === "file:") return true;
             currentUser = loadCurrentUser();
-
             if (!isAdminUser(currentUser)) {
                 alert("Debes iniciar sesión como Administrador para acceder a esta página.");
                 window.location.replace("login");
@@ -1067,64 +913,40 @@
             const user = loadCurrentUser();
             const admin = isAdminUser(user);
             const coord = isCoordLogUser(user);
-
-            document
-                .querySelectorAll('nav a[data-page]')
-                .forEach(link => {
-                    const page = link.dataset.page;
-                    let enable = false;
-
-                    if (isFile) {
-                        enable = true;
-                    } else if (admin) {
-                        enable = true;
-                    } else if (coord) {
-                        if (page === "control" || page === "estatus") {
-                            enable = true;
-                        }
-                    } else {
-                        enable = false;
-                    }
-
-                    if (enable) {
-                        link.href = page;
-                        link.classList.remove("cursor-default", "opacity-80");
-                        link.classList.add("hover:bg-bmm-light");
-                    } else {
-                        link.removeAttribute("href");
-                        link.classList.add("cursor-default", "opacity-80");
-                        link.classList.remove("hover:bg-bmm-light");
-                    }
-                });
+            document.querySelectorAll('nav a[data-page]').forEach(link => {
+                const page = link.dataset.page;
+                let enable = false;
+                if (isFile) { enable = true; }
+                else if (admin) { enable = true; }
+                else if (coord) { if (page === "control" || page === "estatus") enable = true; }
+                if (enable) {
+                    link.href = page;
+                    link.classList.remove("cursor-default", "opacity-80");
+                    link.classList.add("hover:bg-bmm-light");
+                } else {
+                    link.removeAttribute("href");
+                    link.classList.add("cursor-default", "opacity-80");
+                    link.classList.remove("hover:bg-bmm-light");
+                }
+            });
         }
 
         async function loadCitasPendientes() {
             const result = [];
             try {
-                const qRef = query(
-                    collection(db, "CitasProveedor"),
-                    where("estatus", "==", "CitaPendiente")
-                );
+                const qRef = query(collection(db, "CitasProveedor"), where("estatus", "==", "CitaPendiente"));
                 const snap = await getDocs(qRef);
-
                 snap.forEach(docSnap => {
                     const d = docSnap.data() || {};
                     result.push({
-                        id: docSnap.id,
-                        raw: d,
+                        id: docSnap.id, raw: d,
                         linea: d.lineaTransporte || d.linea || "",
-                        placas: d.placas || "",
-                        tipoTransporte: d.tipoTransporte || "",
-                        tipoVisita: d.tipoVisita || "",
-                        fecha: d.fecha || "",
-                        hora: d.hora || "",
-                        horaExtra: d.horaExtra || null,
-                        chofer: d.chofer || "",
-                        destino: d.destino || "",
-                        factura: d.factura || "",
-                        notas: d.notas || "",
-                        esDomingo: !!d.esDomingo,
-                        frontera: d.frontera ?? "",
+                        placas: d.placas || "", tipoTransporte: d.tipoTransporte || "",
+                        tipoVisita: d.tipoVisita || "", fecha: d.fecha || "",
+                        hora: d.hora || "", horaExtra: d.horaExtra || null,
+                        chofer: d.chofer || "", destino: d.destino || "",
+                        factura: d.factura || "", notas: d.notas || "",
+                        esDomingo: !!d.esDomingo, frontera: d.frontera ?? "",
                         recolectaCaja: d.recolectaCaja || "",
                         usuarioProveedor: d.usuarioProveedor || "",
                         estatus: d.estatus || "CitaPendiente"
@@ -1134,7 +956,6 @@
                 console.error("Error cargando CitasProveedor:", err);
                 alert("Ocurrió un error al cargar las citas pendientes.");
             }
-
             allCitas = result;
             applyFilters();
         }
@@ -1142,80 +963,44 @@
         function renderCitas() {
             const tbody = document.getElementById("citas-tbody");
             const emptyState = document.getElementById("empty-state");
-
             if (!filteredCitas.length) {
                 tbody.innerHTML = "";
                 emptyState.classList.remove("hidden");
                 return;
             }
-
             emptyState.classList.add("hidden");
-
-            tbody.innerHTML = filteredCitas
-                .map(c => {
-                    const horaMostrar = c.horaExtra
-                        ? `${c.hora} - ${c.horaExtra}`
-                        : c.hora || "-";
-
-                    return `
-          <tr class="hover:bg-gray-50 transition-colors">
-            <td class="px-6 py-4 text-sm text-gray-900">
-              ${sanitize(c.linea)}
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-900">
-              ${sanitize(c.placas)}
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-900">
-              ${sanitize(c.tipoTransporte)}
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-900">
-              ${sanitize(c.tipoVisita)}
-            </td>
-            <td class="px-6 py-4 text-sm text-gray-900">
-              ${sanitize(horaMostrar)}
-            </td>
-            <td class="px-6 py-4 text-sm">
-              <button
-                type="button"
-                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors js-open-cita"
-                data-id="${sanitize(c.id)}"
-                title="Ver detalle de cita">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                <span>Ver</span>
-              </button>
-            </td>
-          </tr>
-        `;
-                })
-                .join("");
+            tbody.innerHTML = filteredCitas.map(c => {
+                const horaMostrar = c.horaExtra ? `${c.hora} - ${c.horaExtra}` : c.hora || "-";
+                return `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4 text-sm text-gray-900">${sanitize(c.linea)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${sanitize(c.placas)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${sanitize(c.tipoTransporte)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${sanitize(c.tipoVisita)}</td>
+                    <td class="px-6 py-4 text-sm text-gray-900">${sanitize(horaMostrar)}</td>
+                    <td class="px-6 py-4 text-sm">
+                        <button type="button"
+                            class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-100 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors js-open-cita"
+                            data-id="${sanitize(c.id)}" title="Ver detalle de cita">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <span>Ver</span>
+                        </button>
+                    </td>
+                </tr>`;
+            }).join("");
         }
 
         function applyFilters() {
-            const searchInput = document.getElementById("search-input");
-            const searchTerm = (searchInput.value || "").toLowerCase().trim();
-
+            const searchTerm = (document.getElementById("search-input").value || "").toLowerCase().trim();
             filteredCitas = allCitas.filter(c => {
                 if (!searchTerm) return true;
-
-                const haystack = [
-                    c.linea,
-                    c.placas,
-                    c.tipoTransporte,
-                    c.tipoVisita,
-                    c.chofer,
-                    c.factura,
-                ]
-                    .map(v => (v || "").toString().toLowerCase())
-                    .join(" ");
-
+                const haystack = [c.linea, c.placas, c.tipoTransporte, c.tipoVisita, c.chofer, c.factura]
+                    .map(v => (v || "").toString().toLowerCase()).join(" ");
                 return haystack.includes(searchTerm);
             });
-
             renderCitas();
         }
 
@@ -1224,7 +1009,6 @@
         function openCitaModal(citaId) {
             currentCita = allCitas.find(c => c.id === citaId);
             if (!currentCita) return;
-
             const modal = document.getElementById("cita-modal");
             document.getElementById("cm-general-error").classList.add("hidden");
             document.getElementById("cm-fecha-error").classList.add("hidden");
@@ -1241,19 +1025,15 @@
             document.getElementById("cm-frontera").value = currentCita.frontera || "";
             document.getElementById("cm-recolecta-caja").value = currentCita.recolectaCaja || "";
             document.getElementById("cm-notas").value = currentCita.notas || "";
-
             document.getElementById("cm-fecha").value = currentCita.fecha || "";
 
             const estatusEl = document.getElementById("cm-estatus");
             estatusEl.textContent = currentCita.estatus || "CitaPendiente";
-            estatusEl.className =
-                "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold " +
+            estatusEl.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold " +
                 ((currentCita.estatus || "").toLowerCase() === "citapendiente"
-                    ? "bg-yellow-100 text-yellow-800"
-                    : "bg-green-100 text-green-800");
+                    ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800");
 
             fillHoraOptionsForCurrent();
-
             modal.classList.remove("hidden");
             modal.classList.add("flex");
         }
@@ -1268,31 +1048,21 @@
         function fillHoraOptionsForCurrent() {
             const select = document.getElementById("cm-hora");
             select.innerHTML = "";
-
             if (!currentCita) return;
-
             const fechaSel = document.getElementById("cm-fecha").value || currentCita.fecha;
             const currentHora = currentCita.hora || "";
-
             const ocupacion = countSlotsForDate(fechaSel, currentCita.id);
-
             allSlots.forEach(h => {
                 const maxCap = getMaxCapacityForSlot(h);
                 const used = ocupacion[h] || 0;
-
-                const isCurrent = h === currentHora;
-
-                if (used < maxCap || isCurrent) {
+                if (used < maxCap || h === currentHora) {
                     const opt = document.createElement("option");
                     opt.value = h;
                     opt.textContent = h;
-                    if (h === currentHora) {
-                        opt.selected = true;
-                    }
+                    if (h === currentHora) opt.selected = true;
                     select.appendChild(opt);
                 }
             });
-
             if (currentHora && !Array.from(select.options).some(o => o.value === currentHora)) {
                 const opt = document.createElement("option");
                 opt.value = currentHora;
@@ -1307,12 +1077,7 @@
             allCitas.forEach(c => {
                 if (c.id === excludeId) return;
                 if (!sameDate(c.fecha, fechaISO)) return;
-
-                const horasConsiderar = [];
-                if (c.hora) horasConsiderar.push(c.hora);
-                if (c.horaExtra) horasConsiderar.push(c.horaExtra);
-
-                horasConsiderar.forEach(h => {
+                [c.hora, c.horaExtra].forEach(h => {
                     if (!h) return;
                     ocupacion[h] = (ocupacion[h] || 0) + 1;
                 });
@@ -1322,22 +1087,14 @@
 
         function validateFecha(fechaISO) {
             if (!fechaISO) return false;
-            const hoy = getTodayISO();
-            
-            return dateToComparable(fechaISO) >= dateToComparable(hoy);
+            return dateToComparable(fechaISO) >= dateToComparable(getTodayISO());
         }
 
         function validateHora(fechaISO, horaSeleccionada) {
             if (!fechaISO || !horaSeleccionada || !currentCita) return false;
-
+            if (horaSeleccionada === currentCita.hora) return true;
             const ocupacion = countSlotsForDate(fechaISO, currentCita.id);
-            const maxCap = getMaxCapacityForSlot(horaSeleccionada);
-            const used = ocupacion[horaSeleccionada] || 0;
-
-            if (horaSeleccionada === currentCita.hora) {
-                return true;
-            }
-            return used < maxCap;
+            return (ocupacion[horaSeleccionada] || 0) < getMaxCapacityForSlot(horaSeleccionada);
         }
 
         function isCalendarOpen() {
@@ -1349,12 +1106,8 @@
             calendarIndex = {};
             calendarCitas.forEach(c => {
                 if (!c.fecha) return;
-
-                const slots = [];
-                if (c.hora) slots.push(c.hora);
-                if (c.horaExtra) slots.push(c.horaExtra);
-
-                slots.forEach(h => {
+                [c.hora, c.horaExtra].forEach(h => {
+                    if (!h) return;
                     const key = `${c.fecha}|${h}`;
                     if (!calendarIndex[key]) calendarIndex[key] = [];
                     calendarIndex[key].push(c);
@@ -1364,42 +1117,24 @@
 
         function upsertCalendarCitaFromAcceptance({ id, fecha, hora, horaExtra, estatus, linea, tipoVisita }) {
             if (!calendarDataLoaded) return;
-
             const baseISO = formatISOFromDate(calendarBaseWeekStart);
             if (!fecha || fecha < baseISO) return;
-
             calendarCitas = calendarCitas.filter(c => c.id !== id);
-
-            calendarCitas.push({
-                id,
-                estatus,
-                fecha,
-                hora: hora || "",
-                horaExtra: horaExtra || null,
-                linea: linea || "",
-                tipoVisita: tipoVisita || ""
-            });
-
+            calendarCitas.push({ id, estatus, fecha, hora: hora || "", horaExtra: horaExtra || null, linea: linea || "", tipoVisita: tipoVisita || "" });
             rebuildCalendarIndexFromArray();
-
-            if (isCalendarOpen()) {
-                renderCalendarWeek();
-            }
+            if (isCalendarOpen()) renderCalendarWeek();
         }
 
         function removeCalendarCitaById(id) {
             if (!calendarDataLoaded) return;
             calendarCitas = calendarCitas.filter(c => c.id !== id);
             rebuildCalendarIndexFromArray();
-
-            if (isCalendarOpen()) {
-                renderCalendarWeek();
-            }
+            if (isCalendarOpen()) renderCalendarWeek();
         }
 
+        // ─── acceptCita: ahora lee cm-linea y lo incluye en updatePayload ───
         async function acceptCita() {
             if (!currentCita) return;
-
             const fechaInput = document.getElementById("cm-fecha");
             const horaSelect = document.getElementById("cm-hora");
             const fechaError = document.getElementById("cm-fecha-error");
@@ -1414,33 +1149,22 @@
             const hora = horaSelect.value;
             const nuevaPlaca = document.getElementById("cm-placas").value.trim().toUpperCase();
             const nuevoChofer = document.getElementById("cm-chofer").value.trim().toUpperCase();
+            const nuevaLinea = document.getElementById("cm-linea").value.trim().toUpperCase();
 
-            if (!nuevaPlaca || !nuevoChofer) {
-                generalError.textContent = "Las placas y el nombre del chofer son obligatorios.";
+            if (!nuevaPlaca || !nuevoChofer || !nuevaLinea) {
+                generalError.textContent = "La línea transportista, placas y chofer son obligatorios.";
                 generalError.classList.remove("hidden");
                 return;
             }
 
             let ok = true;
-
-            if (!validateFecha(fecha)) {
-                fechaError.classList.remove("hidden");
-                ok = false;
-            }
-
-            if (!validateHora(fecha, hora)) {
-                horaError.classList.remove("hidden");
-                ok = false;
-            }
-
+            if (!validateFecha(fecha)) { fechaError.classList.remove("hidden"); ok = false; }
+            if (!validateHora(fecha, hora)) { horaError.classList.remove("hidden"); ok = false; }
             if (!ok) return;
 
             const dt = new Date(fecha + "T00:00:00");
             const esDomingo = dt.getDay() === 0;
-
-            const nuevaHoraExtra = currentCita.horaExtra
-                ? addHoursToTimeStr(hora, 2)
-                : null;
+            const nuevaHoraExtra = currentCita.horaExtra ? addHoursToTimeStr(hora, 2) : null;
 
             const acceptBtn = document.getElementById("cm-accept-btn");
             const originalHTML = acceptBtn.innerHTML;
@@ -1450,88 +1174,62 @@
             try {
                 const docRef = doc(db, "CitasProveedor", currentCita.id);
                 const updatePayload = {
-                    fecha,
-                    hora,
+                    fecha, hora,
                     horaExtra: nuevaHoraExtra,
                     esDomingo,
                     estatus: "CitaConfirmada",
                     placas: nuevaPlaca,
-                    chofer: nuevoChofer
+                    chofer: nuevoChofer,
+                    lineaTransporte: nuevaLinea,
+                    linea: nuevaLinea
                 };
                 await updateDoc(docRef, updatePayload);
 
                 const folio = await getNextFolioForDate(fecha);
-
                 const confirmRef = doc(collection(db, "CitasConfirmadas"));
-
-                const dataConfirmada = {
-                    ...currentCita.raw,
-                    ...updatePayload,
-                    folio,
-                    citaProveedorId: currentCita.id,
+                await setDoc(confirmRef, {
+                    ...currentCita.raw, ...updatePayload,
+                    folio, citaProveedorId: currentCita.id,
                     updatedAt: new Date().toISOString()
-                };
-
-                await setDoc(confirmRef, dataConfirmada);
+                });
 
                 upsertCalendarCitaFromAcceptance({
-                    id: currentCita.id,
-                    fecha,
-                    hora,
+                    id: currentCita.id, fecha, hora,
                     horaExtra: nuevaHoraExtra,
                     estatus: "CitaConfirmada",
-                    linea: currentCita.linea,
+                    linea: nuevaLinea,
                     tipoVisita: currentCita.tipoVisita
                 });
 
                 const correoDestino = currentCita.usuarioProveedor || "";
                 if (correoDestino) {
                     const payloadEmail = {
-                        to: correoDestino,
-                        folio,
-                        citaId: currentCita.id,
+                        to: correoDestino, folio, citaId: currentCita.id,
                         datosCita: {
-                            linea: currentCita.linea,
-                            placas: nuevaPlaca,
+                            linea: nuevaLinea, placas: nuevaPlaca,
                             tipoTransporte: currentCita.tipoTransporte,
                             tipoVisita: currentCita.tipoVisita,
-                            fecha,
-                            hora,
-                            horaExtra: nuevaHoraExtra,
-                            chofer: nuevoChofer,
-                            destino: currentCita.destino,
-                            factura: currentCita.factura,
-                            notas: currentCita.notas,
-                            frontera: currentCita.frontera,
-                            recolectaCaja: currentCita.recolectaCaja
+                            fecha, hora, horaExtra: nuevaHoraExtra,
+                            chofer: nuevoChofer, destino: currentCita.destino,
+                            factura: currentCita.factura, notas: currentCita.notas,
+                            frontera: currentCita.frontera, recolectaCaja: currentCita.recolectaCaja
                         },
                         attachmentPath: "docs/Indicaciones de ingreso a transportistas.pdf"
                     };
-
                     try {
                         const res = await fetch(APPS_SCRIPT_MAIL_URL, {
                             method: "POST",
-                            headers: {
-                                "Content-Type": "text/plain;charset=utf-8"
-                            },
-                            body: JSON.stringify({
-                                authToken: APPS_SCRIPT_AUTH_TOKEN,
-                                action: "sendCitaConfirmacion",
-                                payload: payloadEmail
-                            })
+                            headers: { "Content-Type": "text/plain;charset=utf-8" },
+                            body: JSON.stringify({ authToken: APPS_SCRIPT_AUTH_TOKEN, action: "sendCitaConfirmacion", payload: payloadEmail })
                         });
-
                         const raw = await res.text();
                         let data = null;
                         try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
-
                         if (!res.ok || (data && data.success === false) || !data) {
                             console.warn("Problema al enviar correo (Apps Script):", { status: res.status, raw, data });
                             alert("La cita se confirmó, pero hubo un problema al enviar el correo.");
                         } else {
-                            alert(
-                                "Cita confirmada correctamente.\n\nSe ha enviado un correo al proveedor con su folio y el PDF de indicaciones."
-                            );
+                            alert("Cita confirmada correctamente.\n\nSe ha enviado un correo al proveedor con su folio y el PDF de indicaciones.");
                         }
                     } catch (mailErr) {
                         console.error("Error al llamar Apps Script (correo):", mailErr);
@@ -1543,7 +1241,6 @@
 
                 allCitas = allCitas.filter(c => c.id !== currentCita.id);
                 applyFilters();
-
                 closeCitaModal();
 
             } catch (err) {
@@ -1558,22 +1255,16 @@
 
         function openCancelModal() {
             if (!currentCita) return;
-
             const modal = document.getElementById("cancel-modal");
             document.getElementById("cn-general-error").classList.add("hidden");
             document.getElementById("cn-error").classList.add("hidden");
             document.getElementById("cn-motivo").value = "";
-
-            const horaMostrar = currentCita.horaExtra
-                ? `${currentCita.hora} - ${currentCita.horaExtra}`
-                : (currentCita.hora || "-");
-
+            const horaMostrar = currentCita.horaExtra ? `${currentCita.hora} - ${currentCita.horaExtra}` : (currentCita.hora || "-");
             document.getElementById("cn-linea").textContent = currentCita.linea || "-";
             document.getElementById("cn-placas").textContent = currentCita.placas || "-";
             document.getElementById("cn-fecha").textContent = currentCita.fecha || "-";
             document.getElementById("cn-hora").textContent = horaMostrar;
             document.getElementById("cn-email").textContent = currentCita.usuarioProveedor || "-";
-
             modal.classList.remove("hidden");
             modal.classList.add("flex");
         }
@@ -1586,54 +1277,33 @@
 
         async function appendRegistroCancelacion({ folio, citaId, canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario, cita }) {
             if (!APPS_SCRIPT_REGISTRO_URL || APPS_SCRIPT_REGISTRO_URL.includes("PEGA_AQUI")) {
-                console.warn("APPS_SCRIPT_REGISTRO_URL no configurado. Se omitió append a Registro.");
+                console.warn("APPS_SCRIPT_REGISTRO_URL no configurado.");
                 return;
             }
-
             try {
                 const res = await fetch(APPS_SCRIPT_REGISTRO_URL, {
                     method: "POST",
                     headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    body: JSON.stringify({
-                        authToken: APPS_SCRIPT_AUTH_TOKEN,
-                        type: "CITA_CANCELADA",
-                        folio: folio || "",
-                        citaId,
-                        canceladoAtISO,
-                        canceladoPor,
-                        canceladoPorEmail,
-                        canceladoComentario,
-                        cita: cita || {}
-                    })
+                    body: JSON.stringify({ authToken: APPS_SCRIPT_AUTH_TOKEN, type: "CITA_CANCELADA", folio: folio || "", citaId, canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario, cita: cita || {} })
                 });
-
                 const raw = await res.text();
                 let data = null;
                 try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
-
                 if (!res.ok || (data && data.success === false)) {
                     console.warn("Registro (Sheets) respondió con problema:", { status: res.status, raw, data });
                 }
-            } catch (e) {
-                console.warn("No se pudo registrar en Sheets (Registro):", e);
-            }
+            } catch (e) { console.warn("No se pudo registrar en Sheets:", e); }
         }
 
         async function confirmarCancelacion() {
             if (!currentCita) return;
-
             const motivoEl = document.getElementById("cn-motivo");
             const errEl = document.getElementById("cn-error");
             const genErrEl = document.getElementById("cn-general-error");
-
             errEl.classList.add("hidden");
             genErrEl.classList.add("hidden");
-
             const motivo = (motivoEl.value || "").trim();
-            if (!motivo) {
-                errEl.classList.remove("hidden");
-                return;
-            }
+            if (!motivo) { errEl.classList.remove("hidden"); return; }
 
             const btn = document.getElementById("cn-confirm-btn");
             const original = btn.innerHTML;
@@ -1646,81 +1316,51 @@
 
             try {
                 const docRef = doc(db, "CitasProveedor", currentCita.id);
-                await updateDoc(docRef, {
-                    estatus: "CitaCancelada",
-                    canceladoAtISO,
-                    canceladoPor,
-                    canceladoPorEmail,
-                    canceladoComentario: motivo
-                });
+                await updateDoc(docRef, { estatus: "CitaCancelada", canceladoAtISO, canceladoPor, canceladoPorEmail, canceladoComentario: motivo });
 
                 const correoDestino = currentCita.usuarioProveedor || "";
                 if (correoDestino) {
                     const payloadCancelEmail = {
                         to: correoDestino,
                         folio: (currentCita.raw && currentCita.raw.folio) ? String(currentCita.raw.folio) : "",
-                        citaId: currentCita.id,
-                        motivo,
+                        citaId: currentCita.id, motivo,
                         datosCita: {
-                            linea: currentCita.linea,
-                            placas: currentCita.placas,
-                            tipoTransporte: currentCita.tipoTransporte,
-                            tipoVisita: currentCita.tipoVisita,
-                            fecha: currentCita.fecha,
-                            hora: currentCita.hora,
-                            horaExtra: currentCita.horaExtra,
-                            destino: currentCita.destino,
-                            usuarioProveedor: currentCita.usuarioProveedor
+                            linea: currentCita.linea, placas: currentCita.placas,
+                            tipoTransporte: currentCita.tipoTransporte, tipoVisita: currentCita.tipoVisita,
+                            fecha: currentCita.fecha, hora: currentCita.hora, horaExtra: currentCita.horaExtra,
+                            destino: currentCita.destino, usuarioProveedor: currentCita.usuarioProveedor
                         }
                     };
-
                     try {
                         const res = await fetch(APPS_SCRIPT_MAIL_URL, {
                             method: "POST",
                             headers: { "Content-Type": "text/plain;charset=utf-8" },
-                            body: JSON.stringify({
-                                authToken: APPS_SCRIPT_AUTH_TOKEN,
-                                action: "sendCitaCancelacion",
-                                payload: payloadCancelEmail
-                            })
+                            body: JSON.stringify({ authToken: APPS_SCRIPT_AUTH_TOKEN, action: "sendCitaCancelacion", payload: payloadCancelEmail })
                         });
-
                         const raw = await res.text();
                         let data = null;
                         try { data = raw ? JSON.parse(raw) : null; } catch (_) { }
-
                         if (!res.ok || (data && data.success === false) || !data) {
                             console.warn("Problema al enviar correo cancelación:", { status: res.status, raw, data });
                         }
-                    } catch (mailErr) {
-                        console.warn("Error al enviar correo cancelación:", mailErr);
-                    }
+                    } catch (mailErr) { console.warn("Error al enviar correo cancelación:", mailErr); }
                 }
 
                 await appendRegistroCancelacion({
                     folio: (currentCita.raw && currentCita.raw.folio) ? String(currentCita.raw.folio) : "",
-                    citaId: currentCita.id,
-                    canceladoAtISO,
-                    canceladoPor,
-                    canceladoPorEmail,
+                    citaId: currentCita.id, canceladoAtISO, canceladoPor, canceladoPorEmail,
                     canceladoComentario: motivo,
                     cita: {
-                        linea: currentCita.linea,
-                        placas: currentCita.placas,
-                        tipoTransporte: currentCita.tipoTransporte,
-                        tipoVisita: currentCita.tipoVisita,
-                        fecha: currentCita.fecha,
-                        hora: currentCita.hora,
-                        horaExtra: currentCita.horaExtra,
-                        destino: currentCita.destino,
-                        usuarioProveedor: currentCita.usuarioProveedor
+                        linea: currentCita.linea, placas: currentCita.placas,
+                        tipoTransporte: currentCita.tipoTransporte, tipoVisita: currentCita.tipoVisita,
+                        fecha: currentCita.fecha, hora: currentCita.hora, horaExtra: currentCita.horaExtra,
+                        destino: currentCita.destino, usuarioProveedor: currentCita.usuarioProveedor
                     }
                 });
 
                 removeCalendarCitaById(currentCita.id);
                 allCitas = allCitas.filter(c => c.id !== currentCita.id);
                 applyFilters();
-
                 closeCancelModal();
                 closeCitaModal();
                 alert("Cita cancelada y notificada al proveedor.");
@@ -1734,15 +1374,12 @@
             }
         }
 
-        function startOfDay(date) {
-            return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        }
+        function startOfDay(date) { return new Date(date.getFullYear(), date.getMonth(), date.getDate()); }
 
         function getWeekStartMonday(date) {
             const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
             const day = d.getDay();
-            const diff = (day === 0 ? -6 : 1 - day);
-            d.setDate(d.getDate() + diff);
+            d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
             return d;
         }
 
@@ -1753,29 +1390,22 @@
         }
 
         function formatISOFromDate(date) {
-            const y = date.getFullYear();
-            const m = String(date.getMonth() + 1).padStart(2, "0");
-            const d = String(date.getDate()).padStart(2, "0");
-            return `${y}-${m}-${d}`;
+            return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
         }
 
         function formatWeekLabel(startDate, endDate) {
             const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-            const d1 = startDate.getDate();
-            const d2 = endDate.getDate();
-            const m1 = meses[startDate.getMonth()];
-            const m2 = meses[endDate.getMonth()];
+            const d1 = startDate.getDate(), d2 = endDate.getDate();
+            const m1 = meses[startDate.getMonth()], m2 = meses[endDate.getMonth()];
             const y = startDate.getFullYear();
-            if (startDate.getMonth() === endDate.getMonth()) {
-                return `${d1}–${d2} ${m1} ${y}`;
-            }
-            return `${d1} ${m1} – ${d2} ${m2} ${y}`;
+            return startDate.getMonth() === endDate.getMonth()
+                ? `${d1}–${d2} ${m1} ${y}`
+                : `${d1} ${m1} – ${d2} ${m2} ${y}`;
         }
 
         function canGoPrevWeek() {
             if (!calendarBaseWeekStart || !calendarCurrentWeekStart) return false;
-            const prevStart = addDaysToDate(calendarCurrentWeekStart, -7);
-            return prevStart >= calendarBaseWeekStart;
+            return addDaysToDate(calendarCurrentWeekStart, -7) >= calendarBaseWeekStart;
         }
 
         function updateCalendarNavButtons() {
@@ -1789,64 +1419,29 @@
 
         async function loadCalendarDataIfNeeded() {
             if (calendarDataLoaded) return;
-
             calendarTodayDate = startOfDay(new Date());
             calendarBaseWeekStart = getWeekStartMonday(calendarTodayDate);
             calendarCurrentWeekStart = new Date(calendarBaseWeekStart);
-
             const baseISO = formatISOFromDate(calendarBaseWeekStart);
             const result = [];
-
             try {
-                const qPend = query(
-                    collection(db, "CitasProveedor"),
-                    where("estatus", "==", "CitaPendiente")
-                );
+                const qPend = query(collection(db, "CitasProveedor"), where("estatus", "==", "CitaPendiente"));
                 const snapPend = await getDocs(qPend);
                 snapPend.forEach(docSnap => {
                     const d = docSnap.data() || {};
                     const fecha = d.fecha || "";
                     if (!fecha || fecha < baseISO) return;
-
-                    result.push({
-                        id: docSnap.id,
-                        estatus: d.estatus || "CitaPendiente",
-                        fecha,
-                        hora: d.hora || "",
-                        horaExtra: d.horaExtra || null,
-                        linea: d.lineaTransporte || d.linea || "",
-                        placas: d.placas || "",
-                        tipoTransporte: d.tipoTransporte || "",
-                        tipoVisita: d.tipoVisita || ""
-                    });
+                    result.push({ id: docSnap.id, estatus: d.estatus || "CitaPendiente", fecha, hora: d.hora || "", horaExtra: d.horaExtra || null, linea: d.lineaTransporte || d.linea || "", placas: d.placas || "", tipoTransporte: d.tipoTransporte || "", tipoVisita: d.tipoVisita || "" });
                 });
-
-                const qConf = query(
-                    collection(db, "CitasProveedor"),
-                    where("estatus", "==", "CitaConfirmada")
-                );
+                const qConf = query(collection(db, "CitasProveedor"), where("estatus", "==", "CitaConfirmada"));
                 const snapConf = await getDocs(qConf);
                 snapConf.forEach(docSnap => {
                     const d = docSnap.data() || {};
                     const fecha = d.fecha || "";
                     if (!fecha || fecha < baseISO) return;
-
-                    result.push({
-                        id: docSnap.id,
-                        estatus: d.estatus || "CitaConfirmada",
-                        fecha,
-                        hora: d.hora || "",
-                        horaExtra: d.horaExtra || null,
-                        linea: d.lineaTransporte || d.linea || "",
-                        placas: d.placas || "",
-                        tipoTransporte: d.tipoTransporte || "",
-                        tipoVisita: d.tipoVisita || ""
-                    });
+                    result.push({ id: docSnap.id, estatus: d.estatus || "CitaConfirmada", fecha, hora: d.hora || "", horaExtra: d.horaExtra || null, linea: d.lineaTransporte || d.linea || "", placas: d.placas || "", tipoTransporte: d.tipoTransporte || "", tipoVisita: d.tipoVisita || "" });
                 });
-            } catch (err) {
-                console.error("Error cargando citas para calendario:", err);
-            }
-
+            } catch (err) { console.error("Error cargando citas para calendario:", err); }
             calendarCitas = result;
             rebuildCalendarIndexFromArray();
             calendarDataLoaded = true;
@@ -1855,61 +1450,39 @@
         function renderCalendarWeek() {
             const body = document.getElementById("calendar-body");
             if (!body || !calendarCurrentWeekStart) return;
-
-            const days = [];
-            for (let i = 0; i < 7; i++) {
-                days.push(addDaysToDate(calendarCurrentWeekStart, i));
-            }
-
+            const days = Array.from({ length: 7 }, (_, i) => addDaysToDate(calendarCurrentWeekStart, i));
             const weekLabelEl = document.getElementById("cal-week-label");
-            if (weekLabelEl) {
-                weekLabelEl.textContent = formatWeekLabel(days[0], days[6]);
-            }
-
+            if (weekLabelEl) weekLabelEl.textContent = formatWeekLabel(days[0], days[6]);
             const dayNames = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
             const hours = generateTimeSlots24h();
-
-            let html = '<div class="overflow-x-auto"><table class="w-full text-[11px] sm:text-xs border-collapse">';
-            html += '<thead><tr>';
+            let html = '<div class="overflow-x-auto"><table class="w-full text-[11px] sm:text-xs border-collapse"><thead><tr>';
             html += '<th class="border-b border-gray-200 p-2 text-left text-[10px] text-gray-400 sticky left-0 bg-white z-10">Hora</th>';
-
             days.forEach((d, idx) => {
-                const label = `${dayNames[idx]} ${String(d.getDate()).padStart(2, "0")}`;
-                html += `<th class="border-b border-gray-200 p-2 text-left text-[11px] text-gray-500">${label}</th>`;
+                html += `<th class="border-b border-gray-200 p-2 text-left text-[11px] text-gray-500">${dayNames[idx]} ${String(d.getDate()).padStart(2, "0")}</th>`;
             });
             html += '</tr></thead><tbody>';
-
             hours.forEach(h => {
                 html += '<tr>';
                 html += `<td class="border-t border-gray-100 align-top p-1 text-[10px] text-gray-400 sticky left-0 bg-white z-10">${h}</td>`;
-
                 days.forEach(d => {
-                    const fechaISO = formatISOFromDate(d);
-                    const key = `${fechaISO}|${h}`;
+                    const key = `${formatISOFromDate(d)}|${h}`;
                     const citasSlot = calendarIndex[key] || [];
-
                     if (!citasSlot.length) {
                         html += '<td class="border-t border-gray-100 align-top p-1"></td>';
                     } else {
                         const itemsHtml = citasSlot.map(c => {
-                            const baseClasses = "mb-1 px-2 py-1 rounded border text-[10px] sm:text-[11px] leading-tight";
-                            const colorClasses =
-                                (c.estatus === "CitaConfirmada")
-                                    ? " bg-emerald-50 border-emerald-400 text-emerald-800"
-                                    : " bg-yellow-50 border-yellow-400 text-yellow-800";
-                            const label = sanitize(`${c.linea || "Sin línea"} • ${c.tipoVisita || ""}`);
-                            return `<div class="${baseClasses}${colorClasses}">${label}</div>`;
+                            const colorClasses = c.estatus === "CitaConfirmada"
+                                ? " bg-emerald-50 border-emerald-400 text-emerald-800"
+                                : " bg-yellow-50 border-yellow-400 text-yellow-800";
+                            return `<div class="mb-1 px-2 py-1 rounded border text-[10px] sm:text-[11px] leading-tight${colorClasses}">${sanitize(`${c.linea || "Sin línea"} • ${c.tipoVisita || ""}`)}</div>`;
                         }).join("");
-                        html += `<td class="border-t border-gray-100 align-top p-1 align-middle">${itemsHtml}</td>`;
+                        html += `<td class="border-t border-gray-100 align-top p-1">${itemsHtml}</td>`;
                     }
                 });
-
                 html += '</tr>';
             });
-
             html += '</tbody></table></div>';
             body.innerHTML = html;
-
             updateCalendarNavButtons();
         }
 
@@ -1930,52 +1503,31 @@
         function openGenModal() {
             const modal = document.getElementById("gen-modal");
             document.getElementById("gn-general-error").classList.add("hidden");
-
-            [
-                "gn-usuarioProveedor-error",
-                "gn-lineaTransporte-error",
-                "gn-placas-error",
-                "gn-chofer-error",
-                "gn-destino-error",
-                "gn-tipoTransporte-error",
-                "gn-tipoVisita-error",
-                "gn-fecha-error",
-                "gn-hora-error",
-                "gn-cajaRecolecta-error",
-            ].forEach(id => document.getElementById(id).classList.add("hidden"));
-
-            [
-                "gn-usuarioProveedor", "gn-frontera", "gn-razon",
-                "gn-lineaTransporte", "gn-placas", "gn-chofer", "gn-destino",
-                "gn-factura", "gn-caja", "gn-sello", "gn-cajaDeja", "gn-cajaRecolecta", "gn-notas"
-            ].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-
+            ["gn-usuarioProveedor-error", "gn-lineaTransporte-error", "gn-placas-error", "gn-chofer-error",
+                "gn-destino-error", "gn-tipoTransporte-error", "gn-tipoVisita-error", "gn-fecha-error",
+                "gn-hora-error", "gn-cajaRecolecta-error"].forEach(id => document.getElementById(id).classList.add("hidden"));
+            ["gn-usuarioProveedor", "gn-frontera", "gn-razon", "gn-lineaTransporte", "gn-placas", "gn-chofer",
+                "gn-destino", "gn-factura", "gn-caja", "gn-sello", "gn-cajaDeja", "gn-cajaRecolecta", "gn-notas"]
+                .forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
             document.getElementById("gn-tipoTransporte").value = "";
             document.getElementById("gn-tipoVisita").value = "";
-
             const hoyISO = getTodayISO();
             const fechaEl = document.getElementById("gn-fecha");
             fechaEl.min = hoyISO;
             fechaEl.value = hoyISO;
-
             document.getElementById("gn-recolectaCaja").value = "No";
-
             const horaSel = document.getElementById("gn-hora");
             horaSel.innerHTML = "";
             allSlots.forEach(h => {
                 const opt = document.createElement("option");
-                opt.value = h;
-                opt.textContent = h;
+                opt.value = h; opt.textContent = h;
                 horaSel.appendChild(opt);
             });
             horaSel.value = allSlots[0] || "";
-
             document.getElementById("gn-horaExtra-wrap").classList.add("hidden");
             document.getElementById("gn-horaExtra").value = "";
-
             updateGenUIByRecolectaCaja();
             updateGenUIByTipoVisita();
-
             modal.classList.remove("hidden");
             modal.classList.add("flex");
         }
@@ -1993,8 +1545,7 @@
         }
 
         function isValidEmail(email) {
-            const v = String(email || "").trim();
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
         }
 
         function isDateFromToday(fechaISO) {
@@ -2003,10 +1554,7 @@
         }
 
         function computeHoraExtraIfNeeded(tipoVisita, hora) {
-            if (tipoVisita === "Carga y Descarga") {
-                return addHoursToTimeStr(hora, 2);
-            }
-            return null;
+            return tipoVisita === "Carga y Descarga" ? addHoursToTimeStr(hora, 2) : null;
         }
 
         async function generarCita() {
@@ -2016,39 +1564,26 @@
             const usuarioProveedor = (document.getElementById("gn-usuarioProveedor").value || "").trim();
             const frontera = (document.getElementById("gn-frontera").value || "").trim();
             const razon = (document.getElementById("gn-razon").value || "").trim();
-
             const lineaTransporte = (document.getElementById("gn-lineaTransporte").value || "").trim();
             const placas = (document.getElementById("gn-placas").value || "").trim().toUpperCase();
             const chofer = (document.getElementById("gn-chofer").value || "").trim();
             const destino = (document.getElementById("gn-destino").value || "").trim();
-
             const tipoTransporte = document.getElementById("gn-tipoTransporte").value || "";
             const tipoVisita = document.getElementById("gn-tipoVisita").value || "";
-
             const fecha = document.getElementById("gn-fecha").value || "";
             const hora = document.getElementById("gn-hora").value || "";
-
             const factura = (document.getElementById("gn-factura").value || "").trim();
             const caja = (document.getElementById("gn-caja").value || "").trim();
             const sello = (document.getElementById("gn-sello").value || "").trim();
-
             const recolectaCaja = document.getElementById("gn-recolectaCaja").value || "No";
             const cajaDeja = (document.getElementById("gn-cajaDeja").value || "").trim();
             const cajaRecolecta = (document.getElementById("gn-cajaRecolecta").value || "").trim();
-
             const notas = (document.getElementById("gn-notas").value || "").trim();
 
             let ok = true;
-            setErr("gn-usuarioProveedor-error", false);
-            setErr("gn-lineaTransporte-error", false);
-            setErr("gn-placas-error", false);
-            setErr("gn-chofer-error", false);
-            setErr("gn-destino-error", false);
-            setErr("gn-tipoTransporte-error", false);
-            setErr("gn-tipoVisita-error", false);
-            setErr("gn-fecha-error", false);
-            setErr("gn-hora-error", false);
-            setErr("gn-cajaRecolecta-error", false);
+            ["gn-usuarioProveedor-error", "gn-lineaTransporte-error", "gn-placas-error", "gn-chofer-error",
+                "gn-destino-error", "gn-tipoTransporte-error", "gn-tipoVisita-error", "gn-fecha-error",
+                "gn-hora-error", "gn-cajaRecolecta-error"].forEach(id => setErr(id, false));
 
             if (!usuarioProveedor || !isValidEmail(usuarioProveedor)) { setErr("gn-usuarioProveedor-error", true); ok = false; }
             if (!lineaTransporte) { setErr("gn-lineaTransporte-error", true); ok = false; }
@@ -2059,19 +1594,13 @@
             if (!tipoVisita) { setErr("gn-tipoVisita-error", true); ok = false; }
             if (!fecha || !isDateFromToday(fecha)) { setErr("gn-fecha-error", true); ok = false; }
             if (!hora) { setErr("gn-hora-error", true); ok = false; }
-
-            if (recolectaCaja === "Sí") {
-                if (!cajaRecolecta) { setErr("gn-cajaRecolecta-error", true); ok = false; }
-            }
-
+            if (recolectaCaja === "Sí" && !cajaRecolecta) { setErr("gn-cajaRecolecta-error", true); ok = false; }
             if (!ok) return;
 
             const dt = new Date(fecha + "T00:00:00");
             const esDomingo = dt.getDay() === 0;
-
             const horaExtra = computeHoraExtraIfNeeded(tipoVisita, hora);
             document.getElementById("gn-horaExtra").value = horaExtra || "";
-
             document.getElementById("gn-placas").value = placas;
 
             const btn = document.getElementById("gn-save-btn");
@@ -2082,70 +1611,20 @@
             try {
                 const newRef = doc(collection(db, "CitasProveedor"));
                 const citaId = newRef.id;
-
                 const data = {
-                    estatus: "CitaPendiente",
-                    fecha,
-                    hora,
-                    horaExtra: horaExtra || null,
-                    esDomingo,
-
-                    usuarioProveedor,
-
-                    frontera: frontera || "",
-                    razon: razon || "",
-
-                    lineaTransporte,
-                    linea: lineaTransporte,
-                    placas,
-                    chofer,
-                    destino,
-                    tipoTransporte,
-                    tipoVisita,
-
-                    factura: factura || "",
-                    caja: caja || "",
-                    sello: sello || "",
-
+                    estatus: "CitaPendiente", fecha, hora, horaExtra: horaExtra || null, esDomingo,
+                    usuarioProveedor, frontera: frontera || "", razon: razon || "",
+                    lineaTransporte, linea: lineaTransporte, placas, chofer, destino,
+                    tipoTransporte, tipoVisita, factura: factura || "", caja: caja || "", sello: sello || "",
                     recolectaCaja: recolectaCaja || "No",
                     cajaDeja: (recolectaCaja === "No" ? (cajaDeja || "") : ""),
                     cajaRecolecta: (recolectaCaja === "Sí" ? (cajaRecolecta || "") : ""),
-
                     notas: notas || "",
-
                     createdAt: new Date().toISOString(),
                     createdBy: (currentUser && (currentUser.nombre || currentUser.name)) ? (currentUser.nombre || currentUser.name) : "Administrador",
                     createdByEmail: (currentUser && (currentUser.email || currentUser.correo)) ? (currentUser.email || currentUser.correo) : ""
                 };
-
                 await setDoc(newRef, data);
-
-                const payloadMail = {
-                    providerEmail: usuarioProveedor,
-                    providerLinea: lineaTransporte,
-                    providerRazon: razon,
-                    providerFrontera: frontera,
-                    citaId,
-                    cita: {
-                        fecha,
-                        hora,
-                        horaExtra: horaExtra || "",
-                        tipoVisita,
-                        tipoTransporte,
-                        destino,
-                        chofer,
-                        lineaTransporte,
-                        placas,
-                        factura,
-                        caja,
-                        sello,
-                        recolectaCaja,
-                        cajaDeja: (recolectaCaja === "No" ? (cajaDeja || "") : ""),
-                        cajaRecolecta: (recolectaCaja === "Sí" ? (cajaRecolecta || "") : ""),
-                        notas,
-                        esDomingo
-                    }
-                };
 
                 try {
                     await fetch(APPS_SCRIPT_MAIL_URL, {
@@ -2154,47 +1633,28 @@
                         body: JSON.stringify({
                             authToken: APPS_SCRIPT_AUTH_TOKEN,
                             action: "sendAppointmentNotification",
-                            payload: payloadMail
+                            payload: {
+                                providerEmail: usuarioProveedor, providerLinea: lineaTransporte,
+                                providerRazon: razon, providerFrontera: frontera, citaId,
+                                cita: { fecha, hora, horaExtra: horaExtra || "", tipoVisita, tipoTransporte, destino, chofer, lineaTransporte, placas, factura, caja, sello, recolectaCaja, cajaDeja: (recolectaCaja === "No" ? cajaDeja : ""), cajaRecolecta: (recolectaCaja === "Sí" ? cajaRecolecta : ""), notas, esDomingo }
+                            }
                         })
                     });
-                } catch (e) {
-                    console.warn("No se pudo enviar correo de pre-registro:", e);
-                }
+                } catch (e) { console.warn("No se pudo enviar correo de pre-registro:", e); }
 
                 allCitas.unshift({
-                    id: citaId,
-                    raw: data,
-                    linea: data.lineaTransporte || data.linea || "",
-                    placas: data.placas || "",
-                    tipoTransporte: data.tipoTransporte || "",
-                    tipoVisita: data.tipoVisita || "",
-                    fecha: data.fecha || "",
-                    hora: data.hora || "",
-                    horaExtra: data.horaExtra || null,
-                    chofer: data.chofer || "",
-                    destino: data.destino || "",
-                    factura: data.factura || "",
-                    notas: data.notas || "",
-                    esDomingo: !!data.esDomingo,
-                    frontera: data.frontera ?? "",
-                    recolectaCaja: data.recolectaCaja || "",
-                    usuarioProveedor: data.usuarioProveedor || "",
-                    estatus: data.estatus || "CitaPendiente"
+                    id: citaId, raw: data, linea: data.lineaTransporte || data.linea || "",
+                    placas: data.placas || "", tipoTransporte: data.tipoTransporte || "",
+                    tipoVisita: data.tipoVisita || "", fecha: data.fecha || "", hora: data.hora || "",
+                    horaExtra: data.horaExtra || null, chofer: data.chofer || "", destino: data.destino || "",
+                    factura: data.factura || "", notas: data.notas || "", esDomingo: !!data.esDomingo,
+                    frontera: data.frontera ?? "", recolectaCaja: data.recolectaCaja || "",
+                    usuarioProveedor: data.usuarioProveedor || "", estatus: data.estatus || "CitaPendiente"
                 });
                 applyFilters();
 
                 if (calendarDataLoaded) {
-                    calendarCitas.push({
-                        id: citaId,
-                        estatus: "CitaPendiente",
-                        fecha,
-                        hora: hora || "",
-                        horaExtra: horaExtra || null,
-                        linea: lineaTransporte || "",
-                        placas: placas || "",
-                        tipoTransporte: tipoTransporte || "",
-                        tipoVisita: tipoVisita || ""
-                    });
+                    calendarCitas.push({ id: citaId, estatus: "CitaPendiente", fecha, hora: hora || "", horaExtra: horaExtra || null, linea: lineaTransporte || "", placas: placas || "", tipoTransporte: tipoTransporte || "", tipoVisita: tipoVisita || "" });
                     rebuildCalendarIndexFromArray();
                     if (isCalendarOpen()) renderCalendarWeek();
                 }
@@ -2216,7 +1676,6 @@
             const hora = document.getElementById("gn-hora").value || "";
             const wrap = document.getElementById("gn-horaExtra-wrap");
             const input = document.getElementById("gn-horaExtra");
-
             if (tipoVisita === "Carga y Descarga") {
                 wrap.classList.remove("hidden");
                 input.value = computeHoraExtraIfNeeded(tipoVisita, hora) || "";
@@ -2228,20 +1687,16 @@
 
         function updateGenUIByRecolectaCaja() {
             const v = document.getElementById("gn-recolectaCaja").value || "No";
-
             const wrapRecolecta = document.getElementById("gn-cajaRecolecta-wrap");
             const wrapDeja = document.getElementById("gn-cajaDeja-wrap");
-
             if (v === "Sí") {
                 wrapRecolecta.classList.remove("hidden");
                 wrapDeja.classList.remove("hidden");
             } else {
                 wrapRecolecta.classList.add("hidden");
                 wrapDeja.classList.add("hidden");
-
                 const reco = document.getElementById("gn-cajaRecolecta");
                 const deja = document.getElementById("gn-cajaDeja");
-
                 if (reco) reco.value = "";
                 if (deja) deja.value = "";
             }
@@ -2249,7 +1704,6 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             if (!enforceAdminAccess()) return;
-
             setupSidebarNav();
 
             const sidebar = document.getElementById("sidebar");
@@ -2259,17 +1713,14 @@
             if (hamburgerBtn && sidebar && mainContent) {
                 hamburgerBtn.addEventListener("click", () => {
                     const isExpanded = sidebar.classList.contains("sidebar-expanded");
-
                     sidebar.classList.toggle("sidebar-expanded", !isExpanded);
                     sidebar.classList.toggle("sidebar-collapsed", isExpanded);
-
                     mainContent.classList.toggle("main-content-expanded", !isExpanded);
                     mainContent.classList.toggle("main-content-collapsed", isExpanded);
                 });
             }
 
             document.getElementById("search-input").addEventListener("input", applyFilters);
-
             document.getElementById("logout-btn").addEventListener("click", () => {
                 sessionStorage.clear();
                 localStorage.removeItem("currentUser");
@@ -2278,100 +1729,64 @@
 
             document.getElementById("cm-cancel-btn").addEventListener("click", closeCitaModal);
             document.getElementById("cm-accept-btn").addEventListener("click", acceptCita);
-
-            document.getElementById("cm-delete-btn").addEventListener("click", () => {
-                openCancelModal();
-            });
-
+            document.getElementById("cm-delete-btn").addEventListener("click", () => openCancelModal());
             document.getElementById("cn-cancel-btn").addEventListener("click", closeCancelModal);
             document.getElementById("cn-confirm-btn").addEventListener("click", confirmarCancelacion);
 
             document.getElementById("cm-hora").addEventListener("change", () => {
                 if (!currentCita) return;
                 const nuevaHora = document.getElementById("cm-hora").value;
-                let nuevaHoraExtra = "";
-
-                if (currentCita.horaExtra) {
-                    nuevaHoraExtra = addHoursToTimeStr(nuevaHora, 2) || "";
-                }
-
-                document.getElementById("cm-hora-extra").value = nuevaHoraExtra;
+                document.getElementById("cm-hora-extra").value = currentCita.horaExtra ? (addHoursToTimeStr(nuevaHora, 2) || "") : "";
             });
 
             document.getElementById("cm-fecha").addEventListener("change", () => {
                 document.getElementById("cm-fecha-error").classList.add("hidden");
                 document.getElementById("cm-hora-error").classList.add("hidden");
-                if (currentCita) {
-                    fillHoraOptionsForCurrent();
-                }
+                if (currentCita) fillHoraOptionsForCurrent();
             });
 
             document.getElementById("citas-tbody").addEventListener("click", (e) => {
                 const btn = e.target.closest(".js-open-cita");
                 if (!btn) return;
                 const id = btn.getAttribute("data-id");
-                if (id) {
-                    openCitaModal(id);
-                }
+                if (id) openCitaModal(id);
             });
 
             const genBtn = document.getElementById("generate-cita");
-            if (genBtn) {
-                genBtn.addEventListener("click", () => {
-                    openGenModal();
-                });
-            }
+            if (genBtn) genBtn.addEventListener("click", () => openGenModal());
 
             document.getElementById("gn-cancel-btn").addEventListener("click", closeGenModal);
             document.getElementById("gn-save-btn").addEventListener("click", generarCita);
-
             document.getElementById("gn-tipoVisita").addEventListener("change", updateGenUIByTipoVisita);
             document.getElementById("gn-hora").addEventListener("change", updateGenUIByTipoVisita);
             document.getElementById("gn-recolectaCaja").addEventListener("change", updateGenUIByRecolectaCaja);
 
             const placasEl = document.getElementById("gn-placas");
-            if (placasEl) {
-                placasEl.addEventListener("input", () => {
-                    placasEl.value = (placasEl.value || "").toUpperCase();
-                });
-            }
+            if (placasEl) placasEl.addEventListener("input", () => { placasEl.value = (placasEl.value || "").toUpperCase(); });
 
             const calendarBtn = document.getElementById("calendar-btn");
             if (calendarBtn) {
                 calendarBtn.addEventListener("click", async () => {
                     openCalendarModalUI();
                     const body = document.getElementById("calendar-body");
-                    if (body) {
-                        body.innerHTML = '<p class="text-xs text-gray-500">Cargando citas...</p>';
-                    }
+                    if (body) body.innerHTML = '<p class="text-xs text-gray-500">Cargando citas...</p>';
                     await loadCalendarDataIfNeeded();
                     renderCalendarWeek();
                 });
             }
 
-            const calendarCloseBtn = document.getElementById("cal-close-btn");
-            if (calendarCloseBtn) {
-                calendarCloseBtn.addEventListener("click", () => {
-                    closeCalendarModalUI();
-                });
-            }
+            document.getElementById("cal-close-btn")?.addEventListener("click", closeCalendarModalUI);
 
-            const calendarPrevWeekBtn = document.getElementById("cal-prev-week");
-            if (calendarPrevWeekBtn) {
-                calendarPrevWeekBtn.addEventListener("click", () => {
-                    if (!canGoPrevWeek()) return;
-                    calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, -7);
-                    renderCalendarWeek();
-                });
-            }
+            document.getElementById("cal-prev-week")?.addEventListener("click", () => {
+                if (!canGoPrevWeek()) return;
+                calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, -7);
+                renderCalendarWeek();
+            });
 
-            const calendarNextWeekBtn = document.getElementById("cal-next-week");
-            if (calendarNextWeekBtn) {
-                calendarNextWeekBtn.addEventListener("click", () => {
-                    calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, 7);
-                    renderCalendarWeek();
-                });
-            }
+            document.getElementById("cal-next-week")?.addEventListener("click", () => {
+                calendarCurrentWeekStart = addDaysToDate(calendarCurrentWeekStart, 7);
+                renderCalendarWeek();
+            });
 
             loadCitasPendientes();
         });
