@@ -914,26 +914,39 @@
         const esFullOrig = (citaOrig?.tipoTransporte || "") === "Full";
         if (esFullOrig && !placas2) return setError("No. placas 2 es obligatorio para transporte Full.");
 
-        setLoadingButton(btn, true);
-        try {
-          const docRef = doc(db, "CitasProveedor", updatingCitaConfirmadaId);
-          const payload = {
-            lineaTransporte,
-            chofer,
-            placas,
-            updatedAt: serverTimestamp()
-          };
-          if (esFullOrig) payload.placas2 = placas2;
-
-          await updateDoc(docRef, payload);
-          alert("Datos de la cita actualizados correctamente.");
-          window.location.reload();
-        } catch (err) {
-          console.error("Error actualizando cita confirmada:", err);
-          setError("Ocurrió un error al actualizar. Intenta de nuevo.");
-          setLoadingButton(btn, false);
+      setLoadingButton(btn, true);
+      try {
+        const payload = {
+          lineaTransporte,
+          chofer,
+          placas,
+          updatedAt: serverTimestamp()
+        };
+        if (esFullOrig) payload.placas2 = placas2;
+      
+        // 1. Actualizar CitasProveedor
+        const docRef = doc(db, "CitasProveedor", updatingCitaConfirmadaId);
+        await updateDoc(docRef, payload);
+      
+        // 2. Buscar y actualizar el espejo en CitasConfirmadas por citaProveedorId
+        const qConf = query(
+          collection(db, "CitasConfirmadas"),
+          where("citaProveedorId", "==", updatingCitaConfirmadaId)
+        );
+        const snapConf = await getDocs(qConf);
+        if (!snapConf.empty) {
+          const confDocRef = doc(db, "CitasConfirmadas", snapConf.docs[0].id);
+          await updateDoc(confDocRef, payload);
         }
-        return;
+      
+        alert("Datos de la cita actualizados correctamente.");
+        window.location.reload();
+      } catch (err) {
+        console.error("Error actualizando cita confirmada:", err);
+        setError("Ocurrió un error al actualizar. Intenta de nuevo.");
+        setLoadingButton(btn, false);
+      }
+      return;
       }
 
       if (!tipoTransporte) return setError("Selecciona el tipo de transporte.");
