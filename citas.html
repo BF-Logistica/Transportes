@@ -1014,7 +1014,7 @@
             document.getElementById("cm-fecha-error").classList.add("hidden");
             document.getElementById("cm-hora-error").classList.add("hidden");
 
-            document.getElementById("cm-linea").value = currentCita.linea || "";
+            document.getElementById("cm-linea").value = currentCita.raw?.lineaTransporte || currentCita.raw?.linea || "";
             document.getElementById("cm-placas").value = currentCita.placas || "";
             document.getElementById("cm-tipo-transporte").value = currentCita.tipoTransporte || "";
             document.getElementById("cm-tipo-visita").value = currentCita.tipoVisita || "";
@@ -1180,8 +1180,7 @@
                     estatus: "CitaConfirmada",
                     placas: nuevaPlaca,
                     chofer: nuevoChofer,
-                    lineaTransporte: nuevaLinea,
-                    linea: nuevaLinea
+                    lineaTransporte: nuevaLinea
                 };
                 await updateDoc(docRef, updatePayload);
 
