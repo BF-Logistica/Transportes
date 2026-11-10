@@ -906,25 +906,76 @@
         snap.forEach(d => { const data = d.data(); citas.push({ id: d.id, ...data }); window.citasEnMemoria[d.id] = data; });
         citas.sort((a, b) => ((a.fecha || "") + " " + (a.hora || "")).localeCompare((b.fecha || "") + " " + (b.hora || "")));
         if (!citas.length) { emptyRow.classList.remove("hidden"); emptyRow.textContent = "Aun no tienes citas registradas."; countEl.textContent = "0 citas"; return; }
+
+        // ── Avance real de la cita en planta ──────────────────────────────
+        // CitasConfirmadas: id de CitasProveedor -> { folio, estatus }
+        // ControlTransportes: folio -> estado (En Proceso / Finalizado / Cancelado)
+        const confMap = {};
+        const ctrlMap = {};
+        try {
+          const sConf = await getDocs(query(collection(db, "CitasConfirmadas"), where("usuarioProveedor", "==", currentUser.usuario)));
+          sConf.forEach(d => {
+            const x = d.data() || {};
+            if (x.citaProveedorId) confMap[x.citaProveedorId] = { folio: x.folio || "", estatus: x.estatus || "" };
+          });
+          const sCtrl = await getDocs(query(collection(db, "ControlTransportes"), where("cita.usuarioProveedor", "==", currentUser.usuario)));
+          sCtrl.forEach(d => { ctrlMap[d.id] = (d.data() || {}).estado || ""; });
+        } catch (e) { console.warn("No se pudo leer el avance en planta:", e); }
+
+        const estatusReal = (c) => {
+          if (c.estatus !== "CitaConfirmada") return c.estatus || "CitaPendiente";
+          const conf = confMap[c.id];
+          if (conf && conf.estatus === "CitaFinalizada") return "CitaFinalizada";
+          if (conf && conf.estatus === "CitaCancelada") return "CitaCancelada";
+          const folio = c.folio || (conf && conf.folio) || "";
+          const estado = folio ? ctrlMap[folio] : "";
+          if (estado === "Finalizado") return "CitaFinalizada";
+          if (estado === "Cancelado") return "CitaCancelada";
+          if (estado) return "En Proceso";
+          return "CitaConfirmada";
+        };
+
+        // ── Orden: vigentes arriba, historial al fondo ────────────────────
+        const hoyISO = todayISO();
+        const ESTATUS_CERRADOS = ["CitaFinalizada", "CitaCancelada", "CitaRechazada"];
+        citas.forEach(c => {
+          c._est = estatusReal(c);
+          // Caducada: fecha anterior a hoy y la cita nunca se cerro ni entro a planta
+          c._caducada = !ESTATUS_CERRADOS.includes(c._est) && c._est !== "En Proceso" && (c.fecha || "") < hoyISO;
+        });
+        const esHistorial = (c) => ESTATUS_CERRADOS.includes(c._est) || (c._est !== "En Proceso" && (c.fecha || "") < hoyISO);
+        const claveFH = (c) => (c.fecha || "") + " " + (c.hora || "");
+        citas.sort((a, b) => {
+          const ha = esHistorial(a), hb = esHistorial(b);
+          if (ha !== hb) return ha ? 1 : -1;                              // vigentes primero
+          return ha ? claveFH(b).localeCompare(claveFH(a))                // historial: la mas reciente primero
+                    : claveFH(a).localeCompare(claveFH(b));               // vigentes: la mas proxima primero
+        });
+
         tbody.innerHTML = citas.map(c => {
-          const estatus = c.estatus || "CitaPendiente";
+          const estatus = c._est;
           let badgeClasses = "bg-gray-100 text-gray-800";
           let botonAccion = "";
           if (estatus === "CitaPendiente") { badgeClasses = "bg-yellow-100 text-yellow-800"; }
           else if (estatus === "CitaConfirmada") {
             badgeClasses = "bg-green-100 text-green-800";
             botonAccion = "<button type='button' onclick=\"window.cargarCitaConfirmadaFormulario('" + c.id + "')\" class='ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white text-[10px] font-semibold transition-colors'>Actualizar Datos</button>";
+          } else if (estatus === "En Proceso") {
+            badgeClasses = "bg-indigo-100 text-indigo-800";
+          } else if (estatus === "CitaFinalizada") {
+            badgeClasses = "bg-gray-200 text-gray-700";
           } else if (estatus === "CitaCancelada" || estatus === "CitaRechazada") {
             badgeClasses = "bg-red-100 text-red-800";
           } else if (estatus === "FijaIncompleta") {
             badgeClasses = "bg-blue-100 text-blue-800";
             botonAccion = "<button type='button' onclick=\"window.cargarCitaFijaFormulario('" + c.id + "')\" class='ml-2 inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--bmm-blue)] hover:bg-[var(--bmm-blue-light)] text-white text-[10px] font-semibold transition-colors'>Completar</button>";
           }
+          if (c._caducada) { badgeClasses = "bg-orange-100 text-orange-800"; botonAccion = ""; }
           const horaMostrar = c.horaExtra ? c.hora + " - " + c.horaExtra : c.hora;
-          return "<tr class='hover:bg-gray-50 transition-colors'>" +
+          return "<tr class='hover:bg-gray-50 transition-colors" + (c._caducada ? " opacity-60" : "") + "'>" +
             "<td class='px-6 py-3 text-sm text-gray-900'>" + (sanitize(c.fecha) || "-") + "</td>" +
             "<td class='px-6 py-3 text-sm text-gray-900'>" + (sanitize(horaMostrar) || "-") + "</td>" +
-            "<td class='px-6 py-3 text-sm'><span class='px-3 py-1 text-xs font-semibold rounded-full " + badgeClasses + "'>" + sanitize(estatus === "FijaIncompleta" ? "Fija (Falta Info)" : estatus) + "</span>" + botonAccion + "</td>" +
+            "<td class='px-6 py-3 text-sm'><span class='px-3 py-1 text-xs font-semibold rounded-full " + badgeClasses + "'" + (c._caducada ? " title='La fecha de esta cita ya paso'" : "") + ">" + sanitize(c._caducada ? "Caducada" : (estatus === "FijaIncompleta" ? "Fija (Falta Info)" : estatus)) + "</span>" + botonAccion + "</td>" +
             "<td class='px-6 py-3 text-sm text-gray-900'>" + sanitize(c.tipoVisita || "") + "</td>" +
             "</tr>";
         }).join("");
